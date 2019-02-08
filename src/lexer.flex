@@ -77,7 +77,7 @@ extern "C" int fileno(FILE *stream);
 "double"        { return T_DOUBLE; }
 "else"          { return T_ELSE; }
 "enum"          { return T_ENUM; }
-"float"         { return T_FLAT; }
+"float"         { return T_FLOAT; }
 "for"           { return T_FOR; }
 "goto"          { return T_GOTO; }
 "if"            { return T_IF; }
