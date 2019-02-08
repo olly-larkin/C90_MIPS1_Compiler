@@ -4,7 +4,7 @@
 // Avoid error "error: `fileno' was not declared in this scope"
 extern "C" int fileno(FILE *stream);
 
-#include "Parse.hpp"
+#include "lexer.hpp"
 %}
 
 %%
