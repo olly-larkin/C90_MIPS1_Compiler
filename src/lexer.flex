@@ -97,7 +97,7 @@ extern "C" int fileno(FILE *stream);
 "void"          { return T_VOID; }
 "while"         { return T_WHILE; }
  
--?[0-9]+("\."[0-9]*)? { yylval.numberValue = strtod(yytext, 0); return T_NUMBER; }
+[0-9]+("\."[0-9]*)? { yylval.numberValue = strtod(yytext, 0); return T_NUMBER; }
 [a-zA-Z_]+[0-9a-zA-Z_]* { yylval.wordValue = new std::string(yytext); return T_WORD; }
 
 .               { fprintf(stderr, "Invalid character: %s\n", yytext); }
