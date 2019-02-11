@@ -21,4 +21,4 @@ clean :
 	@rm -rf src/*.output
 	@rm -rf src/*.tab.hpp
 	@rm -rf test/*.got.txt
-	@echo "All clean."
+	@echo "all clean."
