@@ -9,7 +9,7 @@ src/compiler_bison.tab.cpp src/compiler_bison.tab.hpp : src/compiler_bison.y
 src/lexer.yy.cpp : src/lexer.flex src/compiler_bison.tab.hpp
 	flex -o src/lexer.yy.cpp  src/lexer.flex
 
-bin/print_tree : src/print_tree.o src/compiler_bison.tab.o src/lexer.yy.o src/compiler_bison.tab.o
+bin/print_tree : src/print_tree.o src/print_ctype.o src/compiler_bison.tab.o src/lexer.yy.o src/compiler_bison.tab.o
 	mkdir -p bin
 	g++ $(CPPFLAGS) -o bin/print_tree $^
 
