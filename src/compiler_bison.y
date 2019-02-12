@@ -17,9 +17,9 @@
     TopLevel* toplevel;
     double number;
     std::string* string;
-    CType ctype;
 }
 
+%token T_STRING
 %token T_PLUSPLUS T_MINUSMINUS
 %token T_EQUAL_TO T_NOT_EQUAL_TO T_LESS_THAN_EQUAL T_MORE_THAN_EQUAL
 %token T_AND T_OR
@@ -36,8 +36,7 @@
 %type <ast> TOP
 %type <toplevel> DECLARATION
 %type <number> T_NUMBER
-%type <string> T_WORD
-%type <ctype> CTYPE
+%type <string> T_WORD T_STRING
 
 %start ROOT
 
@@ -48,19 +47,7 @@ ROOT : TOP { g_root = $1; }
 TOP  : DECLARATION  { $$ = new Global($1); }
      | TOP DECLARATION  { $$ = $1; $$->push_back($2); }
 
-DECLARATION : CTYPE T_WORD ';' { $$ = new Declaration($1, *$2); }
-
-CTYPE : T_BOOL      { $$ = BOOL; }
-      | T_CHAR      { $$ = CHAR; }
-      | T_DOUBLE    { $$ = DOUBLE; }
-      | T_FLOAT     { $$ = FLOAT; }
-      | T_INT       { $$ = INT; }
-      | T_LONG      { $$ = LONG; }
-      | T_REGISTER  { $$ = REGISTER; }
-      | T_SHORT     { $$ = SHORT; }
-      | T_SIGNED    { $$ = SIGNED; }
-      | T_UNSIGNED  { $$ = UNSIGNED; }
-      | T_VOID      { $$ = VOID; }
+DECLARATION : T_WORD T_WORD ';' { $$ = new Declaration(*$1, *$2); }
 
 %%
 

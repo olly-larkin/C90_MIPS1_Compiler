@@ -13,6 +13,13 @@ extern "C" int fileno(FILE *stream);
 [ \t\n\r]       {}
 "#".*           {}
 
+\"([^\"]|"\\\"")*\" { 
+                        std::string temp = std::string(yytext);
+                        temp = temp.substr(1, temp.size()-2);
+                        yylval.string = new std::string(temp);
+                        return T_STRING;
+                    }
+
 "*"             { return '*'; }
 "+"             { return '+'; }
 "/"             { return '/'; }
@@ -67,34 +74,34 @@ extern "C" int fileno(FILE *stream);
 "\}"            { return '}'; }
 
 "break"         { return T_BREAK; }
-"bool"          { return T_BOOL; }
+"bool"          { yylval.string = new std::string("bool"); return T_WORD; }
 "case"          { return T_CASE; }
-"char"          { return T_CHAR; }
+"char"          { yylval.string = new std::string("char"); return T_WORD; }
 "const"         { return T_CONST; }
 "continue"      { return T_CONTINUE; }
 "default"       { return T_DEFAULT; }
 "do"            { return T_DO; }
-"double"        { return T_DOUBLE; }
+"double"        { yylval.string = new std::string("double"); return T_WORD; }
 "else"          { return T_ELSE; }
 "enum"          { return T_ENUM; }
-"float"         { return T_FLOAT; }
+"float"         { yylval.string = new std::string("float"); return T_WORD; }
 "for"           { return T_FOR; }
 "goto"          { return T_GOTO; }
 "if"            { return T_IF; }
-"int"           { return T_INT; }
-"long"          { return T_LONG; }
-"register"      { return T_REGISTER; }
+"int"           { yylval.string = new std::string("int"); return T_WORD; }
+"long"          { yylval.string = new std::string("long"); return T_WORD; }
+"register"      { yylval.string = new std::string("register"); return T_WORD; }
 "return"        { return T_RETURN; }
-"short"         { return T_SHORT; }
-"signed"        { return T_SIGNED; }
+"short"         { yylval.string = new std::string("short"); return T_WORD; }
+"signed"        { yylval.string = new std::string("signed"); return T_WORD; }
 "sizeof"        { return T_SIZEOF; }
 "static"        { return T_STATIC; }
 "struct"        { return T_STRUCT; }
 "switch"        { return T_SWITCH; }
 "typedef"       { return T_TYPEDEF; }
 "union"         { return T_UNION; }
-"unsigned"      { return T_UNSIGNED; }
-"void"          { return T_VOID; }
+"unsigned"      { yylval.string = new std::string("unsigned"); return T_WORD; }
+"void"          { yylval.string = new std::string("void"); return T_WORD; }
 "while"         { return T_WHILE; }
  
 [0-9]+(\.[0-9]*)? { yylval.number = strtod(yytext, 0); return T_NUMBER; }

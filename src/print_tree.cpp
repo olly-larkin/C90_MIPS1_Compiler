@@ -1,20 +1,15 @@
 #include "ast.hpp"
 #include <vector>
 #include <iostream>
+#include <fstream>
 
-int main()
+int main(int argc, char* argv[])
 {
     AST* ast = parseAST();
 
-    std::vector<AST*> astVec;
-    astVec.push_back(ast);
-
     std::ostream& os = std::cout;
-
-    for(int i = 0; i < (int)astVec.size(); ++i) {
-        os << astVec[i]->name() << std::endl;
-    }
-    astVec.back()->print(os,1);
+    os << ast->name() << std::endl;
+    ast->print(os,1);
 
     return 0;
 }
