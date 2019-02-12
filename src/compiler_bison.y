@@ -3,7 +3,7 @@
 
     #include <cassert>
 
-    extern const AST* g_root; // A way of getting the AST out
+    extern AST* g_root; // A way of getting the AST out
 
     //! This is to fix problems when generating C++
     // We are declaring the functions provided by Flex, so
@@ -64,9 +64,9 @@ CTYPE : T_BOOL      { $$ = BOOL; }
 
 %%
 
-const AST* g_root; // Definition of variable (to match declaration earlier)
+AST* g_root; // Definition of variable (to match declaration earlier)
 
-const AST* parseAST() {
+AST* parseAST() {
     g_root = 0;
     yyparse();
     return g_root;

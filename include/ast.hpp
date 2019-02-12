@@ -31,19 +31,22 @@ class Declaration;
 class AST {
 public:
     virtual ~AST() {}
-    virtual void print(std::ostream& dst) const = 0;
+    virtual void print(std::ostream& dst, int level) const = 0;
     virtual void push_back(TopLevel* branch) {}
-    const std::string name;
+    virtual std::string name() = 0;
 };
 
 class TopLevel : public AST {};
 
 class Global : public AST {
 public:
-    const std::string name = "Global";
-    virtual void print(std::ostream& dst) const {
+    std::string name() {return "Global";}
+    virtual void print(std::ostream& dst, int level) const {
         for(int i = 0; i < (int)branches.size(); ++i) {
-            dst << "\t" << branches[i]->name << std::endl;
+            for (int j = 0; j < level; ++j)
+                dst << "\t";
+            dst << branches[i]->name() << std::endl;
+            branches[i]->print(dst, level+1);
         }
     }
     Global(TopLevel* first) {
@@ -62,26 +65,30 @@ protected:
 
 class FunctionDeclaration : public TopLevel {
 public:
-    const std::string name = "FunctionDeclaration";
-    virtual void print(std::ostream& dst) const {}
+    std::string name() {return "FunctionDeclaration";}
+    virtual void print(std::ostream& dst, int level) const {}
 protected:
     
 };
 
 class FunctionDefinition : public TopLevel {
 public:
-    const std::string name = "FunctionDefinition";
-    virtual void print(std::ostream& dst) const {}
+    std::string name() {return "FunctionDefinition";}
+    virtual void print(std::ostream& dst, int level) const {}
 protected:
     
 };
 
 class Declaration : public TopLevel {
 public:
-    const std::string name = "Declaration";
-    virtual void print(std::ostream& dst) const {
-        dst << "\t" << print_CType(type) << std::endl
-            << variable << std::endl;
+    std::string name() {return "Declaration";}
+    virtual void print(std::ostream& dst, int level) const {
+        for (int i = 0; i < level; ++i)
+            dst << "\t";
+        dst << print_CType(type) << std::endl;
+        for (int i = 0; i < level; ++i)
+            dst << "\t";
+        dst << variable << std::endl;
     }
     Declaration(CType _type, const std::string& _variable): type(_type), variable(_variable) {}
 protected:
@@ -99,16 +106,6 @@ protected:
 //----------------------- EXPRESSIONS --------------------------
 //**************************************************************
 
-class Number : public AST {
-public:
-    Number(double num): val(num) {}
-    void print(std::ostream& dst) const {
-        dst << val;
-    }
-private:
-    double val;
-};
-
-extern const AST* parseAST();
+extern AST* parseAST();
 
 #endif
