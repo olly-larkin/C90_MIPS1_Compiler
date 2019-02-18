@@ -114,7 +114,7 @@ public:
             dst << "\t";
         dst << variable << std::endl;
     }
-    Declaration(std::string _type, const std::string& _variable): type(_type), variable(_variable) {}
+    Declaration(const std::string& _type, const std::string& _variable): type(_type), variable(_variable) {}
 protected:
     std::string type;
     std::string variable;

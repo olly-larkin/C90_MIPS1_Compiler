@@ -7,6 +7,11 @@ extern "C" int fileno(FILE *stream);
 #include "compiler_bison.tab.hpp"
 %}
 
+D			[0-9]
+L			[a-zA-Z_]
+H			[a-fA-F0-9]
+E			[Ee][+-]?{D}+
+
 %%
 
 ("/*"[^"*/"]*"*/")|("//".*) {}
@@ -104,8 +109,15 @@ extern "C" int fileno(FILE *stream);
 "void"          { yylval.string = new std::string("void"); return T_WORD; }
 "while"         { return T_WHILE; }
  
-[0-9]+(\.[0-9]*)? { yylval.number = strtod(yytext, 0); return T_NUMBER; }
 [a-zA-Z_][0-9a-zA-Z_]* { yylval.string = new std::string(yytext); return T_WORD; }
+
+0[xX]{H}+   	{ yylval.number = std::stoi(yytext, 0, 16); return T_NUMBER; }
+0{D}+   		{ yylval.number = std::stoi(yytext, 0, 8); return T_NUMBER; }
+{D}+    		{ yylval.number = std::stoi(yytext, 0, 10); return T_NUMBER; }
+
+{D}+{E} 		{ yylval.number = std::stod(yytext, 0); return T_NUMBER; }
+{D}*"."{D}+({E})?	{ yylval.number = std::stod(yytext, 0); return T_NUMBER; }
+{D}+"."{D}*({E})?	{ yylval.number = std::stod(yytext, 0); return T_NUMBER; }
 
 .               { fprintf(stderr, "Invalid character: %s\n", yytext); }
 
