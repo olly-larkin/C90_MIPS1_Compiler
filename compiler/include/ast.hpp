@@ -5,13 +5,6 @@
 #include <memory>
 #include <vector>
 
-class AST;
-class Global;
-class TopLevel;
-class FunctionDeclaration;
-class FunctionDefinition;
-class Declaration;
-
 //**************************************************************
 //-------------------------- CLASSES ---------------------------
 //**************************************************************
