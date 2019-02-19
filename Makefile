@@ -1,24 +1,31 @@
 CPPFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter -Wno-unneeded-internal-declaration -Wno-unused-function
 CPPFLAGS += -I include
 
+CMPSRC:= compiler_src
+TRNSRC:= translator_src
+
 all : bin/print_tree
 
-src/compiler_bison.tab.cpp src/compiler_bison.tab.hpp : src/compiler_bison.y
-	bison -v -d src/compiler_bison.y -o src/compiler_bison.tab.cpp
+$(CMPSRC)/compiler_bison.tab.cpp $(CMPSRC)/compiler_bison.tab.hpp : $(CMPSRC)/compiler_bison.y
+	bison -v -d $(CMPSRC)/compiler_bison.y -o $(CMPSRC)/compiler_bison.tab.cpp
 
-src/lexer.yy.cpp : src/lexer.flex src/compiler_bison.tab.hpp
-	flex -o src/lexer.yy.cpp  src/lexer.flex
+$(CMPSRC)/lexer.yy.cpp : $(CMPSRC)/lexer.flex $(CMPSRC)/compiler_bison.tab.hpp
+	flex -o $(CMPSRC)/lexer.yy.cpp  $(CMPSRC)/lexer.flex
 
-bin/print_tree : src/print_tree.o src/compiler_bison.tab.o src/lexer.yy.o src/compiler_bison.tab.o
+bin/print_tree : $(CMPSRC)/print_tree.o $(CMPSRC)/compiler_bison.tab.o $(CMPSRC)/lexer.yy.o $(CMPSRC)/compiler_bison.tab.o
 	mkdir -p bin
 	g++ $(CPPFLAGS) -o bin/print_tree $^
 
 clean :
-	@rm -rf src/*.o
 	@rm -rf bin
-	@rm -rf src/*.tab.cpp
-	@rm -rf src/*.yy.cpp
-	@rm -rf src/*.output
-	@rm -rf src/*.tab.hpp
-	@rm -rf test/*.got.txt
-	@echo "all clean."
+	@rm -rf $(CMPSRC)/*.o
+	@rm -rf $(CMPSRC)/*.tab.cpp
+	@rm -rf $(CMPSRC)/*.yy.cpp
+	@rm -rf $(CMPSRC)/*.output
+	@rm -rf $(CMPSRC)/*.tab.hpp
+	@rm -rf $(TRNSRC)/*.o
+	@rm -rf $(TRNSRC)/*.tab.cpp
+	@rm -rf $(TRNSRC)/*.yy.cpp
+	@rm -rf $(TRNSRC)/*.output
+	@rm -rf $(TRNSRC)/*.tab.hpp
+	@echo "\nall clean.\n"
