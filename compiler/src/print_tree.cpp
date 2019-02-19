@@ -1,4 +1,4 @@
-#include "compiler/ast.hpp"
+#include "ast.hpp"
 #include <vector>
 #include <iostream>
 #include <fstream>

@@ -1,5 +1,5 @@
 %code requires{
-    #include "compiler/ast.hpp"
+    #include "ast.hpp"
 
     #include <cassert>
 
