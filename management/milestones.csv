@@ -1,0 +1,5 @@
+MilestoneID, Dependencies, EstimatedEffort, Lead, Completed, Description
+1: Functional Tokens, -, 3, ?, oll16, , Lexing of all basic C constructs
+2: Functional Parsing, 1, 3, oll16, , Complete implementation of parse nodes for relevant python constructs
+3: PyTranslate, 1+2, 4, dl5215, complete python code generation
+4: Advanced Tokens, 
