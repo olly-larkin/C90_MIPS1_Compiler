@@ -1,9 +1,13 @@
-MilestoneID, Dependencies, EstimatedEffort, Lead, Completed, Description
-1: Functional Tokens, -, 3, oll16, ,Lexing of all basic C constructs
-2: Functional Parsing, 1, 3, oll16, , Complete implementation of parse nodes for relevant python constructs
-3: Translate, 1_2, 4, dl5215, , complete python code generation
-4: Test python, 1_2_3, 2, dl5215, , test python code with formative tests
-5: Debug python, 1_2_3_4, 3, dl5215, , debug and finalise python translator
-6: Advanced Tokens, 1_2, 3, oll16, , Tokenise all C90 constructs
-7: Intermediate Parsing, 1_2_6, 3, oll16, , Parse intermediate list of constructs
-8: Testing Intermediate, 1_2_6_7, 4, dl5215, , write test programs for & debug latest additions
+MilestoneID, Name, Dependencies, EstimatedEffort, Lead, Completed, Description
+1, Functional Tokens, -, 3, oll16, ,Lexing of all basic C constructs
+2, Functional Parsing, 1, 3, oll16, , Complete implementation of parse nodes / grammar for relevant python constructs
+3, Translate, 2, 4, dl5215, , complete python code generation
+4, Test python, 3, 2, dl5215, , test python code with formative tests
+5, Debug python, 4, 3, dl5215, , debug and finalise python translator
+6, Advanced Tokens, 2, 3, oll16, , Tokenise all C90 constructs
+7, Intermediate Parsing, 6, 3, oll16, , Implement parse nodes / grammar for more advanced C constructs
+8, Basic Codegen, 7, 3, oll16, , Code generation using infinite register model of currently supported constructs
+9, Testing Intermediate, 8, 4, dl5215, , Debug & test by hand that latest additions are Functional
+10, Register/Memory Management, 9, 5, oll16, , Devise prototype algorithm to optimise register use and manage Memory
+11, Write basic testbench, 9+10, 2, dl5215, , Ensure that executable instructions are generated and workable
+12, 
