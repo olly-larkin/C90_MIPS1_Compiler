@@ -5,6 +5,12 @@
 extern "C" int fileno(FILE *stream);
 
 #include "compiler_bison.tab.hpp"
+#include "LexContext.hpp"
+
+LexContext context;
+
+int token(int);
+int tokenTYPE(int type);
 %}
 
 D			[0-9]
@@ -22,101 +28,138 @@ E			[Ee][+-]?{D}+
                         std::string temp = std::string(yytext);
                         temp = temp.substr(1, temp.size()-2);
                         yylval.string = new std::string(temp);
-                        return T_STRING;
+                        return STRING;
                     }
 
-"*"             { return '*'; }
-"+"             { return '+'; }
-"/"             { return '/'; }
-"-"             { return '-'; }
-"%"             { return '%'; }
-"++"            { return T_PLUSPLUS; }
-"--"            { return T_MINUSMINUS; }
+"*"             { return token('*'); }
+"+"             { return token('+'); }
+"/"             { return token('/'); }
+"-"             { return token('-'); }
+"%"             { return token('%'); }
+"++"            { return token(PLUSPLUS); }
+"--"            { return token(MINUSMINUS); }
 
-"=="            { return T_EQUAL_TO; }
-"<"             { return '<'; }
-">"             { return '>'; }
-"!="            { return T_NOT_EQUAL_TO; }
-"<="            { return T_LESS_THAN_EQUAL; }
-">="            { return T_MORE_THAN_EQUAL; }
+"=="            { return token(EQUAL_TO); }
+"<"             { return token('<'); }
+">"             { return token('>'); }
+"!="            { return token(NOT_EQUAL_TO); }
+"<="            { return token(LESS_THAN_EQUAL); }
+">="            { return token(MORE_THAN_EQUAL); }
 
-"&&"            { return T_AND; }
-"||"            { return T_OR; }
-"!"             { return '!'; }
+"&&"            { return token(AND); }
+"||"            { return token(OR); }
+"!"             { return token('!'); }
 
-"&"             { return '&'; }
-"|"             { return '|'; }
-"\^"            { return '^'; } 
-"~"             { return '~'; }
-"<<"            { return T_LEFT_SHIFT; }
-">>"            { return T_RIGHT_SHIFT; }
+"&"             { return token('&'); }
+"|"             { return token('|'); }
+"\^"            { return token('^'); } 
+"~"             { return token('~'); }
+"<<"            { return token(LEFT_SHIFT); }
+">>"            { return token(RIGHT_SHIFT); }
 
-"="             { return '='; }
-"+="            { return T_PLUS_EQUAL; }
-"-="            { return T_MINUS_EQUAL; }
-"*="            { return T_TIMES_EQUAL; }
-"/="            { return T_DIVIDE_EQUAL; }
-"%="            { return T_MOD_EQUAL; }
-"<<="           { return T_LEFT_SHIFT_EQUAL; }
-">>="           { return T_RIGHT_SHIFT_EQUAL; }
-"&="            { return T_B_AND_EQUAL; }
-"\^="           { return T_XOR_EQUAL; }
-"|="            { return T_B_OR_EQUAL; }
+"="             { return token('='); }
+"+="            { return token(PLUS_EQUAL); }
+"-="            { return token(MINUS_EQUAL); }
+"*="            { return token(TIMES_EQUAL); }
+"/="            { return token(DIVIDE_EQUAL); }
+"%="            { return token(MOD_EQUAL); }
+"<<="           { return token(LEFT_SHIFT_EQUAL); }
+">>="           { return token(RIGHT_SHIFT_EQUAL); }
+"&="            { return token(B_AND_EQUAL); }
+"\^="           { return token(XOR_EQUAL); }
+"|="            { return token(B_OR_EQUAL); }
 
-"?"             { return '?'; }
-":"             { return ':'; }
-","             { return ','; }
-"\."            { return '.'; }
-"->"            { return T_ARROW; }
-";"             { return ';'; }
-"\""            { return '\"'; }
+"?"             { return token('?'); }
+":"             { return token(':'); }
+","             { return token(','); }
+"\."            { return token('.'); }
+"->"            { return token(ARROW); }
+"\""            { return token('\"'); }
 
-"("             { return '('; }
-")"             { return ')'; }
-"\["            { return '['; }
-"\]"            { return ']'; }
-"\{"            { return '{'; }
-"\}"            { return '}'; }
+";"             { 
+                    if (context.typeDefActive()) {
+                        context.addTypeDef(context.currentName);
+                        context.typeDefActive() = false;
+                    }
+                    return token(';');
+                }
 
-"break"         { return T_BREAK; }
-"case"          { return T_CASE; }
-"char"          { yylval.string = new std::string("char"); return T_WORD; }
-"const"         { return T_CONST; }
-"continue"      { return T_CONTINUE; }
-"default"       { return T_DEFAULT; }
-"do"            { return T_DO; }
-"double"        { yylval.string = new std::string("double"); return T_WORD; }
-"else"          { return T_ELSE; }
-"enum"          { return T_ENUM; }
-"float"         { yylval.string = new std::string("float"); return T_WORD; }
-"for"           { return T_FOR; }
-"goto"          { return T_GOTO; }
-"if"            { return T_IF; }
-"int"           { yylval.string = new std::string("int"); return T_WORD; }
-"long"          { yylval.string = new std::string("long"); return T_WORD; }
-"register"      { yylval.string = new std::string("register"); return T_WORD; }
-"return"        { return T_RETURN; }
-"short"         { yylval.string = new std::string("short"); return T_WORD; }
-"signed"        { yylval.string = new std::string("signed"); return T_WORD; }
-"sizeof"        { return T_SIZEOF; }
-"static"        { return T_STATIC; }
-"struct"        { return T_STRUCT; }
-"switch"        { return T_SWITCH; }
-"typedef"       { return T_TYPEDEF; }
-"union"         { return T_UNION; }
-"unsigned"      { yylval.string = new std::string("unsigned"); return T_WORD; }
-"void"          { yylval.string = new std::string("void"); return T_WORD; }
-"while"         { return T_WHILE; }
+"("             { return token('('); }
+")"             { return token(')'); }
+"["             { return token('['); }
+"]"             { return token(']'); }
+
+"{"             {
+                    context.addScope();
+                    return token('{');
+                }
+"}"             {
+                    context.subScope();
+                    return token('}');
+                }
+
+"auto"          { return tokenTYPE(AUTO); }
+"break"         { return token(BREAK); }
+"case"          { return token(CASE); }
+"char"          { return tokenTYPE(CHAR); }
+"const"         { return tokenTYPE(CONST); }
+"continue"      { return token(CONTINUE); }
+"default"       { return token(DEFAULT); }
+"do"            { return token(DO); }
+"double"        { return tokenTYPE(DOUBLE); }
+"else"          { return token(ELSE); }
+"enum"          { return tokenTYPE(ENUM); }
+"extern"        { return tokenTYPE(EXTERN); }
+"float"         { return tokenTYPE(FLOAT); }
+"for"           { return token(FOR); }
+"goto"          { return token(GOTO); }
+"if"            { return token(IF); }
+"int"           { return tokenTYPE(INT); }
+"long"          { return tokenTYPE(LONG); }
+"register"      { return tokenTYPE(REGISTER); }
+"return"        { return token(RETURN); }
+"short"         { return tokenTYPE(SHORT); }
+"signed"        { return tokenTYPE(SIGNED); }
+"sizeof"        { return token(SIZEOF); }
+"static"        { return tokenTYPE(STATIC); }
+"struct"        { return tokenTYPE(STRUCT); }
+"switch"        { return token(SWITCH); }
+
+"typedef"       { 
+                    context.typeDefActive() = true;
+                    return token(TYPEDEF); 
+                }
+
+"union"         { return tokenTYPE(UNION); }
+"unsigned"      { return tokenTYPE(UNSIGNED); }
+"void"          { return tokenTYPE(VOID); }
+"volatile"      { return tokenTYPE(VOLATILE); }
+"while"         { return token(WHILE); }
  
-[a-zA-Z_][0-9a-zA-Z_]* { yylval.string = new std::string(yytext); return T_WORD; }
+[a-zA-Z_][0-9a-zA-Z_]* {   
+                            std::string temp = std::string(yytext);
+                            if (context.declarationActive()) {
+                                context.declarationActive() = false;
+                                context.findAndDestroy(temp);
+                                return token(IDENTIFIER);
+                            }
 
-0[xX]{H}+   	{ yylval.number = std::stoi(yytext, 0, 16); return T_NUMBER; }
-0{D}+   		{ yylval.number = std::stoi(yytext, 0, 8); return T_NUMBER; }
-{D}+    		{ yylval.number = std::stoi(yytext, 0, 10); return T_NUMBER; }
+                            if (context.typeDefActive())
+                                context.currentName = temp;
 
-{D}+{E} 		{ yylval.number = std::stod(yytext, 0); return T_NUMBER; }
-{D}*"."{D}+({E})?	{ yylval.number = std::stod(yytext, 0); return T_NUMBER; }
-{D}+"."{D}*({E})?	{ yylval.number = std::stod(yytext, 0); return T_NUMBER; }
+                            if (context.typeDefed(temp))
+                                return tokenTYPE(TYPEDEF_T);
+                            else
+                                return token(IDENTIFIER);
+                        }
+
+0[xX]{H}+   	{ yylval.number = std::stoi(yytext, 0, 16); return NUMBER; }
+0{D}+   		{ yylval.number = std::stoi(yytext, 0, 8); return NUMBER; }
+{D}+    		{ yylval.number = std::stoi(yytext, 0, 10); return NUMBER; }
+
+{D}+{E} 		{ yylval.number = std::stod(yytext, 0); return NUMBER; }
+{D}*"."{D}+({E})?	{ yylval.number = std::stod(yytext, 0); return NUMBER; }
+{D}+"."{D}*({E})?	{ yylval.number = std::stod(yytext, 0); return NUMBER; }
 
 .               { fprintf(stderr, "Invalid character: %s\n", yytext); }
 
@@ -126,4 +169,15 @@ void yyerror (char const *s)
 {
     fprintf (stderr, "Parse error : %s\n", s);
     exit(1);
+}
+
+int token(int type) {
+    yylval.string = new std::string(yytext);		
+	return type;
+}
+
+int tokenTYPE(int type) {
+    yylval.string = new std::string(yytext);
+    if (!context.typeDefActive()) context.declarationActive() = true;
+    return type;
 }
