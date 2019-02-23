@@ -129,4 +129,9 @@ public:
 private:
 };
 
+class UnionType : public Type {
+public:
+private:
+}
+
 #endif
