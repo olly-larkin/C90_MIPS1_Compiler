@@ -14,9 +14,12 @@
 
 %union{
     AST *ast;
+    Global *global;
     TopLevel* toplevel;
     double number;
     std::string* string;
+    Type_Specifier typeSpecifier;
+    BasicType* basictype;
 }
 
 %token STRING
@@ -27,27 +30,43 @@
 %token PLUS_EQUAL MINUS_EQUAL TIMES_EQUAL DIVIDE_EQUAL MOD_EQUAL
 %token LEFT_SHIFT_EQUAL RIGHT_SHIFT_EQUAL B_AND_EQUAL XOR_EQUAL B_OR_EQUAL
 %token ARROW
-%token AUTO BREAK BOOL CASE CHAR CONST CONTINUE DEFAULT DO DOUBLE ELSE 
+%token AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO DOUBLE ELSE 
 %token ENUM FLOAT FOR GOTO IF INT LONG REGISTER RETURN
 %token SHORT SIGNED SIZEOF STATIC STRUCT SWITCH TYPEDEF UNION
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <ast> TOP
+%type <global> GLOBAL
 %type <toplevel> DECLARATION
 %type <number> NUMBER
 %type <string> IDENTIFIER STRING
+%type <typeSpecifier> TYPE_SPECIFIER
+%type <basictype> TYPE
 
 %start ROOT
 
 %%
 
-ROOT : TOP { g_root = $1; }
+ROOT : GLOBAL { g_root = $1; }
 
-TOP  : DECLARATION  { $$ = new Global($1); }
-     | TOP DECLARATION  { $$ = $1; $$->push_back($2); }
+GLOBAL  : DECLARATION  { $$ = new Global($1); }
+        | GLOBAL DECLARATION { $$ = $1; $$->push_back($2); }
 
-DECLARATION : IDENTIFIER IDENTIFIER ';' { $$ = new Declaration(*$1, *$2); }
+DECLARATION : TYPE IDENTIFIER ';' { $$ = new Declaration(*$1, *$2); }
+
+TYPE : TYPE_SPECIFIER { $$ = new BasicType({},{$1},{}); }
+
+TYPE_SPECIFIER : VOID			{ $$ = Void; }							
+		       | CHAR			{ $$ = Char; }							
+		       | SHORT			{ $$ = Short; }					
+		       | INT			{ $$ = Int; }					
+		       | LONG			{ $$ = Long; }						
+		       | FLOAT			{ $$ = Float; }						 
+		       | DOUBLE			{ $$ = Double; }						 
+		       | SIGNED			{ $$ = Signed; }						
+		       | UNSIGNED       { $$ = Unsigned; }
+               | TYPEDEF_T      { $$ = Typedef_T; }
+
 
 %%
 
