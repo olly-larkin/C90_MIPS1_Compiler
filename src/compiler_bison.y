@@ -19,6 +19,8 @@
     double number;
     std::string* string;
     Type_Specifier typeSpecifier;
+    Type_Qualifier typeQualifier;
+    Storage_Class_Specifier storageClassSpecifier;
     BasicType* basictype;
 }
 
@@ -37,10 +39,12 @@
 %token NUMBER IDENTIFIER TYPEDEF_T
 
 %type <global> GLOBAL
-%type <toplevel> DECLARATION
+%type <toplevel> DECLARATION EXTERNAL_DECLARATION
 %type <number> NUMBER
 %type <string> IDENTIFIER STRING
 %type <typeSpecifier> TYPE_SPECIFIER
+%type <typeQualifier> TYPE_QUALIFIER
+%type <storageClassSpecifier> STORAGE_CLASS_SPECIFIER
 %type <basictype> TYPE
 
 %start ROOT
@@ -49,12 +53,19 @@
 
 ROOT : GLOBAL { g_root = $1; }
 
-GLOBAL  : DECLARATION  { $$ = new Global($1); }
-        | GLOBAL DECLARATION { $$ = $1; $$->push_back($2); }
+GLOBAL  : EXTERNAL_DECLARATION  { $$ = new Global($1); }
+        | GLOBAL EXTERNAL_DECLARATION { $$ = $1; $$->push_back($2); }
+
+EXTERNAL_DECLARATION : DECLARATION { $$ = $1; }
 
 DECLARATION : TYPE IDENTIFIER ';' { $$ = new Declaration(*$1, *$2); }
 
-TYPE : TYPE_SPECIFIER { $$ = new BasicType({},{$1},{}); }
+TYPE : TYPE_SPECIFIER { $$ = new BasicType({},{},{$1}); }
+     | TYPE TYPE_SPECIFIER { $$ = $1; $$->push_back_ts($2); }
+     | TYPE_QUALIFIER { $$ = new BasicType({$1},{},{}); }
+     | TYPE TYPE_QUALIFIER { $$ = $1; $$->push_back_tq($2); }
+     | STORAGE_CLASS_SPECIFIER { $$ = new BasicType({},{$1},{}); }
+     | TYPE STORAGE_CLASS_SPECIFIER { $$ = $1; $$->push_back_scs($2); }
 
 TYPE_SPECIFIER : VOID			{ $$ = Void; }							
 		       | CHAR			{ $$ = Char; }							
@@ -66,6 +77,14 @@ TYPE_SPECIFIER : VOID			{ $$ = Void; }
 		       | SIGNED			{ $$ = Signed; }						
 		       | UNSIGNED       { $$ = Unsigned; }
                | TYPEDEF_T      { $$ = Typedef_T; }
+
+TYPE_QUALIFIER : CONST          { $$ = Const; }
+               | VOLATILE       { $$ = Volatile; }
+
+STORAGE_CLASS_SPECIFIER : EXTERN { $$ = Extern; }
+               | STATIC         { $$ = Static; }
+               | AUTO           { $$ = Auto; }
+               | REGISTER       { $$ = Register; }
 
 
 %%

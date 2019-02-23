@@ -1,2 +1,2 @@
-int hello;
+const short int hello;
 float there;
