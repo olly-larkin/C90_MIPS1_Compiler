@@ -57,7 +57,12 @@ E			[Ee][+-]?{D}+
 "<<"            { return token(LEFT_SHIFT); }
 ">>"            { return token(RIGHT_SHIFT); }
 
-"="             { return token('='); }
+"="             {
+                    context.declarationActive() = false;
+                    context.enumActive() = false;
+                    return token('=');
+                }
+
 "+="            { return token(PLUS_EQUAL); }
 "-="            { return token(MINUS_EQUAL); }
 "*="            { return token(TIMES_EQUAL); }
@@ -81,7 +86,9 @@ E			[Ee][+-]?{D}+
                         context.addTypeDef(context.currentName);
                         context.typeDefActive() = false;
                     }
-                    return token(';');
+                    context.declarationActive() = false;
+                    context.enumActive() = false;
+                    return token(';'); 
                 }
 
 "("             { return token('('); }
@@ -90,11 +97,15 @@ E			[Ee][+-]?{D}+
 "]"             { return token(']'); }
 
 "{"             {
+                    context.ignoreIdentifier() = false;
+                    if (context.enumActive()) context.storeEnumVals() = true;
                     context.addScope();
                     return token('{');
                 }
 "}"             {
                     context.subScope();
+                    context.enumActive() = false;
+                    context.storeEnumVals() = false;
                     return token('}');
                 }
 
@@ -108,7 +119,6 @@ E			[Ee][+-]?{D}+
 "do"            { return token(DO); }
 "double"        { return tokenTYPE(DOUBLE); }
 "else"          { return token(ELSE); }
-"enum"          { return tokenTYPE(ENUM); }
 "extern"        { return tokenTYPE(EXTERN); }
 "float"         { return tokenTYPE(FLOAT); }
 "for"           { return token(FOR); }
@@ -122,7 +132,6 @@ E			[Ee][+-]?{D}+
 "signed"        { return tokenTYPE(SIGNED); }
 "sizeof"        { return token(SIZEOF); }
 "static"        { return tokenTYPE(STATIC); }
-"struct"        { return tokenTYPE(STRUCT); }
 "switch"        { return token(SWITCH); }
 
 "typedef"       { 
@@ -130,25 +139,53 @@ E			[Ee][+-]?{D}+
                     return token(TYPEDEF); 
                 }
 
-"union"         { return tokenTYPE(UNION); }
 "unsigned"      { return tokenTYPE(UNSIGNED); }
 "void"          { return tokenTYPE(VOID); }
 "volatile"      { return tokenTYPE(VOLATILE); }
 "while"         { return token(WHILE); }
+
+"struct"                {   
+                            context.ignoreIdentifier() = true;
+                            return tokenTYPE(STRUCT); 
+                        }
+
+"enum"                  {   
+                            context.ignoreIdentifier() = true;
+                            context.enumActive() = true;
+                            return tokenTYPE(ENUM); 
+                        }
+
+"union"                 {   
+                            context.ignoreIdentifier() = true;
+                            return tokenTYPE(UNION); 
+                        }
  
-[a-zA-Z_][0-9a-zA-Z_]* {   
+[a-zA-Z_][0-9a-zA-Z_]*  {   
                             std::string temp = std::string(yytext);
-                            if (context.declarationActive()) {
+                            if (context.declarationActive() && !context.ignoreIdentifier()) {
                                 context.declarationActive() = false;
-                                context.findAndDestroy(temp);
+                                context.findAndDestroyTD(temp);
+                                context.findAndDestroyE(temp);
+                                if (context.typeDefActive())
+                                    context.currentName = temp;
                                 return token(IDENTIFIER);
                             }
+
+                            if (context.storeEnumVals()) {
+                                context.addEnumVal(temp);
+                                return token(IDENTIFIER);
+                            }
+
+                            if (context.ignoreIdentifier())
+                                context.ignoreIdentifier() = false;
 
                             if (context.typeDefActive())
                                 context.currentName = temp;
 
                             if (context.typeDefed(temp))
                                 return tokenTYPE(TYPEDEF_T);
+                            else if (context.enummed(temp))
+                                return token(ENUM_VAL);
                             else
                                 return token(IDENTIFIER);
                         }
