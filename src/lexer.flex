@@ -28,7 +28,12 @@ E			[Ee][+-]?{D}+
                         std::string temp = std::string(yytext);
                         temp = temp.substr(1, temp.size()-2);
                         yylval.string = new std::string(temp);
-                        return STRING;
+                        return STRING_LITERAL;
+                    }
+
+\'([^\']|"\\\'")\'  {
+                        yylval.number = yytext[1];
+                        return NUMBER;
                     }
 
 "*"             { return token('*'); }

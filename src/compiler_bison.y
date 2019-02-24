@@ -24,7 +24,7 @@
     BasicType* basictype;
 }
 
-%token STRING
+%token STRING_LITERAL
 %token PLUSPLUS MINUSMINUS
 %token EQUAL_TO NOT_EQUAL_TO LESS_THAN_EQUAL MORE_THAN_EQUAL
 %token AND OR
