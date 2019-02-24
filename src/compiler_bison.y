@@ -14,40 +14,78 @@
 
 %union{
     AST *ast;
+    Global *global;
     TopLevel* toplevel;
     double number;
     std::string* string;
+    Type_Specifier typeSpecifier;
+    Type_Qualifier typeQualifier;
+    Storage_Class_Specifier storageClassSpecifier;
+    BasicType* basictype;
 }
 
-%token T_STRING
-%token T_PLUSPLUS T_MINUSMINUS
-%token T_EQUAL_TO T_NOT_EQUAL_TO T_LESS_THAN_EQUAL T_MORE_THAN_EQUAL
-%token T_AND T_OR
-%token T_LEFT_SHIFT T_RIGHT_SHIFT
-%token T_PLUS_EQUAL T_MINUS_EQUAL T_TIMES_EQUAL T_DIVIDE_EQUAL T_MOD_EQUAL
-%token T_LEFT_SHIFT_EQUAL T_RIGHT_SHIFT_EQUAL T_B_AND_EQUAL T_XOR_EQUAL T_B_OR_EQUAL
-%token T_ARROW
-%token T_BREAK T_BOOL T_CASE T_CHAR T_CONST T_CONTINUE T_DEFAULT T_DO T_DOUBLE T_ELSE 
-%token T_ENUM T_FLOAT T_FOR T_GOTO T_IF T_INT T_LONG T_REGISTER T_RETURN
-%token T_SHORT T_SIGNED T_SIZEOF T_STATIC T_STRUCT T_SWITCH T_TYPEDEF T_UNION
-%token T_UNSIGNED T_VOID T_WHILE
-%token T_NUMBER T_WORD
+%token STRING_LITERAL
+%token PLUSPLUS MINUSMINUS
+%token EQUAL_TO NOT_EQUAL_TO LESS_THAN_EQUAL MORE_THAN_EQUAL
+%token AND OR
+%token LEFT_SHIFT RIGHT_SHIFT
+%token PLUS_EQUAL MINUS_EQUAL TIMES_EQUAL DIVIDE_EQUAL MOD_EQUAL
+%token LEFT_SHIFT_EQUAL RIGHT_SHIFT_EQUAL B_AND_EQUAL XOR_EQUAL B_OR_EQUAL
+%token ARROW
+%token AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO DOUBLE ELSE 
+%token ENUM ENUM_VAL FLOAT FOR GOTO IF INT LONG REGISTER RETURN
+%token SHORT SIGNED SIZEOF STATIC STRUCT SWITCH TYPEDEF UNION
+%token UNSIGNED VOID WHILE EXTERN VOLATILE
+%token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <ast> TOP
-%type <toplevel> DECLARATION
-%type <number> T_NUMBER
-%type <string> T_WORD T_STRING
+%type <global> GLOBAL
+%type <toplevel> DECLARATION EXTERNAL_DECLARATION
+%type <number> NUMBER
+%type <string> IDENTIFIER STRING
+%type <typeSpecifier> TYPE_SPECIFIER
+%type <typeQualifier> TYPE_QUALIFIER
+%type <storageClassSpecifier> STORAGE_CLASS_SPECIFIER
+%type <basictype> TYPE
 
 %start ROOT
 
 %%
 
-ROOT : TOP { g_root = $1; }
+ROOT : GLOBAL { g_root = $1; }
 
-TOP  : DECLARATION  { $$ = new Global($1); }
-     | TOP DECLARATION  { $$ = $1; $$->push_back($2); }
+GLOBAL  : EXTERNAL_DECLARATION  { $$ = new Global($1); }
+        | GLOBAL EXTERNAL_DECLARATION { $$ = $1; $$->push_back($2); }
 
-DECLARATION : T_WORD T_WORD ';' { $$ = new Declaration(*$1, *$2); }
+EXTERNAL_DECLARATION : DECLARATION { $$ = $1; }
+
+DECLARATION : TYPE IDENTIFIER ';' { $$ = new Declaration(*$1, *$2); }
+
+TYPE : TYPE_SPECIFIER { $$ = new BasicType({},{},{$1}); }
+     | TYPE TYPE_SPECIFIER { $$ = $1; $$->push_back_ts($2); }
+     | TYPE_QUALIFIER { $$ = new BasicType({$1},{},{}); }
+     | TYPE TYPE_QUALIFIER { $$ = $1; $$->push_back_tq($2); }
+     | STORAGE_CLASS_SPECIFIER { $$ = new BasicType({},{$1},{}); }
+     | TYPE STORAGE_CLASS_SPECIFIER { $$ = $1; $$->push_back_scs($2); }
+
+TYPE_SPECIFIER : VOID			{ $$ = Void; }							
+		       | CHAR			{ $$ = Char; }							
+		       | SHORT			{ $$ = Short; }					
+		       | INT			{ $$ = Int; }					
+		       | LONG			{ $$ = Long; }						
+		       | FLOAT			{ $$ = Float; }						 
+		       | DOUBLE			{ $$ = Double; }						 
+		       | SIGNED			{ $$ = Signed; }						
+		       | UNSIGNED       { $$ = Unsigned; }
+               | TYPEDEF_T      { $$ = Typedef_T; }
+
+TYPE_QUALIFIER : CONST          { $$ = Const; }
+               | VOLATILE       { $$ = Volatile; }
+
+STORAGE_CLASS_SPECIFIER : EXTERN { $$ = Extern; }
+               | STATIC         { $$ = Static; }
+               | AUTO           { $$ = Auto; }
+               | REGISTER       { $$ = Register; }
+
 
 %%
 
