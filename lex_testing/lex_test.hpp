@@ -6,8 +6,8 @@
 
 enum yytokentype {
     NONE = 0,
-    STRING_LITERAL = 500,
-    PLUSPLUS = 501,
+    STRING_LITERAL = 260,
+    PLUSPLUS = 260,
     MINUSMINUS,
     EQUAL_TO,
     NOT_EQUAL_TO,
@@ -124,7 +124,7 @@ const std::map<yytokentype, std::string> tokenMap = {
     {VOLATILE,"VOLATILE"},
     {NUMBER,"NUMBER"},
     {IDENTIFIER,"IDENTIFIER"},
-    {TYPEDEF_T,"TYPEDEF_"}
+    {TYPEDEF_T,"TYPEDEF_T"}
 };
 
 union TokenValue{
