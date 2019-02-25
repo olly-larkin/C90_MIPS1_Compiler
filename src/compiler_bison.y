@@ -16,7 +16,7 @@
     AST *ast;
     std::string *string;
     double number;
-    PrimaryExpression *PrimaryExpressionPtr
+    PrimaryExpression *PrimaryExpressionPtr;
 }
 
 %token STRING_LITERAL
@@ -33,15 +33,15 @@
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER
-%type <double> NUMBER
+%type <string> IDENTIFIER STRING_LITERAL
+%type <number> NUMBER
 %type <PrimaryExpressionPtr> PRIMARY_EXPRESSION
 %type <ast> POSTFIX_EXPRESSION
 
 %start ROOT
 
 %%
-ROOT: POSTFIX_EXPRESSION { g_root = $$; }
+ROOT: POSTFIX_EXPRESSION { g_root = $1; }
 
 POSTFIX_EXPRESSION: PRIMARY_EXPRESSION                          {$$ = $1;}
                     | POSTFIX_EXPRESSION '.' IDENTIFIER         {$$ = $1;}
@@ -50,9 +50,9 @@ POSTFIX_EXPRESSION: PRIMARY_EXPRESSION                          {$$ = $1;}
                     | POSTFIX_EXPRESSION MINUSMINUS             {$$ = $1;}
 
 PRIMARY_EXPRESSION: IDENTIFIER                  { $$ = new PrimaryExpression(*$1, I); }
-                    CONSTANT                    { $$ = new PrimaryExpression($1); }
-                    STRING_LITERAL      	    { $$ = new PrimaryExpression(*$1, S); }
-                    '(' PRIMARY_EXPRESSION ')'  { $$ = new PrimaryExpression($2); }
+                   | NUMBER                     { $$ = new PrimaryExpression($1); }
+                   | STRING_LITERAL      	    { $$ = new PrimaryExpression(*$1, S); }
+                   | '(' PRIMARY_EXPRESSION ')' { $$ = new PrimaryExpression($2); /*TODO: change PRIMARY_EXPRESSION TO EXPRESSION*/}
 %%
 
 AST* g_root; // Definition of variable (to match declaration earlier)
