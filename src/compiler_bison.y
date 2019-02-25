@@ -17,6 +17,7 @@
     std::string *string;
     double number;
     PrimaryExpression *PrimaryExpressionPtr;
+    Expression *ExpressionPtr;
 }
 
 %token STRING_LITERAL
@@ -33,26 +34,42 @@
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER STRING_LITERAL
+%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL
 %type <number> NUMBER
-%type <PrimaryExpressionPtr> PRIMARY_EXPRESSION
+%type <PrimaryExpressionPtr> PRIMARY_EXPRESSION 
 %type <ast> POSTFIX_EXPRESSION
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION ARGUMENT_EXPRESSION_LIST // TODO: NEEDS CHANGING
 
 %start ROOT
 
 %%
-ROOT: POSTFIX_EXPRESSION { g_root = $1; }
+ROOT: EXPRESSION { g_root = $1; }
 
-POSTFIX_EXPRESSION: PRIMARY_EXPRESSION                          {$$ = $1;}
+EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1;      /* TODO: FILL OUT EXPRESSION*/ }
+           ;
+
+ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+                         | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+                         ;
+
+ASSIGNMENT_EXPRESSION : POSTFIX_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+
+POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         {$$ = $1;}
+                    | POSTFIX_EXPRESSION '[' EXPRESSION ']'     {}
+                    | POSTFIX_EXPRESSION '(' ')'                {}
+                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' {} 
                     | POSTFIX_EXPRESSION '.' IDENTIFIER         {$$ = $1;}
                     | POSTFIX_EXPRESSION ARROW IDENTIFIER       {$$ = $1;}
                     | POSTFIX_EXPRESSION PLUSPLUS               {$$ = $1;}
                     | POSTFIX_EXPRESSION MINUSMINUS             {$$ = $1;}
+                    ;
 
-PRIMARY_EXPRESSION: IDENTIFIER                  { $$ = new PrimaryExpression(*$1, I); }
+PRIMARY_EXPRESSION : IDENTIFIER                 { $$ = new PrimaryExpression(*$1, I); }
                    | NUMBER                     { $$ = new PrimaryExpression($1); }
                    | STRING_LITERAL      	    { $$ = new PrimaryExpression(*$1, S); }
-                   | '(' PRIMARY_EXPRESSION ')' { $$ = new PrimaryExpression($2); /*TODO: change PRIMARY_EXPRESSION TO EXPRESSION*/}
+                   | '(' EXPRESSION ')'         { $$ = new PrimaryExpression($2); }
+                   | ENUM_VAL                   { $$ = new PrimaryExpression(*$1, EV); }
+                   ;
 %%
 
 AST* g_root; // Definition of variable (to match declaration earlier)
