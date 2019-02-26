@@ -74,8 +74,6 @@ PRIMARY_EXPRESSION : IDENTIFIER                 { $$ = new PrimaryExpression(*$1
 
 AST* g_root; // Definition of variable (to match declaration earlier)
 
-
-
 AST* parseAST() {
     g_root = 0;
     yyparse();

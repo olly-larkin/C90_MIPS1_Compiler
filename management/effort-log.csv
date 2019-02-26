@@ -1,3 +1,5 @@
 Date,Effort,Developers,Milestones
 21st Feb, Finalised the workplan and added the management structure, dl5215, -
-23rd Feb, 8, Made fLex file for tokens, oll16, Functional tokens
+23rd Feb, Made fLex file for tokens, oll16, Functional tokens
+25th Feb, Created AST support for Primary Expressions, oll16, Functional Parsing
+26th Feb, Created AST support for Postfix Expressions, dl5215, Functional Parsing
