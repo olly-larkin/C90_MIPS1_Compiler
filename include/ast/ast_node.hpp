@@ -11,7 +11,7 @@ public:
         if (num == 0)
             return "";
         else
-            return indent(num-1) + "\t";
+            return indent(num-1) + "\t|";
     }
 protected:
 };

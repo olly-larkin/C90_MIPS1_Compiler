@@ -17,6 +17,7 @@
     std::string *string;
     double number;
     Expression *ExpressionPtr;
+    ArgumentExpressionList *ArgumentExpressionListPtr;
 }
 
 %token STRING_LITERAL
@@ -35,7 +36,8 @@
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
 %type <number> NUMBER
-%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION ARGUMENT_EXPRESSION_LIST UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION
+%type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
 
 %start ROOT
 
@@ -48,7 +50,7 @@ EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1;      /* TODO: FILL OUT EXPRESSION*
 
 TYPE_NAME : IDENTIFIER {$$ = $1;}
 
-ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = new ArgumentExpressionList(); /* TODO: FIX THIS */ }
                          | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          ;
 
@@ -71,14 +73,14 @@ UNARY_EXPRESSION : POSTFIX_EXPRESSION                           {$$=$1;}
                  | '!' CAST_EXPRESSION                          {$$=$2;}
                  ;
 
-POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         {$$ = $1;}
-                    | POSTFIX_EXPRESSION '[' EXPRESSION ']'     {$$ = $1;}
-                    | POSTFIX_EXPRESSION '(' ')'                {$$ = $1;}
-                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' {$$=$1;} 
-                    | POSTFIX_EXPRESSION '.' IDENTIFIER         {$$ = $1;}
-                    | POSTFIX_EXPRESSION ARROW IDENTIFIER       {$$ = $1;}
-                    | POSTFIX_EXPRESSION PLUSPLUS               {$$ = $1;}
-                    | POSTFIX_EXPRESSION MINUSMINUS             {$$ = $1;}
+POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         { $$ = $1; }
+                    | POSTFIX_EXPRESSION '[' EXPRESSION ']'     { $$ = new Postfix_ArrIndex($1, $3); }
+                    | POSTFIX_EXPRESSION '(' ')'                { $$ = new Postfix_FnCall($1); }
+                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' { $$ = new Postfix_FnCall($1, $3); } 
+                    | POSTFIX_EXPRESSION '.' IDENTIFIER         { $$ = new Postfix_DotIdentifier($1,*$3); }
+                    | POSTFIX_EXPRESSION ARROW IDENTIFIER       { $$ = new Postfix_ArrowIdentifier($1,*$3); }
+                    | POSTFIX_EXPRESSION PLUSPLUS               { $$ = new Postfix_IncOp($1); }
+                    | POSTFIX_EXPRESSION MINUSMINUS             { $$ = new Postfix_DecOp($1); }
                     ;
 
 PRIMARY_EXPRESSION : IDENTIFIER                 { $$ = new PrimaryExp_Identifier(*$1); }
