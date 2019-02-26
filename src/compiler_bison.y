@@ -36,13 +36,13 @@
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL
 %type <number> NUMBER
-%type <PrimaryExpressionPtr> PRIMARY_EXPRESSION 
-%type <ast> POSTFIX_EXPRESSION
-%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION ARGUMENT_EXPRESSION_LIST // TODO: NEEDS CHANGING
+%type <PrimaryExpressionPtr> PRIMARY_EXPRESSION
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION ARGUMENT_EXPRESSION_LIST POSTFIX_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION // TODO: Should be updated to specific types
 
 %start ROOT
 
 %%
+
 ROOT: EXPRESSION { g_root = $1; }
 
 EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1;      /* TODO: FILL OUT EXPRESSION*/ }
@@ -54,10 +54,26 @@ ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */
 
 ASSIGNMENT_EXPRESSION : POSTFIX_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
 
+CAST_EXPRESSION : UNARY_EXPRESSION                              {$$=$1;}
+                | '(' TYPE_NAME ')' CAST_EXPRESSION             {$$=$1;}
+
+UNARY_EXPRESSION : POSTFIX_EXPRESSION                           {$$=$1;}
+                 | PLUSPLUS UNARY_EXPRESSION                    {$$=$2;}
+                 | MINUSMINUS UNARY_EXPRESSION                  {$$=$2;}
+                 | SIZEOF UNARY_EXPRESSION                      {$$=$2;}
+                 | SIZEOF '(' TYPE_NAME ')'                     {$$ = new PrimaryExpression(1);}
+                 | '&' CAST_EXPRESSION                          {$$=$2;}
+                 | '*' CAST_EXPRESSION                          {$$=$2;}
+                 | '+' CAST_EXPRESSION                          {$$=$2;}
+                 | '-' CAST_EXPRESSION                          {$$=$2;}
+                 | '~' CAST_EXPRESSION                          {$$=$2;}
+                 | '!' CAST_EXPRESSION                          {$$=$2;}
+                 ;
+
 POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         {$$ = $1;}
-                    | POSTFIX_EXPRESSION '[' EXPRESSION ']'     {}
-                    | POSTFIX_EXPRESSION '(' ')'                {}
-                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' {} 
+                    | POSTFIX_EXPRESSION '[' EXPRESSION ']'     {$$ = $1;}
+                    | POSTFIX_EXPRESSION '(' ')'                {$$ = $1;}
+                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' {$$=$1;} 
                     | POSTFIX_EXPRESSION '.' IDENTIFIER         {$$ = $1;}
                     | POSTFIX_EXPRESSION ARROW IDENTIFIER       {$$ = $1;}
                     | POSTFIX_EXPRESSION PLUSPLUS               {$$ = $1;}
