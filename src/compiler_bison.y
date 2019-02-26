@@ -16,7 +16,6 @@
     AST *ast;
     std::string *string;
     double number;
-    PrimaryExpression *PrimaryExpressionPtr;
     Expression *ExpressionPtr;
 }
 
@@ -34,10 +33,9 @@
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL
+%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
 %type <number> NUMBER
-%type <PrimaryExpressionPtr> PRIMARY_EXPRESSION
-%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION ARGUMENT_EXPRESSION_LIST POSTFIX_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION // TODO: Should be updated to specific types
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION ARGUMENT_EXPRESSION_LIST UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION
 
 %start ROOT
 
@@ -48,6 +46,8 @@ ROOT: EXPRESSION { g_root = $1; }
 EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1;      /* TODO: FILL OUT EXPRESSION*/ }
            ;
 
+TYPE_NAME : IDENTIFIER {$$ = $1;}
+
 ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          ;
@@ -55,7 +55,8 @@ ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */
 ASSIGNMENT_EXPRESSION : POSTFIX_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
 
 CAST_EXPRESSION : UNARY_EXPRESSION                              {$$=$1;}
-                | '(' TYPE_NAME ')' CAST_EXPRESSION             {$$=$1;}
+                | '(' TYPE_NAME ')' CAST_EXPRESSION             {$$=$4;}
+                ;
 
 UNARY_EXPRESSION : POSTFIX_EXPRESSION                           {$$=$1;}
                  | PLUSPLUS UNARY_EXPRESSION                    {$$=$2;}
@@ -80,11 +81,11 @@ POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         {$$ = $1;}
                     | POSTFIX_EXPRESSION MINUSMINUS             {$$ = $1;}
                     ;
 
-PRIMARY_EXPRESSION : IDENTIFIER                 { $$ = new PrimaryExpression(*$1, I); }
-                   | NUMBER                     { $$ = new PrimaryExpression($1); }
-                   | STRING_LITERAL      	    { $$ = new PrimaryExpression(*$1, S); }
-                   | '(' EXPRESSION ')'         { $$ = new PrimaryExpression($2); }
-                   | ENUM_VAL                   { $$ = new PrimaryExpression(*$1, EV); }
+PRIMARY_EXPRESSION : IDENTIFIER                 { $$ = new PrimaryExp_Identifier(*$1); }
+                   | NUMBER                     { $$ = new PrimaryExp_Constant($1); }
+                   | STRING_LITERAL      	    { $$ = new PrimaryExp_StrLiteral(*$1); }
+                   | '(' EXPRESSION ')'         { $$ = $2; }
+                   | ENUM_VAL                   { $$ = new PrimaryExp_EnumVal(*$1); }
                    ;
 %%
 

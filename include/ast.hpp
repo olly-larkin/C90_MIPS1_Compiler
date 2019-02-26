@@ -5,6 +5,7 @@
 
 #include "ast/ast_node.hpp"
 #include "ast/ast_expression.hpp"
+#include "ast/ast_declaration.hpp"
 
 extern AST* parseAST();
 
