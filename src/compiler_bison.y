@@ -53,11 +53,11 @@ EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1;      /* TODO: FILL OUT EXPRESSION*
 TYPE_NAME : IDENTIFIER {$$ = $1;  /* TODO: Fill in later */}
           ;
 
-ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = new ArgumentExpressionList(); /* TODO: FIX THIS */ }
-                         | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
-                         ;
-
 //**************************************************************************************
+
+ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION                                { $$ = new ArgumentExpressionList($1); }
+                         | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION   { $$ = $1; $$->addArg($3); }
+                         ;
 
 ASSIGNMENT_EXPRESSION : CONDITIONAL_EXPRESSION                                      { $$ = $1; }
                       | UNARY_EXPRESSION ASSIGNMENT_OPERATOR ASSIGNMENT_EXPRESSION  { $$ = new Assignment($1, $3, $2); }

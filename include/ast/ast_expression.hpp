@@ -2,16 +2,19 @@
 #define AST_EXPRESSION_HPP
 
 #include "ast_node.hpp"
-
+#include <vector>
 #include <string>
 
 class Expression : public AST {};
 
 class ArgumentExpressionList : public Expression {   //TODO: make this class
 public:
+    ArgumentExpressionList(Expression *assignmentExpression){
+        addArg(assignmentExpression);
+    }
     virtual std::string name() { return "Argument Expression List:"; };
     void print(std::ostream& os, int level) {
-        for(int i=0; i< arg_list.size(); i++){
+        for(int i=0; i< (int)arg_list.size(); i++){
             os << indent(level) << arg_list[i]->name() << std::endl;
             arg_list[i]->print(os, level+1);
         }
@@ -19,7 +22,7 @@ public:
     void addArg(Expression *newArg){
         arg_list.push_back(newArg);
     }
-private:
+protected:
     std::vector<Expression*> arg_list;
 };
 
