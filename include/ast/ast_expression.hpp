@@ -12,21 +12,39 @@ private:
 };
 
 //************************************************************
+//------------------LOGICAL AND EXPRESSION--------------------
+//************************************************************
+
+class LogicalANDOp : public Expression {
+public:
+    LogicalANDOp(Expression *_logical_and_expression, Expression *_inclusive_or_expression) : logical_and_expression(_logical_and_expression), inclusive_or_expression(_inclusive_or_expression) {}
+    std::string name() { return "Logical AND:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << logical_and_expression->name() << std::endl;
+        logical_and_expression->print(os, level+1);
+        os << indent(level) << inclusive_or_expression->name() << std::endl;
+        inclusive_or_expression->print(os, level+1);
+    }
+protected:
+    Expression *logical_and_expression, *inclusive_or_expression;
+};
+
+//************************************************************
 //-----------------INCLUSIVE OR EXPRESSION--------------------
 //************************************************************
 
 class BitwiseInclusiveOROp : public Expression {
 public:
-    BitwiseInclusiveOROp(Expression *_inclusive_or_expression, Expression *_exclusive_expression) : inclusive_or_expression(_inclusive_or_expression), exclusive_expression(_exclusive_expression) {}
+    BitwiseInclusiveOROp(Expression *_inclusive_or_expression, Expression *_exclusive_or_expression) : inclusive_or_expression(_inclusive_or_expression), exclusive_or_expression(_exclusive_or_expression) {}
     std::string name() { return "Bitwise Inclusive OR:"; }
     void print(std::ostream& os, int level) {
         os << indent(level) << inclusive_or_expression->name() << std::endl;
         inclusive_or_expression->print(os, level+1);
-        os << indent(level) << exclusive_expression->name() << std::endl;
-        exclusive_expression->print(os, level+1);
+        os << indent(level) << exclusive_or_expression->name() << std::endl;
+        exclusive_or_expression->print(os, level+1);
     }
 protected:
-    Expression *inclusive_or_expression, *exclusive_expression;
+    Expression *inclusive_or_expression, *exclusive_or_expression;
 };
 
 //************************************************************

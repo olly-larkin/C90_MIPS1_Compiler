@@ -36,7 +36,7 @@
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
 %type <number> NUMBER
-%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION EXCLUSIVE_OR_EXPRESSION INCLUSIVE_OR_EXPRESSION
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION EXCLUSIVE_OR_EXPRESSION INCLUSIVE_OR_EXPRESSION LOGICAL_AND_EXPRESSION
 %type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
 
 %start ROOT
@@ -55,10 +55,14 @@ ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = new ArgumentExpressionLi
                          | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          ;
 
-ASSIGNMENT_EXPRESSION : INCLUSIVE_OR_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+ASSIGNMENT_EXPRESSION : LOGICAL_AND_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                       ;
 
 //**************************************************************************************
+
+LOGICAL_AND_EXPRESSION : INCLUSIVE_OR_EXPRESSION                                { $$ = $1; }
+                       | LOGICAL_AND_EXPRESSION AND INCLUSIVE_OR_EXPRESSION     { $$ = new LogicalANDOp($1, $3); }
+                       ;    
 
 INCLUSIVE_OR_EXPRESSION : EXCLUSIVE_OR_EXPRESSION                               { $$ = $1; }
                         | INCLUSIVE_OR_EXPRESSION '|' EXCLUSIVE_OR_EXPRESSION   { $$ = new BitwiseInclusiveOROp($1, $3); }
@@ -117,14 +121,14 @@ UNARY_EXPRESSION : POSTFIX_EXPRESSION                           { $$ = $1;}
                  | '!' CAST_EXPRESSION                          { $$ = new Unary_NotOp($2); }
                  ;
 
-POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         { $$ = $1;}
-                    | POSTFIX_EXPRESSION '[' EXPRESSION ']'     { $$ = new Postfix_ArrIndex($1, $3); }
-                    | POSTFIX_EXPRESSION '(' ')'                { $$ = new Postfix_FnCall($1); }
-                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' { $$ = new Postfix_FnCall($1, $3); } 
-                    | POSTFIX_EXPRESSION '.' IDENTIFIER         { $$ = new Postfix_DotIdentifier($1,*$3); }
-                    | POSTFIX_EXPRESSION ARROW IDENTIFIER       { $$ = new Postfix_ArrowIdentifier($1,*$3); }
-                    | POSTFIX_EXPRESSION PLUSPLUS               { $$ = new Postfix_IncOp($1); }
-                    | POSTFIX_EXPRESSION MINUSMINUS             { $$ = new Postfix_DecOp($1); }
+POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                                     { $$ = $1;}
+                    | POSTFIX_EXPRESSION '[' EXPRESSION ']'                 { $$ = new Postfix_ArrIndex($1, $3); }
+                    | POSTFIX_EXPRESSION '(' ')'                            { $$ = new Postfix_FnCall($1); }
+                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')'   { $$ = new Postfix_FnCall($1, $3); } 
+                    | POSTFIX_EXPRESSION '.' IDENTIFIER                     { $$ = new Postfix_DotIdentifier($1,*$3); }
+                    | POSTFIX_EXPRESSION ARROW IDENTIFIER                   { $$ = new Postfix_ArrowIdentifier($1,*$3); }
+                    | POSTFIX_EXPRESSION PLUSPLUS                           { $$ = new Postfix_IncOp($1); }
+                    | POSTFIX_EXPRESSION MINUSMINUS                         { $$ = new Postfix_DecOp($1); }
                     ;
 
 PRIMARY_EXPRESSION : IDENTIFIER                 { $$ = new PrimaryExp_Identifier(*$1); }
