@@ -15,6 +15,26 @@ private:
 //------------------LOGICAL OR EXPRESSION---------------------
 //************************************************************
 
+class ConditionalOp : public Expression {
+public:
+    ConditionalOp(Expression *_logical_or_expression, Expression *_expression, Expression *_cond_expression) : logical_or_expression(_logical_or_expression), expression(_expression), cond_expression(_cond_expression) {}
+    std::string name() { return "Conditional:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << "Condition: " << logical_or_expression->name() << std::endl;
+        logical_or_expression->print(os, level+1);
+        os << indent(level) << "If true: " << expression->name() << std::endl;
+        expression->print(os, level+1);
+        os << indent(level) << "If false: " << cond_expression->name() << std::endl;
+        cond_expression->print(os, level+1);
+    }
+protected:
+    Expression *logical_or_expression, *expression, *cond_expression;
+};
+
+//************************************************************
+//------------------LOGICAL OR EXPRESSION---------------------
+//************************************************************
+
 class LogicalOROp : public Expression {
 public:
     LogicalOROp(Expression *_logical_or_expression, Expression *_logical_and_expression) : logical_or_expression(_logical_or_expression), logical_and_expression(_logical_and_expression) {}
