@@ -12,35 +12,67 @@ private:
 };
 
 //************************************************************
+//--------------------SHIFT EXPRESSION------------------------
+//************************************************************
+
+class LeftShiftOp : public Expression {
+public:
+    LeftShiftOp(Expression *_shift_expression, Expression *_add_expression) : shift_expression(_shift_expression), add_expression(_add_expression) {}
+    std::string name() { return "Left Shift:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << shift_expression->name() << std::endl;
+        shift_expression->print(os, level+1);
+        os << indent(level) << add_expression->name() << std::endl;
+        add_expression->print(os, level+1);
+    }
+protected:
+    Expression *shift_expression, *add_expression;
+};
+
+class RightShiftOp : public Expression {
+public:
+    RightShiftOp(Expression *_shift_expression, Expression *_add_expression) : shift_expression(_shift_expression), add_expression(_add_expression) {}
+    std::string name() { return "Right Shift:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << shift_expression->name() << std::endl;
+        shift_expression->print(os, level+1);
+        os << indent(level) << add_expression->name() << std::endl;
+        add_expression->print(os, level+1);
+    }
+protected:
+    Expression *shift_expression, *add_expression;
+};
+
+//************************************************************
 //------------------ADDITIVE EXPRESSION-----------------------
 //************************************************************
 
 class AddOp : public Expression {
 public:
-    AddOp(Expression *_mul_expression, Expression *_cast_expression) : mul_expression(_mul_expression), cast_expression(_cast_expression) {}
+    AddOp(Expression *_add_expression, Expression *_mul_expression) : add_expression(_add_expression), mul_expression(_mul_expression) {}
     std::string name() { return "Add:"; }
     void print(std::ostream& os, int level) {
+        os << indent(level) << add_expression->name() << std::endl;
+        add_expression->print(os, level+1);
         os << indent(level) << mul_expression->name() << std::endl;
         mul_expression->print(os, level+1);
-        os << indent(level) << cast_expression->name() << std::endl;
-        cast_expression->print(os, level+1);
     }
 protected:
-    Expression *mul_expression, *cast_expression;
+    Expression *add_expression, *mul_expression;
 };
 
 class SubOp : public Expression {
 public:
-    SubOp(Expression *_mul_expression, Expression *_cast_expression) : mul_expression(_mul_expression), cast_expression(_cast_expression) {}
+    SubOp(Expression *_add_expression, Expression *_mul_expression) : add_expression(_add_expression), mul_expression(_mul_expression) {}
     std::string name() { return "Sub:"; }
     void print(std::ostream& os, int level) {
+        os << indent(level) << add_expression->name() << std::endl;
+        add_expression->print(os, level+1);
         os << indent(level) << mul_expression->name() << std::endl;
         mul_expression->print(os, level+1);
-        os << indent(level) << cast_expression->name() << std::endl;
-        cast_expression->print(os, level+1);
     }
 protected:
-    Expression *mul_expression, *cast_expression;
+    Expression *add_expression, *mul_expression;
 };
 
 //************************************************************
