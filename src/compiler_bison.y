@@ -19,6 +19,8 @@
     Expression *ExpressionPtr;
     ArgumentExpressionList *ArgumentExpressionListPtr;
     char Char;
+    Statement *StatementPtr;
+    ExpressionStatement *ExpressionStatementPtr;
 }
 
 %token STRING_LITERAL
@@ -35,21 +37,84 @@
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
+%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL //TYPE_NAME TODO: bring back once being used
 %type <Char> ASSIGNMENT_OPERATOR
 %type <number> NUMBER
 %type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION EXCLUSIVE_OR_EXPRESSION INCLUSIVE_OR_EXPRESSION LOGICAL_AND_EXPRESSION LOGICAL_OR_EXPRESSION CONDITIONAL_EXPRESSION CONSTANT_EXPRESSION
 %type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
+%type <StatementPtr> STATEMENT LABLED_STATEMENT COMPOUND_STATEMENT EXPRESSION_STATEMENT SELECTION_STATEMENT ITERATION_STATEMENT JUMP_STATEMENT STATEMENT_LIST
+
+%nonassoc NOELSE
+%nonassoc ELSE
 
 %start ROOT
 
 %%
 
-ROOT: CONSTANT_EXPRESSION { g_root = $1; }
+ROOT : STATEMENT { g_root = $1; }
 
-TYPE_NAME : IDENTIFIER {$$ = $1;  /* TODO: Fill in later */}
+//TYPE_NAME : IDENTIFIER {$$ = $1;  /* TODO: Fill in later */}
+//          ;
+
+//**************************************************************************************
+//-------------------------------------- STATEMENTS ------------------------------------
+//**************************************************************************************
+
+STATEMENT : LABLED_STATEMENT        { $$ = $1; }
+          | COMPOUND_STATEMENT      { $$ = $1; }
+          | EXPRESSION_STATEMENT    { $$ = $1; }
+          | SELECTION_STATEMENT     { $$ = $1; }
+          | ITERATION_STATEMENT     { $$ = $1; }
+          | JUMP_STATEMENT          { $$ = $1; }
           ;
 
+LABLED_STATEMENT : CASE CONSTANT_EXPRESSION ':' STATEMENT   { $$ = new CaseBlock($2, $4); }
+                 | DEFAULT ':' STATEMENT                    { $$ = new DefaultBlock($3); }  
+                 ;
+
+COMPOUND_STATEMENT : '{' '}'                                        { $$ = new ExpressionStatement(); }
+//                   | '{' DECLARATION_LIST '}'  TODO: return when declarations done
+                   | '{' STATEMENT_LIST '}'                         { $$ = $2; }
+//                   | '{' DECLARATION_LIST STATEMENT_LIST '}'
+                   ;
+
+//DECLARATION_LIST : DECLARATION
+//                 | DECLARATION_LIST DECLARATION
+//                 ;
+
+STATEMENT_LIST : STATEMENT                  { $$ = new StatementList($1); }
+               | STATEMENT_LIST STATEMENT   { $$ = new StatementList(reinterpret_cast<StatementList*>($1), $2); }
+               ;
+
+EXPRESSION_STATEMENT : ';'              { $$ = new ExpressionStatement(); }
+                     | EXPRESSION ';'   { $$ = new ExpressionStatement($1); }
+                     ;
+
+SELECTION_STATEMENT : IF '(' EXPRESSION ')' STATEMENT %prec NOELSE      { $$ = new IfStatement($3, $5); }
+                    | IF '(' EXPRESSION ')' STATEMENT ELSE STATEMENT    { $$ = new IfElseStatement($3, $5, $7); }
+                    | SWITCH '(' EXPRESSION ')' STATEMENT               { $$ = new SwitchStatement($3, $5); }
+                    ;
+
+ITERATION_STATEMENT : WHILE '(' EXPRESSION ')' STATEMENT                                { $$ = new WhileLoop($3, $5); }
+                    | DO STATEMENT WHILE '(' EXPRESSION ')'                             { $$ = new DoWhileLoop($2, $5); }
+                    | FOR '(' ';' ';' ')' STATEMENT                                     { $$ = new ForLoop(NULL,NULL,NULL,$6); }
+                    | FOR '(' EXPRESSION ';' ';' ')' STATEMENT                          { $$ = new ForLoop($3,  NULL,NULL,$7); }
+                    | FOR '(' ';' EXPRESSION ';' ')' STATEMENT                          { $$ = new ForLoop(NULL,$4,  NULL,$7); }
+                    | FOR '(' ';' ';' EXPRESSION ')' STATEMENT                          { $$ = new ForLoop(NULL,NULL,$5  ,$7); }
+                    | FOR '(' EXPRESSION ';' EXPRESSION ';' ')' STATEMENT               { $$ = new ForLoop($3,  $5,  NULL,$8); }
+                    | FOR '(' ';' EXPRESSION ';' EXPRESSION ')' STATEMENT               { $$ = new ForLoop(NULL,$4,  $6  ,$8); }
+                    | FOR '(' EXPRESSION ';' ';' EXPRESSION ')' STATEMENT               { $$ = new ForLoop($3,  NULL,$6  ,$8); }
+                    | FOR '(' EXPRESSION ';' EXPRESSION ';' EXPRESSION ')' STATEMENT    { $$ = new ForLoop($3,  $5,  $7  ,$9); }
+                    ;    
+
+JUMP_STATEMENT : CONTINUE ';'           { $$ = new Continue(); }
+               | BREAK ';'              { $$ = new Break(); }
+               | RETURN ';'             { $$ = new Return(); }
+               | RETURN EXPRESSION ';'  { $$ = new Return($2); }
+               ;
+
+//**************************************************************************************
+//------------------------------------- EXPRESSIONS ------------------------------------
 //**************************************************************************************
 
 CONSTANT_EXPRESSION : EXPRESSION   { $$ = $1; }
@@ -132,14 +197,14 @@ MULTIPLICATIVE_EXPRESSION : CAST_EXPRESSION                               { $$ =
                           ;
 
 CAST_EXPRESSION : UNARY_EXPRESSION                              { $$ = $1; }
-                | '(' TYPE_NAME ')' CAST_EXPRESSION             { $$ = new Cast_ToType($4, *$2); }
+//                | '(' TYPE_NAME ')' CAST_EXPRESSION             { $$ = new Cast_ToType($4, *$2); }
                 ;
 
 UNARY_EXPRESSION : POSTFIX_EXPRESSION                           { $$ = $1;}
                  | PLUSPLUS UNARY_EXPRESSION                    { $$ = new Unary_PrefixInc($2); }
                  | MINUSMINUS UNARY_EXPRESSION                  { $$ = new Unary_PrefixDec($2); }
                  | SIZEOF UNARY_EXPRESSION                      { $$ = new Unary_SizeOfExpr($2); }
-                 | SIZEOF '(' TYPE_NAME ')'                     { /* TODO: return after creating type_name */ }
+//                 | SIZEOF '(' TYPE_NAME ')'                     { /* TODO: return after creating type_name */ }
                  | '&' CAST_EXPRESSION                          { $$ = new Unary_Reference($2); }
                  | '*' CAST_EXPRESSION                          { $$ = new Unary_Dereference($2);}
                  | '+' CAST_EXPRESSION                          { $$ = $2; /* TODO: CHECK */}
