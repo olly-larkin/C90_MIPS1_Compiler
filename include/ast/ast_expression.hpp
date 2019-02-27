@@ -3,6 +3,8 @@
 
 #include "ast_node.hpp"
 
+#include <string>
+
 class Expression : public AST {};
 
 class ArgumentExpressionList : public Expression {   //TODO: make this class
@@ -19,6 +21,46 @@ public:
     }
 private:
     std::vector<Expression*> arg_list;
+};
+
+//************************************************************
+//------------------ASSIGNMENT EXPRESSION---------------------
+//************************************************************
+
+class Assignment : public Expression {
+public:
+    Assignment(Expression *_unary_expression, Expression *_assignment_expression, char _flag) : unary_expression(_unary_expression), assignment_expression(_assignment_expression), flag(_flag) {}
+    std::string name() { return "Assignment:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << flag << std::endl;
+        os << indent(level) << unary_expression->name() << std::endl;
+        unary_expression->print(os, level+1);
+        os << indent(level) << assignment_expression->name() << std::endl;
+        assignment_expression->print(os, level+1);
+    }
+protected:
+    Expression *unary_expression, *assignment_expression;
+    char flag;
+};
+
+//************************************************************
+//------------------LOGICAL OR EXPRESSION---------------------
+//************************************************************
+
+class ConditionalOp : public Expression {
+public:
+    ConditionalOp(Expression *_logical_or_expression, Expression *_expression, Expression *_cond_expression) : logical_or_expression(_logical_or_expression), expression(_expression), cond_expression(_cond_expression) {}
+    std::string name() { return "Conditional:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << "Condition: " << logical_or_expression->name() << std::endl;
+        logical_or_expression->print(os, level+1);
+        os << indent(level) << "If true: " << expression->name() << std::endl;
+        expression->print(os, level+1);
+        os << indent(level) << "If false: " << cond_expression->name() << std::endl;
+        cond_expression->print(os, level+1);
+    }
+protected:
+    Expression *logical_or_expression, *expression, *cond_expression;
 };
 
 //************************************************************
