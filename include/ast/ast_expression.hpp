@@ -15,6 +15,24 @@ private:
 //-------------------EQUALITY EXPRESSION----------------------
 //************************************************************
 
+class BitwiseAndOp : public Expression {
+public:
+    BitwiseAndOp(Expression *_and_expression, Expression *_equality_expression) : and_expression(_and_expression), equality_expression(_equality_expression) {}
+    std::string name() { return "Bitwise And:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << and_expression->name() << std::endl;
+        and_expression->print(os, level+1);
+        os << indent(level) << equality_expression->name() << std::endl;
+        equality_expression->print(os, level+1);
+    }
+protected:
+    Expression *and_expression, *equality_expression;
+};
+
+//************************************************************
+//-------------------EQUALITY EXPRESSION----------------------
+//************************************************************
+
 class EqualToOp : public Expression {
 public:
     EqualToOp(Expression *_equality_expression, Expression *_relational_expression) : equality_expression(_equality_expression), relational_expression(_relational_expression) {}
