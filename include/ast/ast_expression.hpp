@@ -11,6 +11,117 @@ public:
 private:
 };
 
+//************************************************************
+//-----------------------UNARY--------------------------------
+//************************************************************
+
+class Unary_PrefixInc : public Expression {
+    public:
+    Unary_PrefixInc(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Prefix Increment:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+class Unary_PrefixDec : public Expression {
+public:
+    Unary_PrefixDec(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Prefix Decrement:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+class Unary_SizeOfExpr : public Expression {
+public:
+    Unary_SizeOfExpr(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Size of:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+class Unary_SizeOfType : public Expression { //TODO: make this
+public:
+    std::string name() { return "Size of:"; }
+protected:
+    //typename
+};
+
+class Unary_Reference : public Expression {
+public:
+    Unary_Reference(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Fetch Reference:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+class Unary_Dereference : public Expression {
+public:
+    Unary_Dereference(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Dereference:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+class Unary_Negation : public Expression {
+public:
+    Unary_Negation(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Unary Negation:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+class Unary_InvertOp : public Expression {
+public:
+    Unary_InvertOp(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Bitwise Inversion:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+class Unary_NotOp : public Expression {
+public:
+    Unary_NotOp(Expression *_cast_expr) : cast_expr(_cast_expr) {}
+    std::string name() { return "Not:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        cast_expr->print(os, level+1);
+    }
+protected:
+    Expression *cast_expr;
+};
+
+//************************************************************
+//----------------------POSTFIX-------------------------------
+//************************************************************
+
 class Postfix_ArrIndex : public Expression {
 public:
     Postfix_ArrIndex(Expression* _postfix, Expression* _index) : postfix(_postfix), index(_index) {}
@@ -94,6 +205,10 @@ public:
 protected:
     Expression *postfix;
 };
+
+//************************************************************
+//----------------------PRIMARY-------------------------------
+//************************************************************
 
 class PrimaryExp_Identifier : public Expression {
 public:

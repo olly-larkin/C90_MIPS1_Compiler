@@ -43,7 +43,7 @@
 
 %%
 
-ROOT: EXPRESSION { g_root = $1; }
+ROOT: UNARY_EXPRESSION { g_root = $1; }
 
 EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1;      /* TODO: FILL OUT EXPRESSION*/ }
            ;
@@ -60,20 +60,20 @@ CAST_EXPRESSION : UNARY_EXPRESSION                              {$$=$1;}
                 | '(' TYPE_NAME ')' CAST_EXPRESSION             {$$=$4;}
                 ;
 
-UNARY_EXPRESSION : POSTFIX_EXPRESSION                           {$$=$1;}
-                 | PLUSPLUS UNARY_EXPRESSION                    {$$=$2;}
-                 | MINUSMINUS UNARY_EXPRESSION                  {$$=$2;}
-                 | SIZEOF UNARY_EXPRESSION                      {$$=$2;}
-                 | SIZEOF '(' TYPE_NAME ')'                     {$$ = new PrimaryExpression(1);}
-                 | '&' CAST_EXPRESSION                          {$$=$2;}
-                 | '*' CAST_EXPRESSION                          {$$=$2;}
-                 | '+' CAST_EXPRESSION                          {$$=$2;}
-                 | '-' CAST_EXPRESSION                          {$$=$2;}
-                 | '~' CAST_EXPRESSION                          {$$=$2;}
-                 | '!' CAST_EXPRESSION                          {$$=$2;}
+UNARY_EXPRESSION : POSTFIX_EXPRESSION                           { $$ = $1;}
+                 | PLUSPLUS UNARY_EXPRESSION                    { $$ = new Unary_PrefixInc($2); }
+                 | MINUSMINUS UNARY_EXPRESSION                  { $$ = new Unary_PrefixDec($2); }
+                 | SIZEOF UNARY_EXPRESSION                      { $$ = new Unary_SizeOfExpr($2); }
+                 | SIZEOF '(' TYPE_NAME ')'                     { /*TODO: fix this */}
+                 | '&' CAST_EXPRESSION                          { $$ = new Unary_Reference($2); }
+                 | '*' CAST_EXPRESSION                          { $$ = new Unary_Dereference($2);}
+                 | '+' CAST_EXPRESSION                          { $$ = $2; /* TODO: CHECK */}
+                 | '-' CAST_EXPRESSION                          { $$ = new Unary_Negation($2); }
+                 | '~' CAST_EXPRESSION                          { $$ = new Unary_InvertOp($2); }
+                 | '!' CAST_EXPRESSION                          { $$ = new Unary_NotOp($2); }
                  ;
 
-POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         { $$ = $1; }
+POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                         { $$ = $1;}
                     | POSTFIX_EXPRESSION '[' EXPRESSION ']'     { $$ = new Postfix_ArrIndex($1, $3); }
                     | POSTFIX_EXPRESSION '(' ')'                { $$ = new Postfix_FnCall($1); }
                     | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' { $$ = new Postfix_FnCall($1, $3); } 
