@@ -12,6 +12,66 @@ private:
 };
 
 //************************************************************
+//------------------RELATIONALEXPRESSION----------------------
+//************************************************************
+
+class LessThanOp : public Expression {
+public:
+    LessThanOp(Expression *_relational_expression, Expression *_shift_expression) : relational_expression(_relational_expression), shift_expression(_shift_expression) {}
+    std::string name() { return "Less Than:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << relational_expression->name() << std::endl;
+        relational_expression->print(os, level+1);
+        os << indent(level) << shift_expression->name() << std::endl;
+        shift_expression->print(os, level+1);
+    }
+protected:
+    Expression *relational_expression, *shift_expression;
+};
+
+class MoreThanOp : public Expression {
+public:
+    MoreThanOp(Expression *_relational_expression, Expression *_shift_expression) : relational_expression(_relational_expression), shift_expression(_shift_expression) {}
+    std::string name() { return "More Than:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << relational_expression->name() << std::endl;
+        relational_expression->print(os, level+1);
+        os << indent(level) << shift_expression->name() << std::endl;
+        shift_expression->print(os, level+1);
+    }
+protected:
+    Expression *relational_expression, *shift_expression;
+};
+
+class LessThanEqualOp : public Expression {
+public:
+    LessThanEqualOp(Expression *_relational_expression, Expression *_shift_expression) : relational_expression(_relational_expression), shift_expression(_shift_expression) {}
+    std::string name() { return "Less Than or Equal:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << relational_expression->name() << std::endl;
+        relational_expression->print(os, level+1);
+        os << indent(level) << shift_expression->name() << std::endl;
+        shift_expression->print(os, level+1);
+    }
+protected:
+    Expression *relational_expression, *shift_expression;
+};
+
+class MoreThanEqualOp : public Expression {
+public:
+    MoreThanEqualOp(Expression *_relational_expression, Expression *_shift_expression) : relational_expression(_relational_expression), shift_expression(_shift_expression) {}
+    std::string name() { return "More Than or Equal:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << relational_expression->name() << std::endl;
+        relational_expression->print(os, level+1);
+        os << indent(level) << shift_expression->name() << std::endl;
+        shift_expression->print(os, level+1);
+    }
+protected:
+    Expression *relational_expression, *shift_expression;
+};
+
+//************************************************************
 //--------------------SHIFT EXPRESSION------------------------
 //************************************************************
 

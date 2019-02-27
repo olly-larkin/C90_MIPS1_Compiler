@@ -36,7 +36,7 @@
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
 %type <number> NUMBER
-%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION
 %type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
 
 %start ROOT
@@ -55,10 +55,16 @@ ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = new ArgumentExpressionLi
                          | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          ;
 
-ASSIGNMENT_EXPRESSION : SHIFT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+ASSIGNMENT_EXPRESSION : RELATIONAL_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                       ;
 
 //**************************************************************************************
+
+RELATIONAL_EXPRESSION : SHIFT_EXPRESSION                                          { $$ = $1; }
+                      | RELATIONAL_EXPRESSION '<' SHIFT_EXPRESSION                { $$ = new LessThanOp($1, $3); }
+                      | RELATIONAL_EXPRESSION '>' SHIFT_EXPRESSION                { $$ = new MoreThanOp($1, $3); }
+                      | RELATIONAL_EXPRESSION LESS_THAN_EQUAL SHIFT_EXPRESSION    { $$ = new LessThanEqualOp($1, $3); }
+                      | RELATIONAL_EXPRESSION MORE_THAN_EQUAL SHIFT_EXPRESSION    { $$ = new MoreThanEqualOp($1, $3); }
 
 SHIFT_EXPRESSION : ADDITIVE_EXPRESSION                                  { $$ = $1; }
                  | SHIFT_EXPRESSION LEFT_SHIFT ADDITIVE_EXPRESSION      { $$ = new LeftShiftOp($1, $3); }
