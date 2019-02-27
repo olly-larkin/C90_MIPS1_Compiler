@@ -36,35 +36,45 @@
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
 %type <number> NUMBER
-%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION
 %type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
 
 %start ROOT
 
 %%
 
-ROOT: UNARY_EXPRESSION { g_root = $1; }
+ROOT: EXPRESSION { g_root = $1; }
 
 EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1;      /* TODO: FILL OUT EXPRESSION*/ }
            ;
 
-TYPE_NAME : IDENTIFIER {$$ = $1;}
+TYPE_NAME : IDENTIFIER {$$ = $1;  /* TODO: Fill in later */}
+          ;
 
 ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = new ArgumentExpressionList(); /* TODO: FIX THIS */ }
                          | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          ;
 
-ASSIGNMENT_EXPRESSION : POSTFIX_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+ASSIGNMENT_EXPRESSION : MULTIPLICATIVE_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+                      ;
 
-CAST_EXPRESSION : UNARY_EXPRESSION                              {$$=$1;}
-                | '(' TYPE_NAME ')' CAST_EXPRESSION             {$$=$4;}
+//**************************************************************************************
+
+MULTIPLICATIVE_EXPRESSION : CAST_EXPRESSION                               { $$ = $1; }
+                          | MULTIPLICATIVE_EXPRESSION '*' CAST_EXPRESSION { $$ = new MultiplyOp($1, $3); }
+                          | MULTIPLICATIVE_EXPRESSION '/' CAST_EXPRESSION { $$ = new DivideOp($1, $3); }
+                          | MULTIPLICATIVE_EXPRESSION '%' CAST_EXPRESSION { $$ = new ModOp($1, $3); }
+                          ;
+
+CAST_EXPRESSION : UNARY_EXPRESSION                              { $$ = $1; }
+                | '(' TYPE_NAME ')' CAST_EXPRESSION             { $$ = new Cast_ToType($4, *$2); }
                 ;
 
 UNARY_EXPRESSION : POSTFIX_EXPRESSION                           { $$ = $1;}
                  | PLUSPLUS UNARY_EXPRESSION                    { $$ = new Unary_PrefixInc($2); }
                  | MINUSMINUS UNARY_EXPRESSION                  { $$ = new Unary_PrefixDec($2); }
                  | SIZEOF UNARY_EXPRESSION                      { $$ = new Unary_SizeOfExpr($2); }
-                 | SIZEOF '(' TYPE_NAME ')'                     { /*TODO: fix this */}
+                 | SIZEOF '(' TYPE_NAME ')'                     { /* TODO: return after creating type_name */ }
                  | '&' CAST_EXPRESSION                          { $$ = new Unary_Reference($2); }
                  | '*' CAST_EXPRESSION                          { $$ = new Unary_Dereference($2);}
                  | '+' CAST_EXPRESSION                          { $$ = $2; /* TODO: CHECK */}

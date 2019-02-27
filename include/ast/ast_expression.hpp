@@ -12,11 +12,58 @@ private:
 };
 
 //************************************************************
+//---------------MULTIPLICATIVE EXPRESSION--------------------
+//************************************************************
+
+class ModOp : public Expression {
+public:
+    ModOp(Expression *_mul_expression, Expression *_cast_expression) : mul_expression(_mul_expression), cast_expression(_cast_expression) {}
+    std::string name() { return "Mod:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << mul_expression->name() << std::endl;
+        mul_expression->print(os, level+1);
+        os << indent(level) << cast_expression->name() << std::endl;
+        cast_expression->print(os, level+1);
+    }
+protected:
+    Expression *mul_expression, *cast_expression;
+};
+
+class DivideOp : public Expression {
+public:
+    DivideOp(Expression *_mul_expression, Expression *_cast_expression) : mul_expression(_mul_expression), cast_expression(_cast_expression) {}
+    std::string name() { return "Divide:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << mul_expression->name() << std::endl;
+        mul_expression->print(os, level+1);
+        os << indent(level) << cast_expression->name() << std::endl;
+        cast_expression->print(os, level+1);
+    }
+protected:
+    Expression *mul_expression, *cast_expression;
+};
+
+class MultiplyOp : public Expression {
+public:
+    MultiplyOp(Expression *_mul_expression, Expression *_cast_expression) : mul_expression(_mul_expression), cast_expression(_cast_expression) {}
+    std::string name() { return "Multiply:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << mul_expression->name() << std::endl;
+        mul_expression->print(os, level+1);
+        os << indent(level) << cast_expression->name() << std::endl;
+        cast_expression->print(os, level+1);
+    }
+protected:
+    Expression *mul_expression, *cast_expression;
+};
+
+//************************************************************
 //------------------CAST & ASSIGNMENT-------------------------
 //************************************************************
-class Cast_ToType : public Expression {
-    public:
-    Cast_ToType(Expression *_cast_expr, std::string _type_name) : cast_expr(_cast_expr), type_name(_type_name) {}
+
+class Cast_ToType : public Expression {     // TODO: TYPE_NAME is not going to be a string
+public:
+    Cast_ToType(Expression *_cast_expr, const std::string& _type_name) : cast_expr(_cast_expr), type_name(_type_name) {}
     std::string name() { return "Cast:"; }
     void print(std::ostream &os, int level) {
         os << indent(level) << cast_expr->name() << std::endl;
