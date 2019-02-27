@@ -12,9 +12,24 @@ private:
 };
 
 //************************************************************
+//------------------CAST & ASSIGNMENT-------------------------
+//************************************************************
+class Cast_ToType : public Expression {
+    public:
+    Cast_ToType(Expression *_cast_expr, std::string _type_name) : cast_expr(_cast_expr), type_name(_type_name) {}
+    std::string name() { return "Cast:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << cast_expr->name() << std::endl;
+        os << indent(level) << "To: " << type_name;
+    }
+protected:
+    Expression *cast_expr;
+    std::string type_name;
+};
+
+//************************************************************
 //-----------------------UNARY--------------------------------
 //************************************************************
-
 class Unary_PrefixInc : public Expression {
     public:
     Unary_PrefixInc(Expression *_cast_expr) : cast_expr(_cast_expr) {}
@@ -55,7 +70,6 @@ class Unary_SizeOfType : public Expression { //TODO: make this
 public:
     std::string name() { return "Size of:"; }
 protected:
-    //typename
 };
 
 class Unary_Reference : public Expression {
@@ -121,7 +135,6 @@ protected:
 //************************************************************
 //----------------------POSTFIX-------------------------------
 //************************************************************
-
 class Postfix_ArrIndex : public Expression {
 public:
     Postfix_ArrIndex(Expression* _postfix, Expression* _index) : postfix(_postfix), index(_index) {}
@@ -184,7 +197,7 @@ protected:
 
 class Postfix_DecOp : public Expression {
 public:
-    Postfix_DecOp(Expression *_postfix) : postfix(_postfix){} //TODO: make copy constructor?
+    Postfix_DecOp(Expression *_postfix) : postfix(_postfix){}
     std::string name() { return "Post-assign decrement:"; }
     void print(std::ostream& os, int level){
         os << indent(level) << postfix->name() << std::endl;
@@ -196,7 +209,7 @@ protected:
 
 class Postfix_IncOp : public Expression {
 public:
-    Postfix_IncOp(Expression *_postfix) : postfix(_postfix){} //TODO: make copy constructor?
+    Postfix_IncOp(Expression *_postfix) : postfix(_postfix){}
     std::string name() { return "Post-assign increment:"; }
     void print(std::ostream& os, int level){
         os << indent(level) << postfix->name() << std::endl;
@@ -209,7 +222,6 @@ protected:
 //************************************************************
 //----------------------PRIMARY-------------------------------
 //************************************************************
-
 class PrimaryExp_Identifier : public Expression {
 public:
     PrimaryExp_Identifier(const std::string &_identifier) : identifier(_identifier){}
