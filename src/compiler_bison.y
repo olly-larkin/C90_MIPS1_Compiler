@@ -36,7 +36,7 @@
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
 %type <number> NUMBER
-%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION
+%type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION EXCLUSIVE_OR_EXPRESSION INCLUSIVE_OR_EXPRESSION
 %type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
 
 %start ROOT
@@ -55,13 +55,21 @@ ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = new ArgumentExpressionLi
                          | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          ;
 
-ASSIGNMENT_EXPRESSION : AND_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+ASSIGNMENT_EXPRESSION : INCLUSIVE_OR_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                       ;
 
 //**************************************************************************************
 
+INCLUSIVE_OR_EXPRESSION : EXCLUSIVE_OR_EXPRESSION                               { $$ = $1; }
+                        | INCLUSIVE_OR_EXPRESSION '|' EXCLUSIVE_OR_EXPRESSION   { $$ = new BitwiseInclusiveOROp($1, $3); }
+                        ;
+
+EXCLUSIVE_OR_EXPRESSION : AND_EXPRESSION                                 { $$ = $1; }
+                        | EXCLUSIVE_OR_EXPRESSION '^' AND_EXPRESSION     { $$ = new BitwiseExclusiveOROp($1, $3); }
+                        ;
+
 AND_EXPRESSION : EQUALITY_EXPRESSION                        { $$ = $1; }
-               | AND_EXPRESSION '&' EQUALITY_EXPRESSION     { $$ = new BitwiseAndOp($1, $3); }
+               | AND_EXPRESSION '&' EQUALITY_EXPRESSION     { $$ = new BitwiseANDOp($1, $3); }
                ;
 
 EQUALITY_EXPRESSION : RELATIONAL_EXPRESSION                                     { $$ = $1; }

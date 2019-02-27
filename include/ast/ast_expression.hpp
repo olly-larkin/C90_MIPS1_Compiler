@@ -12,13 +12,49 @@ private:
 };
 
 //************************************************************
-//-------------------EQUALITY EXPRESSION----------------------
+//-----------------INCLUSIVE OR EXPRESSION--------------------
 //************************************************************
 
-class BitwiseAndOp : public Expression {
+class BitwiseInclusiveOROp : public Expression {
 public:
-    BitwiseAndOp(Expression *_and_expression, Expression *_equality_expression) : and_expression(_and_expression), equality_expression(_equality_expression) {}
-    std::string name() { return "Bitwise And:"; }
+    BitwiseInclusiveOROp(Expression *_inclusive_or_expression, Expression *_exclusive_expression) : inclusive_or_expression(_inclusive_or_expression), exclusive_expression(_exclusive_expression) {}
+    std::string name() { return "Bitwise Inclusive OR:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << inclusive_or_expression->name() << std::endl;
+        inclusive_or_expression->print(os, level+1);
+        os << indent(level) << exclusive_expression->name() << std::endl;
+        exclusive_expression->print(os, level+1);
+    }
+protected:
+    Expression *inclusive_or_expression, *exclusive_expression;
+};
+
+//************************************************************
+//-----------------EXCLUSIVE OR EXPRESSION--------------------
+//************************************************************
+
+class BitwiseExclusiveOROp : public Expression {
+public:
+    BitwiseExclusiveOROp(Expression *_exclusive_or_expression, Expression *_and_expression) : exclusive_or_expression(_exclusive_or_expression), and_expression(_and_expression) {}
+    std::string name() { return "Bitwise Exclusive OR:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << exclusive_or_expression->name() << std::endl;
+        exclusive_or_expression->print(os, level+1);
+        os << indent(level) << and_expression->name() << std::endl;
+        and_expression->print(os, level+1);
+    }
+protected:
+    Expression *exclusive_or_expression, *and_expression;
+};
+
+//************************************************************
+//----------------------AND EXPRESSION------------------------
+//************************************************************
+
+class BitwiseANDOp : public Expression {
+public:
+    BitwiseANDOp(Expression *_and_expression, Expression *_equality_expression) : and_expression(_and_expression), equality_expression(_equality_expression) {}
+    std::string name() { return "Bitwise AND:"; }
     void print(std::ostream& os, int level) {
         os << indent(level) << and_expression->name() << std::endl;
         and_expression->print(os, level+1);
