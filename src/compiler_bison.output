@@ -1,0 +1,2182 @@
+Terminals unused in grammar
+
+   AUTO
+   BREAK
+   CASE
+   CHAR
+   CONST
+   CONTINUE
+   DEFAULT
+   DO
+   DOUBLE
+   ELSE
+   ENUM
+   FLOAT
+   FOR
+   GOTO
+   IF
+   INT
+   LONG
+   REGISTER
+   RETURN
+   SHORT
+   SIGNED
+   STATIC
+   STRUCT
+   SWITCH
+   TYPEDEF
+   UNION
+   UNSIGNED
+   VOID
+   WHILE
+   EXTERN
+   VOLATILE
+   TYPEDEF_T
+
+
+State 44 conflicts: 1 reduce/reduce
+
+
+Grammar
+
+    0 $accept: ROOT $end
+
+    1 ROOT: CONSTANT_EXPRESSION
+
+    2 TYPE_NAME: IDENTIFIER
+
+    3 CONSTANT_EXPRESSION: EXPRESSION
+
+    4 EXPRESSION: ASSIGNMENT_EXPRESSION
+
+    5 ARGUMENT_EXPRESSION_LIST: ASSIGNMENT_EXPRESSION
+    6                         | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION
+
+    7 ASSIGNMENT_EXPRESSION: CONDITIONAL_EXPRESSION
+    8                      | UNARY_EXPRESSION ASSIGNMENT_OPERATOR ASSIGNMENT_EXPRESSION
+
+    9 ASSIGNMENT_OPERATOR: '='
+   10                    | PLUS_EQUAL
+   11                    | MINUS_EQUAL
+   12                    | TIMES_EQUAL
+   13                    | DIVIDE_EQUAL
+   14                    | MOD_EQUAL
+   15                    | LEFT_SHIFT_EQUAL
+   16                    | RIGHT_SHIFT_EQUAL
+   17                    | B_AND_EQUAL
+   18                    | XOR_EQUAL
+   19                    | B_OR_EQUAL
+
+   20 CONDITIONAL_EXPRESSION: LOGICAL_OR_EXPRESSION
+   21                       | LOGICAL_OR_EXPRESSION '?' EXPRESSION ':' CONDITIONAL_EXPRESSION
+
+   22 LOGICAL_OR_EXPRESSION: LOGICAL_AND_EXPRESSION
+   23                      | LOGICAL_OR_EXPRESSION OR LOGICAL_AND_EXPRESSION
+
+   24 LOGICAL_AND_EXPRESSION: INCLUSIVE_OR_EXPRESSION
+   25                       | LOGICAL_AND_EXPRESSION AND INCLUSIVE_OR_EXPRESSION
+
+   26 INCLUSIVE_OR_EXPRESSION: EXCLUSIVE_OR_EXPRESSION
+   27                        | INCLUSIVE_OR_EXPRESSION '|' EXCLUSIVE_OR_EXPRESSION
+
+   28 EXCLUSIVE_OR_EXPRESSION: AND_EXPRESSION
+   29                        | EXCLUSIVE_OR_EXPRESSION '^' AND_EXPRESSION
+
+   30 AND_EXPRESSION: EQUALITY_EXPRESSION
+   31               | AND_EXPRESSION '&' EQUALITY_EXPRESSION
+
+   32 EQUALITY_EXPRESSION: RELATIONAL_EXPRESSION
+   33                    | EQUALITY_EXPRESSION EQUAL_TO RELATIONAL_EXPRESSION
+   34                    | EQUALITY_EXPRESSION NOT_EQUAL_TO RELATIONAL_EXPRESSION
+
+   35 RELATIONAL_EXPRESSION: SHIFT_EXPRESSION
+   36                      | RELATIONAL_EXPRESSION '<' SHIFT_EXPRESSION
+   37                      | RELATIONAL_EXPRESSION '>' SHIFT_EXPRESSION
+   38                      | RELATIONAL_EXPRESSION LESS_THAN_EQUAL SHIFT_EXPRESSION
+   39                      | RELATIONAL_EXPRESSION MORE_THAN_EQUAL SHIFT_EXPRESSION
+
+   40 SHIFT_EXPRESSION: ADDITIVE_EXPRESSION
+   41                 | SHIFT_EXPRESSION LEFT_SHIFT ADDITIVE_EXPRESSION
+   42                 | SHIFT_EXPRESSION RIGHT_SHIFT ADDITIVE_EXPRESSION
+
+   43 ADDITIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION
+   44                    | ADDITIVE_EXPRESSION '+' MULTIPLICATIVE_EXPRESSION
+   45                    | ADDITIVE_EXPRESSION '-' MULTIPLICATIVE_EXPRESSION
+
+   46 MULTIPLICATIVE_EXPRESSION: CAST_EXPRESSION
+   47                          | MULTIPLICATIVE_EXPRESSION '*' CAST_EXPRESSION
+   48                          | MULTIPLICATIVE_EXPRESSION '/' CAST_EXPRESSION
+   49                          | MULTIPLICATIVE_EXPRESSION '%' CAST_EXPRESSION
+
+   50 CAST_EXPRESSION: UNARY_EXPRESSION
+   51                | '(' TYPE_NAME ')' CAST_EXPRESSION
+
+   52 UNARY_EXPRESSION: POSTFIX_EXPRESSION
+   53                 | PLUSPLUS UNARY_EXPRESSION
+   54                 | MINUSMINUS UNARY_EXPRESSION
+   55                 | SIZEOF UNARY_EXPRESSION
+   56                 | SIZEOF '(' TYPE_NAME ')'
+   57                 | '&' CAST_EXPRESSION
+   58                 | '*' CAST_EXPRESSION
+   59                 | '+' CAST_EXPRESSION
+   60                 | '-' CAST_EXPRESSION
+   61                 | '~' CAST_EXPRESSION
+   62                 | '!' CAST_EXPRESSION
+
+   63 POSTFIX_EXPRESSION: PRIMARY_EXPRESSION
+   64                   | POSTFIX_EXPRESSION '[' EXPRESSION ']'
+   65                   | POSTFIX_EXPRESSION '(' ')'
+   66                   | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')'
+   67                   | POSTFIX_EXPRESSION '.' IDENTIFIER
+   68                   | POSTFIX_EXPRESSION ARROW IDENTIFIER
+   69                   | POSTFIX_EXPRESSION PLUSPLUS
+   70                   | POSTFIX_EXPRESSION MINUSMINUS
+
+   71 PRIMARY_EXPRESSION: IDENTIFIER
+   72                   | NUMBER
+   73                   | STRING_LITERAL
+   74                   | '(' EXPRESSION ')'
+   75                   | ENUM_VAL
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'!' (33) 62
+'%' (37) 49
+'&' (38) 31 57
+'(' (40) 51 56 65 66 74
+')' (41) 51 56 65 66 74
+'*' (42) 47 58
+'+' (43) 44 59
+',' (44) 6
+'-' (45) 45 60
+'.' (46) 67
+'/' (47) 48
+':' (58) 21
+'<' (60) 36
+'=' (61) 9
+'>' (62) 37
+'?' (63) 21
+'[' (91) 64
+']' (93) 64
+'^' (94) 29
+'|' (124) 27
+'~' (126) 61
+error (256)
+STRING_LITERAL <string> (258) 73
+PLUSPLUS (259) 53 69
+MINUSMINUS (260) 54 70
+EQUAL_TO (261) 33
+NOT_EQUAL_TO (262) 34
+LESS_THAN_EQUAL (263) 38
+MORE_THAN_EQUAL (264) 39
+AND (265) 25
+OR (266) 23
+LEFT_SHIFT (267) 41
+RIGHT_SHIFT (268) 42
+PLUS_EQUAL (269) 10
+MINUS_EQUAL (270) 11
+TIMES_EQUAL (271) 12
+DIVIDE_EQUAL (272) 13
+MOD_EQUAL (273) 14
+LEFT_SHIFT_EQUAL (274) 15
+RIGHT_SHIFT_EQUAL (275) 16
+B_AND_EQUAL (276) 17
+XOR_EQUAL (277) 18
+B_OR_EQUAL (278) 19
+ARROW (279) 68
+AUTO (280)
+BREAK (281)
+CASE (282)
+CHAR (283)
+CONST (284)
+CONTINUE (285)
+DEFAULT (286)
+DO (287)
+DOUBLE (288)
+ELSE (289)
+ENUM (290)
+ENUM_VAL <string> (291) 75
+FLOAT (292)
+FOR (293)
+GOTO (294)
+IF (295)
+INT (296)
+LONG (297)
+REGISTER (298)
+RETURN (299)
+SHORT (300)
+SIGNED (301)
+SIZEOF (302) 55 56
+STATIC (303)
+STRUCT (304)
+SWITCH (305)
+TYPEDEF (306)
+UNION (307)
+UNSIGNED (308)
+VOID (309)
+WHILE (310)
+EXTERN (311)
+VOLATILE (312)
+NUMBER <number> (313) 72
+IDENTIFIER <string> (314) 2 67 68 71
+TYPEDEF_T (315)
+
+
+Nonterminals, with rules where they appear
+
+$accept (82)
+    on left: 0
+ROOT (83)
+    on left: 1, on right: 0
+TYPE_NAME <string> (84)
+    on left: 2, on right: 51 56
+CONSTANT_EXPRESSION <ExpressionPtr> (85)
+    on left: 3, on right: 1
+EXPRESSION <ExpressionPtr> (86)
+    on left: 4, on right: 3 21 64 74
+ARGUMENT_EXPRESSION_LIST <ArgumentExpressionListPtr> (87)
+    on left: 5 6, on right: 6 66
+ASSIGNMENT_EXPRESSION <ExpressionPtr> (88)
+    on left: 7 8, on right: 4 5 6 8
+ASSIGNMENT_OPERATOR <Char> (89)
+    on left: 9 10 11 12 13 14 15 16 17 18 19, on right: 8
+CONDITIONAL_EXPRESSION <ExpressionPtr> (90)
+    on left: 20 21, on right: 7 21
+LOGICAL_OR_EXPRESSION <ExpressionPtr> (91)
+    on left: 22 23, on right: 20 21 23
+LOGICAL_AND_EXPRESSION <ExpressionPtr> (92)
+    on left: 24 25, on right: 22 23 25
+INCLUSIVE_OR_EXPRESSION <ExpressionPtr> (93)
+    on left: 26 27, on right: 24 25 27
+EXCLUSIVE_OR_EXPRESSION <ExpressionPtr> (94)
+    on left: 28 29, on right: 26 27 29
+AND_EXPRESSION <ExpressionPtr> (95)
+    on left: 30 31, on right: 28 29 31
+EQUALITY_EXPRESSION <ExpressionPtr> (96)
+    on left: 32 33 34, on right: 30 31 33 34
+RELATIONAL_EXPRESSION <ExpressionPtr> (97)
+    on left: 35 36 37 38 39, on right: 32 33 34 36 37 38 39
+SHIFT_EXPRESSION <ExpressionPtr> (98)
+    on left: 40 41 42, on right: 35 36 37 38 39 41 42
+ADDITIVE_EXPRESSION <ExpressionPtr> (99)
+    on left: 43 44 45, on right: 40 41 42 44 45
+MULTIPLICATIVE_EXPRESSION <ExpressionPtr> (100)
+    on left: 46 47 48 49, on right: 43 44 45 47 48 49
+CAST_EXPRESSION <ExpressionPtr> (101)
+    on left: 50 51, on right: 46 47 48 49 51 57 58 59 60 61 62
+UNARY_EXPRESSION <ExpressionPtr> (102)
+    on left: 52 53 54 55 56 57 58 59 60 61 62, on right: 8 50 53 54
+    55
+POSTFIX_EXPRESSION <ExpressionPtr> (103)
+    on left: 63 64 65 66 67 68 69 70, on right: 52 64 65 66 67 68 69
+    70
+PRIMARY_EXPRESSION <ExpressionPtr> (104)
+    on left: 71 72 73 74 75, on right: 63
+
+
+State 0
+
+    0 $accept: . ROOT $end
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    ROOT                       go to state 15
+    CONSTANT_EXPRESSION        go to state 16
+    EXPRESSION                 go to state 17
+    ASSIGNMENT_EXPRESSION      go to state 18
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 1
+
+   73 PRIMARY_EXPRESSION: STRING_LITERAL .
+
+    $default  reduce using rule 73 (PRIMARY_EXPRESSION)
+
+
+State 2
+
+   53 UNARY_EXPRESSION: PLUSPLUS . UNARY_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 34
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    UNARY_EXPRESSION    go to state 35
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 3
+
+   54 UNARY_EXPRESSION: MINUSMINUS . UNARY_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 34
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    UNARY_EXPRESSION    go to state 36
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 4
+
+   75 PRIMARY_EXPRESSION: ENUM_VAL .
+
+    $default  reduce using rule 75 (PRIMARY_EXPRESSION)
+
+
+State 5
+
+   55 UNARY_EXPRESSION: SIZEOF . UNARY_EXPRESSION
+   56                 | SIZEOF . '(' TYPE_NAME ')'
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 37
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    UNARY_EXPRESSION    go to state 38
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 6
+
+   72 PRIMARY_EXPRESSION: NUMBER .
+
+    $default  reduce using rule 72 (PRIMARY_EXPRESSION)
+
+
+State 7
+
+   71 PRIMARY_EXPRESSION: IDENTIFIER .
+
+    $default  reduce using rule 71 (PRIMARY_EXPRESSION)
+
+
+State 8
+
+   57 UNARY_EXPRESSION: '&' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 39
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 9
+
+   59 UNARY_EXPRESSION: '+' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 41
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 10
+
+   60 UNARY_EXPRESSION: '-' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 42
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 11
+
+   58 UNARY_EXPRESSION: '*' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 43
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 12
+
+   51 CAST_EXPRESSION: '(' . TYPE_NAME ')' CAST_EXPRESSION
+   74 PRIMARY_EXPRESSION: '(' . EXPRESSION ')'
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 44
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    TYPE_NAME                  go to state 45
+    EXPRESSION                 go to state 46
+    ASSIGNMENT_EXPRESSION      go to state 18
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 13
+
+   61 UNARY_EXPRESSION: '~' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 47
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 14
+
+   62 UNARY_EXPRESSION: '!' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 48
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 15
+
+    0 $accept: ROOT . $end
+
+    $end  shift, and go to state 49
+
+
+State 16
+
+    1 ROOT: CONSTANT_EXPRESSION .
+
+    $default  reduce using rule 1 (ROOT)
+
+
+State 17
+
+    3 CONSTANT_EXPRESSION: EXPRESSION .
+
+    $default  reduce using rule 3 (CONSTANT_EXPRESSION)
+
+
+State 18
+
+    4 EXPRESSION: ASSIGNMENT_EXPRESSION .
+
+    $default  reduce using rule 4 (EXPRESSION)
+
+
+State 19
+
+    7 ASSIGNMENT_EXPRESSION: CONDITIONAL_EXPRESSION .
+
+    $default  reduce using rule 7 (ASSIGNMENT_EXPRESSION)
+
+
+State 20
+
+   20 CONDITIONAL_EXPRESSION: LOGICAL_OR_EXPRESSION .
+   21                       | LOGICAL_OR_EXPRESSION . '?' EXPRESSION ':' CONDITIONAL_EXPRESSION
+   23 LOGICAL_OR_EXPRESSION: LOGICAL_OR_EXPRESSION . OR LOGICAL_AND_EXPRESSION
+
+    OR   shift, and go to state 50
+    '?'  shift, and go to state 51
+
+    $default  reduce using rule 20 (CONDITIONAL_EXPRESSION)
+
+
+State 21
+
+   22 LOGICAL_OR_EXPRESSION: LOGICAL_AND_EXPRESSION .
+   25 LOGICAL_AND_EXPRESSION: LOGICAL_AND_EXPRESSION . AND INCLUSIVE_OR_EXPRESSION
+
+    AND  shift, and go to state 52
+
+    $default  reduce using rule 22 (LOGICAL_OR_EXPRESSION)
+
+
+State 22
+
+   24 LOGICAL_AND_EXPRESSION: INCLUSIVE_OR_EXPRESSION .
+   27 INCLUSIVE_OR_EXPRESSION: INCLUSIVE_OR_EXPRESSION . '|' EXCLUSIVE_OR_EXPRESSION
+
+    '|'  shift, and go to state 53
+
+    $default  reduce using rule 24 (LOGICAL_AND_EXPRESSION)
+
+
+State 23
+
+   26 INCLUSIVE_OR_EXPRESSION: EXCLUSIVE_OR_EXPRESSION .
+   29 EXCLUSIVE_OR_EXPRESSION: EXCLUSIVE_OR_EXPRESSION . '^' AND_EXPRESSION
+
+    '^'  shift, and go to state 54
+
+    $default  reduce using rule 26 (INCLUSIVE_OR_EXPRESSION)
+
+
+State 24
+
+   28 EXCLUSIVE_OR_EXPRESSION: AND_EXPRESSION .
+   31 AND_EXPRESSION: AND_EXPRESSION . '&' EQUALITY_EXPRESSION
+
+    '&'  shift, and go to state 55
+
+    $default  reduce using rule 28 (EXCLUSIVE_OR_EXPRESSION)
+
+
+State 25
+
+   30 AND_EXPRESSION: EQUALITY_EXPRESSION .
+   33 EQUALITY_EXPRESSION: EQUALITY_EXPRESSION . EQUAL_TO RELATIONAL_EXPRESSION
+   34                    | EQUALITY_EXPRESSION . NOT_EQUAL_TO RELATIONAL_EXPRESSION
+
+    EQUAL_TO      shift, and go to state 56
+    NOT_EQUAL_TO  shift, and go to state 57
+
+    $default  reduce using rule 30 (AND_EXPRESSION)
+
+
+State 26
+
+   32 EQUALITY_EXPRESSION: RELATIONAL_EXPRESSION .
+   36 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION . '<' SHIFT_EXPRESSION
+   37                      | RELATIONAL_EXPRESSION . '>' SHIFT_EXPRESSION
+   38                      | RELATIONAL_EXPRESSION . LESS_THAN_EQUAL SHIFT_EXPRESSION
+   39                      | RELATIONAL_EXPRESSION . MORE_THAN_EQUAL SHIFT_EXPRESSION
+
+    LESS_THAN_EQUAL  shift, and go to state 58
+    MORE_THAN_EQUAL  shift, and go to state 59
+    '<'              shift, and go to state 60
+    '>'              shift, and go to state 61
+
+    $default  reduce using rule 32 (EQUALITY_EXPRESSION)
+
+
+State 27
+
+   35 RELATIONAL_EXPRESSION: SHIFT_EXPRESSION .
+   41 SHIFT_EXPRESSION: SHIFT_EXPRESSION . LEFT_SHIFT ADDITIVE_EXPRESSION
+   42                 | SHIFT_EXPRESSION . RIGHT_SHIFT ADDITIVE_EXPRESSION
+
+    LEFT_SHIFT   shift, and go to state 62
+    RIGHT_SHIFT  shift, and go to state 63
+
+    $default  reduce using rule 35 (RELATIONAL_EXPRESSION)
+
+
+State 28
+
+   40 SHIFT_EXPRESSION: ADDITIVE_EXPRESSION .
+   44 ADDITIVE_EXPRESSION: ADDITIVE_EXPRESSION . '+' MULTIPLICATIVE_EXPRESSION
+   45                    | ADDITIVE_EXPRESSION . '-' MULTIPLICATIVE_EXPRESSION
+
+    '+'  shift, and go to state 64
+    '-'  shift, and go to state 65
+
+    $default  reduce using rule 40 (SHIFT_EXPRESSION)
+
+
+State 29
+
+   43 ADDITIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION .
+   47 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION . '*' CAST_EXPRESSION
+   48                          | MULTIPLICATIVE_EXPRESSION . '/' CAST_EXPRESSION
+   49                          | MULTIPLICATIVE_EXPRESSION . '%' CAST_EXPRESSION
+
+    '*'  shift, and go to state 66
+    '/'  shift, and go to state 67
+    '%'  shift, and go to state 68
+
+    $default  reduce using rule 43 (ADDITIVE_EXPRESSION)
+
+
+State 30
+
+   46 MULTIPLICATIVE_EXPRESSION: CAST_EXPRESSION .
+
+    $default  reduce using rule 46 (MULTIPLICATIVE_EXPRESSION)
+
+
+State 31
+
+    8 ASSIGNMENT_EXPRESSION: UNARY_EXPRESSION . ASSIGNMENT_OPERATOR ASSIGNMENT_EXPRESSION
+   50 CAST_EXPRESSION: UNARY_EXPRESSION .
+
+    PLUS_EQUAL         shift, and go to state 69
+    MINUS_EQUAL        shift, and go to state 70
+    TIMES_EQUAL        shift, and go to state 71
+    DIVIDE_EQUAL       shift, and go to state 72
+    MOD_EQUAL          shift, and go to state 73
+    LEFT_SHIFT_EQUAL   shift, and go to state 74
+    RIGHT_SHIFT_EQUAL  shift, and go to state 75
+    B_AND_EQUAL        shift, and go to state 76
+    XOR_EQUAL          shift, and go to state 77
+    B_OR_EQUAL         shift, and go to state 78
+    '='                shift, and go to state 79
+
+    $default  reduce using rule 50 (CAST_EXPRESSION)
+
+    ASSIGNMENT_OPERATOR  go to state 80
+
+
+State 32
+
+   52 UNARY_EXPRESSION: POSTFIX_EXPRESSION .
+   64 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION . '[' EXPRESSION ']'
+   65                   | POSTFIX_EXPRESSION . '(' ')'
+   66                   | POSTFIX_EXPRESSION . '(' ARGUMENT_EXPRESSION_LIST ')'
+   67                   | POSTFIX_EXPRESSION . '.' IDENTIFIER
+   68                   | POSTFIX_EXPRESSION . ARROW IDENTIFIER
+   69                   | POSTFIX_EXPRESSION . PLUSPLUS
+   70                   | POSTFIX_EXPRESSION . MINUSMINUS
+
+    PLUSPLUS    shift, and go to state 81
+    MINUSMINUS  shift, and go to state 82
+    ARROW       shift, and go to state 83
+    '('         shift, and go to state 84
+    '['         shift, and go to state 85
+    '.'         shift, and go to state 86
+
+    $default  reduce using rule 52 (UNARY_EXPRESSION)
+
+
+State 33
+
+   63 POSTFIX_EXPRESSION: PRIMARY_EXPRESSION .
+
+    $default  reduce using rule 63 (POSTFIX_EXPRESSION)
+
+
+State 34
+
+   74 PRIMARY_EXPRESSION: '(' . EXPRESSION ')'
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    EXPRESSION                 go to state 46
+    ASSIGNMENT_EXPRESSION      go to state 18
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 35
+
+   53 UNARY_EXPRESSION: PLUSPLUS UNARY_EXPRESSION .
+
+    $default  reduce using rule 53 (UNARY_EXPRESSION)
+
+
+State 36
+
+   54 UNARY_EXPRESSION: MINUSMINUS UNARY_EXPRESSION .
+
+    $default  reduce using rule 54 (UNARY_EXPRESSION)
+
+
+State 37
+
+   56 UNARY_EXPRESSION: SIZEOF '(' . TYPE_NAME ')'
+   74 PRIMARY_EXPRESSION: '(' . EXPRESSION ')'
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 44
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    TYPE_NAME                  go to state 87
+    EXPRESSION                 go to state 46
+    ASSIGNMENT_EXPRESSION      go to state 18
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 38
+
+   55 UNARY_EXPRESSION: SIZEOF UNARY_EXPRESSION .
+
+    $default  reduce using rule 55 (UNARY_EXPRESSION)
+
+
+State 39
+
+   57 UNARY_EXPRESSION: '&' CAST_EXPRESSION .
+
+    $default  reduce using rule 57 (UNARY_EXPRESSION)
+
+
+State 40
+
+   50 CAST_EXPRESSION: UNARY_EXPRESSION .
+
+    $default  reduce using rule 50 (CAST_EXPRESSION)
+
+
+State 41
+
+   59 UNARY_EXPRESSION: '+' CAST_EXPRESSION .
+
+    $default  reduce using rule 59 (UNARY_EXPRESSION)
+
+
+State 42
+
+   60 UNARY_EXPRESSION: '-' CAST_EXPRESSION .
+
+    $default  reduce using rule 60 (UNARY_EXPRESSION)
+
+
+State 43
+
+   58 UNARY_EXPRESSION: '*' CAST_EXPRESSION .
+
+    $default  reduce using rule 58 (UNARY_EXPRESSION)
+
+
+State 44
+
+    2 TYPE_NAME: IDENTIFIER .
+   71 PRIMARY_EXPRESSION: IDENTIFIER .
+
+    ')'       reduce using rule 2 (TYPE_NAME)
+    ')'       [reduce using rule 71 (PRIMARY_EXPRESSION)]
+    $default  reduce using rule 71 (PRIMARY_EXPRESSION)
+
+
+State 45
+
+   51 CAST_EXPRESSION: '(' TYPE_NAME . ')' CAST_EXPRESSION
+
+    ')'  shift, and go to state 88
+
+
+State 46
+
+   74 PRIMARY_EXPRESSION: '(' EXPRESSION . ')'
+
+    ')'  shift, and go to state 89
+
+
+State 47
+
+   61 UNARY_EXPRESSION: '~' CAST_EXPRESSION .
+
+    $default  reduce using rule 61 (UNARY_EXPRESSION)
+
+
+State 48
+
+   62 UNARY_EXPRESSION: '!' CAST_EXPRESSION .
+
+    $default  reduce using rule 62 (UNARY_EXPRESSION)
+
+
+State 49
+
+    0 $accept: ROOT $end .
+
+    $default  accept
+
+
+State 50
+
+   23 LOGICAL_OR_EXPRESSION: LOGICAL_OR_EXPRESSION OR . LOGICAL_AND_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    LOGICAL_AND_EXPRESSION     go to state 90
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 51
+
+   21 CONDITIONAL_EXPRESSION: LOGICAL_OR_EXPRESSION '?' . EXPRESSION ':' CONDITIONAL_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    EXPRESSION                 go to state 91
+    ASSIGNMENT_EXPRESSION      go to state 18
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 52
+
+   25 LOGICAL_AND_EXPRESSION: LOGICAL_AND_EXPRESSION AND . INCLUSIVE_OR_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    INCLUSIVE_OR_EXPRESSION    go to state 92
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 53
+
+   27 INCLUSIVE_OR_EXPRESSION: INCLUSIVE_OR_EXPRESSION '|' . EXCLUSIVE_OR_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    EXCLUSIVE_OR_EXPRESSION    go to state 93
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 54
+
+   29 EXCLUSIVE_OR_EXPRESSION: EXCLUSIVE_OR_EXPRESSION '^' . AND_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    AND_EXPRESSION             go to state 94
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 55
+
+   31 AND_EXPRESSION: AND_EXPRESSION '&' . EQUALITY_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    EQUALITY_EXPRESSION        go to state 95
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 56
+
+   33 EQUALITY_EXPRESSION: EQUALITY_EXPRESSION EQUAL_TO . RELATIONAL_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    RELATIONAL_EXPRESSION      go to state 96
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 57
+
+   34 EQUALITY_EXPRESSION: EQUALITY_EXPRESSION NOT_EQUAL_TO . RELATIONAL_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    RELATIONAL_EXPRESSION      go to state 97
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 58
+
+   38 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION LESS_THAN_EQUAL . SHIFT_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    SHIFT_EXPRESSION           go to state 98
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 59
+
+   39 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION MORE_THAN_EQUAL . SHIFT_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    SHIFT_EXPRESSION           go to state 99
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 60
+
+   36 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION '<' . SHIFT_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    SHIFT_EXPRESSION           go to state 100
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 61
+
+   37 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION '>' . SHIFT_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    SHIFT_EXPRESSION           go to state 101
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 62
+
+   41 SHIFT_EXPRESSION: SHIFT_EXPRESSION LEFT_SHIFT . ADDITIVE_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    ADDITIVE_EXPRESSION        go to state 102
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 63
+
+   42 SHIFT_EXPRESSION: SHIFT_EXPRESSION RIGHT_SHIFT . ADDITIVE_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    ADDITIVE_EXPRESSION        go to state 103
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 64
+
+   44 ADDITIVE_EXPRESSION: ADDITIVE_EXPRESSION '+' . MULTIPLICATIVE_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    MULTIPLICATIVE_EXPRESSION  go to state 104
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 65
+
+   45 ADDITIVE_EXPRESSION: ADDITIVE_EXPRESSION '-' . MULTIPLICATIVE_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    MULTIPLICATIVE_EXPRESSION  go to state 105
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 66
+
+   47 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION '*' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 106
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 67
+
+   48 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION '/' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 107
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 68
+
+   49 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION '%' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 108
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 69
+
+   10 ASSIGNMENT_OPERATOR: PLUS_EQUAL .
+
+    $default  reduce using rule 10 (ASSIGNMENT_OPERATOR)
+
+
+State 70
+
+   11 ASSIGNMENT_OPERATOR: MINUS_EQUAL .
+
+    $default  reduce using rule 11 (ASSIGNMENT_OPERATOR)
+
+
+State 71
+
+   12 ASSIGNMENT_OPERATOR: TIMES_EQUAL .
+
+    $default  reduce using rule 12 (ASSIGNMENT_OPERATOR)
+
+
+State 72
+
+   13 ASSIGNMENT_OPERATOR: DIVIDE_EQUAL .
+
+    $default  reduce using rule 13 (ASSIGNMENT_OPERATOR)
+
+
+State 73
+
+   14 ASSIGNMENT_OPERATOR: MOD_EQUAL .
+
+    $default  reduce using rule 14 (ASSIGNMENT_OPERATOR)
+
+
+State 74
+
+   15 ASSIGNMENT_OPERATOR: LEFT_SHIFT_EQUAL .
+
+    $default  reduce using rule 15 (ASSIGNMENT_OPERATOR)
+
+
+State 75
+
+   16 ASSIGNMENT_OPERATOR: RIGHT_SHIFT_EQUAL .
+
+    $default  reduce using rule 16 (ASSIGNMENT_OPERATOR)
+
+
+State 76
+
+   17 ASSIGNMENT_OPERATOR: B_AND_EQUAL .
+
+    $default  reduce using rule 17 (ASSIGNMENT_OPERATOR)
+
+
+State 77
+
+   18 ASSIGNMENT_OPERATOR: XOR_EQUAL .
+
+    $default  reduce using rule 18 (ASSIGNMENT_OPERATOR)
+
+
+State 78
+
+   19 ASSIGNMENT_OPERATOR: B_OR_EQUAL .
+
+    $default  reduce using rule 19 (ASSIGNMENT_OPERATOR)
+
+
+State 79
+
+    9 ASSIGNMENT_OPERATOR: '=' .
+
+    $default  reduce using rule 9 (ASSIGNMENT_OPERATOR)
+
+
+State 80
+
+    8 ASSIGNMENT_EXPRESSION: UNARY_EXPRESSION ASSIGNMENT_OPERATOR . ASSIGNMENT_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    ASSIGNMENT_EXPRESSION      go to state 109
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 81
+
+   69 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION PLUSPLUS .
+
+    $default  reduce using rule 69 (POSTFIX_EXPRESSION)
+
+
+State 82
+
+   70 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION MINUSMINUS .
+
+    $default  reduce using rule 70 (POSTFIX_EXPRESSION)
+
+
+State 83
+
+   68 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION ARROW . IDENTIFIER
+
+    IDENTIFIER  shift, and go to state 110
+
+
+State 84
+
+   65 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '(' . ')'
+   66                   | POSTFIX_EXPRESSION '(' . ARGUMENT_EXPRESSION_LIST ')'
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    ')'             shift, and go to state 111
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    ARGUMENT_EXPRESSION_LIST   go to state 112
+    ASSIGNMENT_EXPRESSION      go to state 113
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 85
+
+   64 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '[' . EXPRESSION ']'
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    EXPRESSION                 go to state 114
+    ASSIGNMENT_EXPRESSION      go to state 18
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 86
+
+   67 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '.' . IDENTIFIER
+
+    IDENTIFIER  shift, and go to state 115
+
+
+State 87
+
+   56 UNARY_EXPRESSION: SIZEOF '(' TYPE_NAME . ')'
+
+    ')'  shift, and go to state 116
+
+
+State 88
+
+   51 CAST_EXPRESSION: '(' TYPE_NAME ')' . CAST_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CAST_EXPRESSION     go to state 117
+    UNARY_EXPRESSION    go to state 40
+    POSTFIX_EXPRESSION  go to state 32
+    PRIMARY_EXPRESSION  go to state 33
+
+
+State 89
+
+   74 PRIMARY_EXPRESSION: '(' EXPRESSION ')' .
+
+    $default  reduce using rule 74 (PRIMARY_EXPRESSION)
+
+
+State 90
+
+   23 LOGICAL_OR_EXPRESSION: LOGICAL_OR_EXPRESSION OR LOGICAL_AND_EXPRESSION .
+   25 LOGICAL_AND_EXPRESSION: LOGICAL_AND_EXPRESSION . AND INCLUSIVE_OR_EXPRESSION
+
+    AND  shift, and go to state 52
+
+    $default  reduce using rule 23 (LOGICAL_OR_EXPRESSION)
+
+
+State 91
+
+   21 CONDITIONAL_EXPRESSION: LOGICAL_OR_EXPRESSION '?' EXPRESSION . ':' CONDITIONAL_EXPRESSION
+
+    ':'  shift, and go to state 118
+
+
+State 92
+
+   25 LOGICAL_AND_EXPRESSION: LOGICAL_AND_EXPRESSION AND INCLUSIVE_OR_EXPRESSION .
+   27 INCLUSIVE_OR_EXPRESSION: INCLUSIVE_OR_EXPRESSION . '|' EXCLUSIVE_OR_EXPRESSION
+
+    '|'  shift, and go to state 53
+
+    $default  reduce using rule 25 (LOGICAL_AND_EXPRESSION)
+
+
+State 93
+
+   27 INCLUSIVE_OR_EXPRESSION: INCLUSIVE_OR_EXPRESSION '|' EXCLUSIVE_OR_EXPRESSION .
+   29 EXCLUSIVE_OR_EXPRESSION: EXCLUSIVE_OR_EXPRESSION . '^' AND_EXPRESSION
+
+    '^'  shift, and go to state 54
+
+    $default  reduce using rule 27 (INCLUSIVE_OR_EXPRESSION)
+
+
+State 94
+
+   29 EXCLUSIVE_OR_EXPRESSION: EXCLUSIVE_OR_EXPRESSION '^' AND_EXPRESSION .
+   31 AND_EXPRESSION: AND_EXPRESSION . '&' EQUALITY_EXPRESSION
+
+    '&'  shift, and go to state 55
+
+    $default  reduce using rule 29 (EXCLUSIVE_OR_EXPRESSION)
+
+
+State 95
+
+   31 AND_EXPRESSION: AND_EXPRESSION '&' EQUALITY_EXPRESSION .
+   33 EQUALITY_EXPRESSION: EQUALITY_EXPRESSION . EQUAL_TO RELATIONAL_EXPRESSION
+   34                    | EQUALITY_EXPRESSION . NOT_EQUAL_TO RELATIONAL_EXPRESSION
+
+    EQUAL_TO      shift, and go to state 56
+    NOT_EQUAL_TO  shift, and go to state 57
+
+    $default  reduce using rule 31 (AND_EXPRESSION)
+
+
+State 96
+
+   33 EQUALITY_EXPRESSION: EQUALITY_EXPRESSION EQUAL_TO RELATIONAL_EXPRESSION .
+   36 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION . '<' SHIFT_EXPRESSION
+   37                      | RELATIONAL_EXPRESSION . '>' SHIFT_EXPRESSION
+   38                      | RELATIONAL_EXPRESSION . LESS_THAN_EQUAL SHIFT_EXPRESSION
+   39                      | RELATIONAL_EXPRESSION . MORE_THAN_EQUAL SHIFT_EXPRESSION
+
+    LESS_THAN_EQUAL  shift, and go to state 58
+    MORE_THAN_EQUAL  shift, and go to state 59
+    '<'              shift, and go to state 60
+    '>'              shift, and go to state 61
+
+    $default  reduce using rule 33 (EQUALITY_EXPRESSION)
+
+
+State 97
+
+   34 EQUALITY_EXPRESSION: EQUALITY_EXPRESSION NOT_EQUAL_TO RELATIONAL_EXPRESSION .
+   36 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION . '<' SHIFT_EXPRESSION
+   37                      | RELATIONAL_EXPRESSION . '>' SHIFT_EXPRESSION
+   38                      | RELATIONAL_EXPRESSION . LESS_THAN_EQUAL SHIFT_EXPRESSION
+   39                      | RELATIONAL_EXPRESSION . MORE_THAN_EQUAL SHIFT_EXPRESSION
+
+    LESS_THAN_EQUAL  shift, and go to state 58
+    MORE_THAN_EQUAL  shift, and go to state 59
+    '<'              shift, and go to state 60
+    '>'              shift, and go to state 61
+
+    $default  reduce using rule 34 (EQUALITY_EXPRESSION)
+
+
+State 98
+
+   38 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION LESS_THAN_EQUAL SHIFT_EXPRESSION .
+   41 SHIFT_EXPRESSION: SHIFT_EXPRESSION . LEFT_SHIFT ADDITIVE_EXPRESSION
+   42                 | SHIFT_EXPRESSION . RIGHT_SHIFT ADDITIVE_EXPRESSION
+
+    LEFT_SHIFT   shift, and go to state 62
+    RIGHT_SHIFT  shift, and go to state 63
+
+    $default  reduce using rule 38 (RELATIONAL_EXPRESSION)
+
+
+State 99
+
+   39 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION MORE_THAN_EQUAL SHIFT_EXPRESSION .
+   41 SHIFT_EXPRESSION: SHIFT_EXPRESSION . LEFT_SHIFT ADDITIVE_EXPRESSION
+   42                 | SHIFT_EXPRESSION . RIGHT_SHIFT ADDITIVE_EXPRESSION
+
+    LEFT_SHIFT   shift, and go to state 62
+    RIGHT_SHIFT  shift, and go to state 63
+
+    $default  reduce using rule 39 (RELATIONAL_EXPRESSION)
+
+
+State 100
+
+   36 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION '<' SHIFT_EXPRESSION .
+   41 SHIFT_EXPRESSION: SHIFT_EXPRESSION . LEFT_SHIFT ADDITIVE_EXPRESSION
+   42                 | SHIFT_EXPRESSION . RIGHT_SHIFT ADDITIVE_EXPRESSION
+
+    LEFT_SHIFT   shift, and go to state 62
+    RIGHT_SHIFT  shift, and go to state 63
+
+    $default  reduce using rule 36 (RELATIONAL_EXPRESSION)
+
+
+State 101
+
+   37 RELATIONAL_EXPRESSION: RELATIONAL_EXPRESSION '>' SHIFT_EXPRESSION .
+   41 SHIFT_EXPRESSION: SHIFT_EXPRESSION . LEFT_SHIFT ADDITIVE_EXPRESSION
+   42                 | SHIFT_EXPRESSION . RIGHT_SHIFT ADDITIVE_EXPRESSION
+
+    LEFT_SHIFT   shift, and go to state 62
+    RIGHT_SHIFT  shift, and go to state 63
+
+    $default  reduce using rule 37 (RELATIONAL_EXPRESSION)
+
+
+State 102
+
+   41 SHIFT_EXPRESSION: SHIFT_EXPRESSION LEFT_SHIFT ADDITIVE_EXPRESSION .
+   44 ADDITIVE_EXPRESSION: ADDITIVE_EXPRESSION . '+' MULTIPLICATIVE_EXPRESSION
+   45                    | ADDITIVE_EXPRESSION . '-' MULTIPLICATIVE_EXPRESSION
+
+    '+'  shift, and go to state 64
+    '-'  shift, and go to state 65
+
+    $default  reduce using rule 41 (SHIFT_EXPRESSION)
+
+
+State 103
+
+   42 SHIFT_EXPRESSION: SHIFT_EXPRESSION RIGHT_SHIFT ADDITIVE_EXPRESSION .
+   44 ADDITIVE_EXPRESSION: ADDITIVE_EXPRESSION . '+' MULTIPLICATIVE_EXPRESSION
+   45                    | ADDITIVE_EXPRESSION . '-' MULTIPLICATIVE_EXPRESSION
+
+    '+'  shift, and go to state 64
+    '-'  shift, and go to state 65
+
+    $default  reduce using rule 42 (SHIFT_EXPRESSION)
+
+
+State 104
+
+   44 ADDITIVE_EXPRESSION: ADDITIVE_EXPRESSION '+' MULTIPLICATIVE_EXPRESSION .
+   47 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION . '*' CAST_EXPRESSION
+   48                          | MULTIPLICATIVE_EXPRESSION . '/' CAST_EXPRESSION
+   49                          | MULTIPLICATIVE_EXPRESSION . '%' CAST_EXPRESSION
+
+    '*'  shift, and go to state 66
+    '/'  shift, and go to state 67
+    '%'  shift, and go to state 68
+
+    $default  reduce using rule 44 (ADDITIVE_EXPRESSION)
+
+
+State 105
+
+   45 ADDITIVE_EXPRESSION: ADDITIVE_EXPRESSION '-' MULTIPLICATIVE_EXPRESSION .
+   47 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION . '*' CAST_EXPRESSION
+   48                          | MULTIPLICATIVE_EXPRESSION . '/' CAST_EXPRESSION
+   49                          | MULTIPLICATIVE_EXPRESSION . '%' CAST_EXPRESSION
+
+    '*'  shift, and go to state 66
+    '/'  shift, and go to state 67
+    '%'  shift, and go to state 68
+
+    $default  reduce using rule 45 (ADDITIVE_EXPRESSION)
+
+
+State 106
+
+   47 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION '*' CAST_EXPRESSION .
+
+    $default  reduce using rule 47 (MULTIPLICATIVE_EXPRESSION)
+
+
+State 107
+
+   48 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION '/' CAST_EXPRESSION .
+
+    $default  reduce using rule 48 (MULTIPLICATIVE_EXPRESSION)
+
+
+State 108
+
+   49 MULTIPLICATIVE_EXPRESSION: MULTIPLICATIVE_EXPRESSION '%' CAST_EXPRESSION .
+
+    $default  reduce using rule 49 (MULTIPLICATIVE_EXPRESSION)
+
+
+State 109
+
+    8 ASSIGNMENT_EXPRESSION: UNARY_EXPRESSION ASSIGNMENT_OPERATOR ASSIGNMENT_EXPRESSION .
+
+    $default  reduce using rule 8 (ASSIGNMENT_EXPRESSION)
+
+
+State 110
+
+   68 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION ARROW IDENTIFIER .
+
+    $default  reduce using rule 68 (POSTFIX_EXPRESSION)
+
+
+State 111
+
+   65 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '(' ')' .
+
+    $default  reduce using rule 65 (POSTFIX_EXPRESSION)
+
+
+State 112
+
+    6 ARGUMENT_EXPRESSION_LIST: ARGUMENT_EXPRESSION_LIST . ',' ASSIGNMENT_EXPRESSION
+   66 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST . ')'
+
+    ','  shift, and go to state 119
+    ')'  shift, and go to state 120
+
+
+State 113
+
+    5 ARGUMENT_EXPRESSION_LIST: ASSIGNMENT_EXPRESSION .
+
+    $default  reduce using rule 5 (ARGUMENT_EXPRESSION_LIST)
+
+
+State 114
+
+   64 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '[' EXPRESSION . ']'
+
+    ']'  shift, and go to state 121
+
+
+State 115
+
+   67 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '.' IDENTIFIER .
+
+    $default  reduce using rule 67 (POSTFIX_EXPRESSION)
+
+
+State 116
+
+   56 UNARY_EXPRESSION: SIZEOF '(' TYPE_NAME ')' .
+
+    $default  reduce using rule 56 (UNARY_EXPRESSION)
+
+
+State 117
+
+   51 CAST_EXPRESSION: '(' TYPE_NAME ')' CAST_EXPRESSION .
+
+    $default  reduce using rule 51 (CAST_EXPRESSION)
+
+
+State 118
+
+   21 CONDITIONAL_EXPRESSION: LOGICAL_OR_EXPRESSION '?' EXPRESSION ':' . CONDITIONAL_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    CONDITIONAL_EXPRESSION     go to state 122
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 40
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 119
+
+    6 ARGUMENT_EXPRESSION_LIST: ARGUMENT_EXPRESSION_LIST ',' . ASSIGNMENT_EXPRESSION
+
+    STRING_LITERAL  shift, and go to state 1
+    PLUSPLUS        shift, and go to state 2
+    MINUSMINUS      shift, and go to state 3
+    ENUM_VAL        shift, and go to state 4
+    SIZEOF          shift, and go to state 5
+    NUMBER          shift, and go to state 6
+    IDENTIFIER      shift, and go to state 7
+    '&'             shift, and go to state 8
+    '+'             shift, and go to state 9
+    '-'             shift, and go to state 10
+    '*'             shift, and go to state 11
+    '('             shift, and go to state 12
+    '~'             shift, and go to state 13
+    '!'             shift, and go to state 14
+
+    ASSIGNMENT_EXPRESSION      go to state 123
+    CONDITIONAL_EXPRESSION     go to state 19
+    LOGICAL_OR_EXPRESSION      go to state 20
+    LOGICAL_AND_EXPRESSION     go to state 21
+    INCLUSIVE_OR_EXPRESSION    go to state 22
+    EXCLUSIVE_OR_EXPRESSION    go to state 23
+    AND_EXPRESSION             go to state 24
+    EQUALITY_EXPRESSION        go to state 25
+    RELATIONAL_EXPRESSION      go to state 26
+    SHIFT_EXPRESSION           go to state 27
+    ADDITIVE_EXPRESSION        go to state 28
+    MULTIPLICATIVE_EXPRESSION  go to state 29
+    CAST_EXPRESSION            go to state 30
+    UNARY_EXPRESSION           go to state 31
+    POSTFIX_EXPRESSION         go to state 32
+    PRIMARY_EXPRESSION         go to state 33
+
+
+State 120
+
+   66 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')' .
+
+    $default  reduce using rule 66 (POSTFIX_EXPRESSION)
+
+
+State 121
+
+   64 POSTFIX_EXPRESSION: POSTFIX_EXPRESSION '[' EXPRESSION ']' .
+
+    $default  reduce using rule 64 (POSTFIX_EXPRESSION)
+
+
+State 122
+
+   21 CONDITIONAL_EXPRESSION: LOGICAL_OR_EXPRESSION '?' EXPRESSION ':' CONDITIONAL_EXPRESSION .
+
+    $default  reduce using rule 21 (CONDITIONAL_EXPRESSION)
+
+
+State 123
+
+    6 ARGUMENT_EXPRESSION_LIST: ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION .
+
+    $default  reduce using rule 6 (ARGUMENT_EXPRESSION_LIST)
