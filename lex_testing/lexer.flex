@@ -82,7 +82,7 @@ E			[Ee][+-]?{D}+
 "?"             { return token('?'); }
 ":"             { return token(':'); }
 ","             { return token(','); }
-"\."            { return token('.'); }
+"."             { return token('.'); }
 "->"            { return token(ARROW); }
 "\""            { return token('\"'); }
 

@@ -1,0 +1,4 @@
+#ifndef AST_DECLARATION_HPP
+#define AST_DECLARATION_HPP
+
+#endif
