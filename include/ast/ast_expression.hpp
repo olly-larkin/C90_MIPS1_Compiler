@@ -8,7 +8,17 @@ class Expression : public AST {};
 class ArgumentExpressionList : public Expression {   //TODO: make this class
 public:
     virtual std::string name() { return "Argument Expression List:"; };
+    void print(std::ostream& os, int level) {
+        for(int i=0; i< arg_list.size(); i++){
+            os << indent(level) << arg_list[i]->name() << std::endl;
+            arg_list[i]->print(os, level+1);
+        }
+    }
+    void addArg(Expression *newArg){
+        arg_list.push_back(newArg);
+    }
 private:
+    std::vector<Expression*> arg_list;
 };
 
 //************************************************************
