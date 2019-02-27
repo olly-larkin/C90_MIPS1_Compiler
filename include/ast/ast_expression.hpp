@@ -12,7 +12,39 @@ private:
 };
 
 //************************************************************
-//------------------RELATIONALEXPRESSION----------------------
+//-------------------EQUALITY EXPRESSION----------------------
+//************************************************************
+
+class EqualToOp : public Expression {
+public:
+    EqualToOp(Expression *_equality_expression, Expression *_relational_expression) : equality_expression(_equality_expression), relational_expression(_relational_expression) {}
+    std::string name() { return "Equal To:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << equality_expression->name() << std::endl;
+        equality_expression->print(os, level+1);
+        os << indent(level) << relational_expression->name() << std::endl;
+        relational_expression->print(os, level+1);
+    }
+protected:
+    Expression *equality_expression, *relational_expression;
+};
+
+class NotEqualToOp : public Expression {
+public:
+    NotEqualToOp(Expression *_equality_expression, Expression *_relational_expression) : equality_expression(_equality_expression), relational_expression(_relational_expression) {}
+    std::string name() { return "Not Equal To:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << equality_expression->name() << std::endl;
+        equality_expression->print(os, level+1);
+        os << indent(level) << relational_expression->name() << std::endl;
+        relational_expression->print(os, level+1);
+    }
+protected:
+    Expression *equality_expression, *relational_expression;
+};
+
+//************************************************************
+//------------------RELATIONAL EXPRESSION---------------------
 //************************************************************
 
 class LessThanOp : public Expression {
