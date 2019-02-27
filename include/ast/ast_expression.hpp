@@ -12,6 +12,38 @@ private:
 };
 
 //************************************************************
+//------------------ADDITIVE EXPRESSION-----------------------
+//************************************************************
+
+class AddOp : public Expression {
+public:
+    AddOp(Expression *_mul_expression, Expression *_cast_expression) : mul_expression(_mul_expression), cast_expression(_cast_expression) {}
+    std::string name() { return "Add:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << mul_expression->name() << std::endl;
+        mul_expression->print(os, level+1);
+        os << indent(level) << cast_expression->name() << std::endl;
+        cast_expression->print(os, level+1);
+    }
+protected:
+    Expression *mul_expression, *cast_expression;
+};
+
+class SubOp : public Expression {
+public:
+    SubOp(Expression *_mul_expression, Expression *_cast_expression) : mul_expression(_mul_expression), cast_expression(_cast_expression) {}
+    std::string name() { return "Sub:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << mul_expression->name() << std::endl;
+        mul_expression->print(os, level+1);
+        os << indent(level) << cast_expression->name() << std::endl;
+        cast_expression->print(os, level+1);
+    }
+protected:
+    Expression *mul_expression, *cast_expression;
+};
+
+//************************************************************
 //---------------MULTIPLICATIVE EXPRESSION--------------------
 //************************************************************
 
@@ -77,6 +109,7 @@ protected:
 //************************************************************
 //-----------------------UNARY--------------------------------
 //************************************************************
+
 class Unary_PrefixInc : public Expression {
     public:
     Unary_PrefixInc(Expression *_cast_expr) : cast_expr(_cast_expr) {}
@@ -182,6 +215,7 @@ protected:
 //************************************************************
 //----------------------POSTFIX-------------------------------
 //************************************************************
+
 class Postfix_ArrIndex : public Expression {
 public:
     Postfix_ArrIndex(Expression* _postfix, Expression* _index) : postfix(_postfix), index(_index) {}
@@ -269,6 +303,7 @@ protected:
 //************************************************************
 //----------------------PRIMARY-------------------------------
 //************************************************************
+
 class PrimaryExp_Identifier : public Expression {
 public:
     PrimaryExp_Identifier(const std::string &_identifier) : identifier(_identifier){}
