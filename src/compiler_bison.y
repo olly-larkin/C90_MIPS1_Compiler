@@ -18,6 +18,7 @@
     double number;
     Expression *ExpressionPtr;
     ArgumentExpressionList *ArgumentExpressionListPtr;
+    char Char;
 }
 
 %token STRING_LITERAL
@@ -35,6 +36,7 @@
 %token NUMBER IDENTIFIER TYPEDEF_T
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL TYPE_NAME
+%type <Char> ASSIGNMENT_OPERATOR
 %type <number> NUMBER
 %type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION EXCLUSIVE_OR_EXPRESSION INCLUSIVE_OR_EXPRESSION LOGICAL_AND_EXPRESSION LOGICAL_OR_EXPRESSION CONDITIONAL_EXPRESSION
 %type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
@@ -55,10 +57,24 @@ ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION { $$ = new ArgumentExpressionLi
                          | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
                          ;
 
-ASSIGNMENT_EXPRESSION : CONDITIONAL_EXPRESSION { $$ = $1; /* TODO: FIX THIS */ }
+//**************************************************************************************
+
+ASSIGNMENT_EXPRESSION : CONDITIONAL_EXPRESSION                                      { $$ = $1; }
+                      | UNARY_EXPRESSION ASSIGNMENT_OPERATOR ASSIGNMENT_EXPRESSION  { $$ = new Assignment($1, $3, $2); }
                       ;
 
-//**************************************************************************************
+ASSIGNMENT_OPERATOR : '='                   { $$ = '='; }
+                    | PLUS_EQUAL            { $$ = '+'; }
+                    | MINUS_EQUAL           { $$ = '-'; }
+                    | TIMES_EQUAL           { $$ = '*'; }
+                    | DIVIDE_EQUAL          { $$ = '/'; }
+                    | MOD_EQUAL             { $$ = '%'; }
+                    | LEFT_SHIFT_EQUAL      { $$ = '<'; }
+                    | RIGHT_SHIFT_EQUAL     { $$ = '>'; }
+                    | B_AND_EQUAL           { $$ = '&'; }
+                    | XOR_EQUAL             { $$ = '^'; }
+                    | B_OR_EQUAL            { $$ = '|'; }
+                    ;
 
 CONDITIONAL_EXPRESSION : LOGICAL_OR_EXPRESSION                                              { $$ = $1; }
                        | LOGICAL_OR_EXPRESSION '?' EXPRESSION ':' CONDITIONAL_EXPRESSION    { $$ = new ConditionalOp($1, $3, $5); }

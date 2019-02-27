@@ -3,12 +3,34 @@
 
 #include "ast_node.hpp"
 
+#include <string>
+
 class Expression : public AST {};
 
 class ArgumentExpressionList : public Expression {   //TODO: make this class
 public:
     virtual std::string name() { return "Argument Expression List:"; };
 private:
+};
+
+//************************************************************
+//------------------ASSIGNMENT EXPRESSION---------------------
+//************************************************************
+
+class Assignment : public Expression {
+public:
+    Assignment(Expression *_unary_expression, Expression *_assignment_expression, char _flag) : unary_expression(_unary_expression), assignment_expression(_assignment_expression), flag(_flag) {}
+    std::string name() { return "Assignment:"; }
+    void print(std::ostream& os, int level) {
+        os << indent(level) << flag << std::endl;
+        os << indent(level) << unary_expression->name() << std::endl;
+        unary_expression->print(os, level+1);
+        os << indent(level) << assignment_expression->name() << std::endl;
+        assignment_expression->print(os, level+1);
+    }
+protected:
+    Expression *unary_expression, *assignment_expression;
+    char flag;
 };
 
 //************************************************************
