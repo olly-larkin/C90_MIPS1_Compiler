@@ -7,17 +7,12 @@
 
 class Expression : public AST {};
 
-<<<<<<< HEAD
-class ArgumentExpressionList : public Expression {   //TODO: make this class
-public:
-=======
 //************************************************************
 //----------------ARGUMENT EXPRESSION LIST--------------------
 //************************************************************
 
 class ArgumentExpressionList : public Expression {     // TODO: Check this
 /*public:
->>>>>>> f5b37dc5733c609c1c94989c98be2f0028060e55
     ArgumentExpressionList(Expression *assignmentExpression){
         addArg(assignmentExpression);
     }
