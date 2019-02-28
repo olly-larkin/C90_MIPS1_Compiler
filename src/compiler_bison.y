@@ -42,7 +42,7 @@
 %type <number> NUMBER
 %type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION EXCLUSIVE_OR_EXPRESSION INCLUSIVE_OR_EXPRESSION LOGICAL_AND_EXPRESSION LOGICAL_OR_EXPRESSION CONDITIONAL_EXPRESSION CONSTANT_EXPRESSION
 %type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
-%type <StatementPtr> STATEMENT LABLED_STATEMENT COMPOUND_STATEMENT EXPRESSION_STATEMENT SELECTION_STATEMENT ITERATION_STATEMENT JUMP_STATEMENT STATEMENT_LIST
+%type <StatementPtr> STATEMENT LABELED_STATEMENT COMPOUND_STATEMENT EXPRESSION_STATEMENT SELECTION_STATEMENT ITERATION_STATEMENT JUMP_STATEMENT STATEMENT_LIST
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -56,11 +56,89 @@ ROOT : STATEMENT { g_root = $1; }
 //TYPE_NAME : IDENTIFIER {$$ = $1;  /* TODO: Fill in later */}
 //          ;
 
+
+//**************************************************************************************
+//------------------------------------- DECLARATIONS -----------------------------------
+//**************************************************************************************
+DECLARATION : DECLARATION_SPECIFIER {}
+            | DECLARATION_SPECIFIER INIT_DECLARATOR_LIST {}
+            ;
+
+DECLARATION_SPECIFIER : STORAGE_CLASS_SPECIFIER DECLARATION_SPECIFIER {}
+                    |   STORAGE_CLASS_SPECIFIER {}
+                    |   TYPE_SPECIFIER DECLARATION_SPECIFIER {}
+                    |   TYPE_SPECIFIER {}
+                    |   TYPE_QUALIFIER DECLARATION_SPECIFIER {}
+                    |   TYPE_QUALIFIER {}
+                    ;
+
+INIT_DECLARATOR_LIST : INIT_DECLARATOR {}
+                    |  INIT_DECLARATOR_LIST ',' INIT_DECLARATOR  {}
+                    ;
+
+INIT_DECLARATOR : DECLARATOR {}
+                | DECLARATOR '=' INITIALIZER  {}
+                ;
+
+
+
+
+
+STORAGE_CLASS_SPECIFIER : TYPEDEF {} 
+                        | EXTERN {}
+                        | STATIC {}
+                        | AUTO {}
+                        | REGISTER {}
+                        ;
+
+TYPE_SPECIFIER :  VOID {} 
+                | CHAR {}
+                | SHORT {}
+                | INT {}
+                | LONG {}
+                | FLOAT {}
+                | DOUBLE {}
+                | SIGNED {}
+                | UNSIGNED {}
+                | STRUCT_UNION_SPEC {}
+                | ENUM_SPEC {}
+                | TYPEDEF_NAME {} 
+                ;
+
+STRUCT_UNION_SPEC : STRUCT_OR_UNION IDENTIFIER '{' STRUCT_DECLARATION_LIST '}' {}
+                  | STRUCT_OR_UNION '{' STRUCT_DECLARATION_LIST '}' {}
+                  | STRUCT_OR_UNION IDENTIFIER {}
+                  ;
+
+STRUCT_OR_UNION : STRUCT {}
+                | UNION {}
+                ;
+
+STRUCT_DECLARATION_LIST : STRUCT_DECLARATION {}
+                        | STRUCT_DECLARATION_LIST STRUCT_DECLARATION {}
+
+STRUCT_DECLARATION : SPECIFIER_QUALIFIER_LIST STRUCT_DECLARATOR_LIST ';'
+	               ;
+
+//TODO:FILL IN GRAMMARS
+
+SPECIFIER_QUALIFIER_LIST : 
+
+STRUCT_DECLARATOR_LIST : 
+
+ENUM_SPEC : 
+
+TYPEDEF_NAME : 
+
+TYPE_QUALIFIER : CONST {}
+                | VOLATILE {}
+
+
 //**************************************************************************************
 //-------------------------------------- STATEMENTS ------------------------------------
 //**************************************************************************************
 
-STATEMENT : LABLED_STATEMENT        { $$ = $1; }
+STATEMENT : LABELED_STATEMENT        { $$ = $1; }
           | COMPOUND_STATEMENT      { $$ = $1; }
           | EXPRESSION_STATEMENT    { $$ = $1; }
           | SELECTION_STATEMENT     { $$ = $1; }
@@ -68,7 +146,7 @@ STATEMENT : LABLED_STATEMENT        { $$ = $1; }
           | JUMP_STATEMENT          { $$ = $1; }
           ;
 
-LABLED_STATEMENT : CASE CONSTANT_EXPRESSION ':' STATEMENT   { $$ = new CaseBlock($2, $4); }
+LABELED_STATEMENT : CASE CONSTANT_EXPRESSION ':' STATEMENT   { $$ = new CaseBlock($2, $4); }
                  | DEFAULT ':' STATEMENT                    { $$ = new DefaultBlock($3); }  
                  ;
 
