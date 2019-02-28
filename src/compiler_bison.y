@@ -41,7 +41,8 @@
 %type <Char> ASSIGNMENT_OPERATOR
 %type <number> NUMBER
 %type <ExpressionPtr> EXPRESSION ASSIGNMENT_EXPRESSION UNARY_EXPRESSION CAST_EXPRESSION POSTFIX_EXPRESSION PRIMARY_EXPRESSION MULTIPLICATIVE_EXPRESSION ADDITIVE_EXPRESSION SHIFT_EXPRESSION RELATIONAL_EXPRESSION EQUALITY_EXPRESSION AND_EXPRESSION EXCLUSIVE_OR_EXPRESSION INCLUSIVE_OR_EXPRESSION LOGICAL_AND_EXPRESSION LOGICAL_OR_EXPRESSION CONDITIONAL_EXPRESSION CONSTANT_EXPRESSION
-%type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
+%type <ExpressionPtr> ARGUMENT_EXPRESSION_LIST
+//%type <ArgumentExpressionListPtr> ARGUMENT_EXPRESSION_LIST
 %type <StatementPtr> STATEMENT LABLED_STATEMENT COMPOUND_STATEMENT EXPRESSION_STATEMENT SELECTION_STATEMENT ITERATION_STATEMENT JUMP_STATEMENT STATEMENT_LIST
 
 %nonassoc NOELSE
@@ -123,8 +124,12 @@ CONSTANT_EXPRESSION : EXPRESSION   { $$ = $1; }
 EXPRESSION : ASSIGNMENT_EXPRESSION { $$ = $1; }
            ;
 
+//ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION                                { $$ = new ArgumentExpressionList($1); }
+//                         | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION   { $$ = $1; $$->addArg($3); }
+//                         ;
+
 ARGUMENT_EXPRESSION_LIST : ASSIGNMENT_EXPRESSION                                { $$ = new ArgumentExpressionList($1); }
-                         | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION   { $$ = $1; $$->addArg($3); }
+                         | ARGUMENT_EXPRESSION_LIST ',' ASSIGNMENT_EXPRESSION   { $$ = new ArgumentExpressionList(reinterpret_cast<ArgumentExpressionList*>($1), $3); }
                          ;
 
 ASSIGNMENT_EXPRESSION : CONDITIONAL_EXPRESSION                                      { $$ = $1; }
@@ -216,7 +221,7 @@ UNARY_EXPRESSION : POSTFIX_EXPRESSION                           { $$ = $1;}
 POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                                     { $$ = $1;}
                     | POSTFIX_EXPRESSION '[' EXPRESSION ']'                 { $$ = new Postfix_ArrIndex($1, $3); }
                     | POSTFIX_EXPRESSION '(' ')'                            { $$ = new Postfix_FnCall($1); }
-                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')'   { $$ = new Postfix_FnCall($1, $3); } 
+                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')'   { $$ = new Postfix_FnCall($1, reinterpret_cast<ArgumentExpressionList*>($3)); } 
                     | POSTFIX_EXPRESSION '.' IDENTIFIER                     { $$ = new Postfix_DotIdentifier($1,*$3); }
                     | POSTFIX_EXPRESSION ARROW IDENTIFIER                   { $$ = new Postfix_ArrowIdentifier($1,*$3); }
                     | POSTFIX_EXPRESSION PLUSPLUS                           { $$ = new Postfix_IncOp($1); }

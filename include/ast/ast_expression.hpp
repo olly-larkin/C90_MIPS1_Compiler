@@ -12,7 +12,7 @@ class Expression : public AST {};
 //************************************************************
 
 class ArgumentExpressionList : public Expression {
-public:
+/*public:
     ArgumentExpressionList(Expression *assignmentExpression){
         addArg(assignmentExpression);
     }
@@ -27,7 +27,20 @@ public:
         arg_list.push_back(newArg);
     }
 protected:
-    std::vector<Expression*> arg_list;
+    std::vector<Expression*> arg_list;*/
+public:
+    ArgumentExpressionList(ArgumentExpressionList *_arg_expr_list, Expression *_expression) : arg_expr_list(_arg_expr_list), expression(_expression) {}
+    ArgumentExpressionList(Expression *_expression) : arg_expr_list(NULL), expression(_expression) {}
+    std::string name() { return "Argument Expression List:"; }
+    void print(std::ostream &os, int level) {
+        if (arg_expr_list != NULL)
+            arg_expr_list->print(os, level);
+        os << indent(level) << expression->name() << std::endl;
+        expression->print(os, level+1);
+    }
+protected:
+    ArgumentExpressionList *arg_expr_list;
+    Expression *expression;
 };
 
 //************************************************************
