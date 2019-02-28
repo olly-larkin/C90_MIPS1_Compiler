@@ -31,7 +31,7 @@
 %token PLUS_EQUAL MINUS_EQUAL TIMES_EQUAL DIVIDE_EQUAL MOD_EQUAL
 %token LEFT_SHIFT_EQUAL RIGHT_SHIFT_EQUAL B_AND_EQUAL XOR_EQUAL B_OR_EQUAL
 %token ARROW
-%token AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO DOUBLE ELSE 
+%token AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO DOUBLE ELSE
 %token ENUM ENUM_VAL FLOAT FOR GOTO IF INT LONG REGISTER RETURN
 %token SHORT SIGNED SIZEOF STATIC STRUCT SWITCH TYPEDEF UNION
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
@@ -78,21 +78,21 @@ INIT_DECLARATOR_LIST : INIT_DECLARATOR {}
                     ;
 
 INIT_DECLARATOR : DECLARATOR {}
-                | DECLARATOR '=' INITIALIZER  {}
+                | DECLARATOR '=' initializer  {}
                 ;
 
 
 
 
 
-STORAGE_CLASS_SPECIFIER : TYPEDEF {} 
+STORAGE_CLASS_SPECIFIER : TYPEDEF {}
                         | EXTERN {}
                         | STATIC {}
                         | AUTO {}
                         | REGISTER {}
                         ;
 
-TYPE_SPECIFIER :  VOID {} 
+TYPE_SPECIFIER :  VOID {}
                 | CHAR {}
                 | SHORT {}
                 | INT {}
@@ -103,7 +103,7 @@ TYPE_SPECIFIER :  VOID {}
                 | UNSIGNED {}
                 | STRUCT_UNION_SPEC {}
                 | ENUM_SPEC {}
-                | TYPEDEF_NAME {} 
+                | TYPE_NAME {} //TODO: FIX THIS AMBIGUITY TAIHENNNN
                 ;
 
 STRUCT_UNION_SPEC : STRUCT_OR_UNION IDENTIFIER '{' STRUCT_DECLARATION_LIST '}' {}
@@ -121,19 +121,92 @@ STRUCT_DECLARATION_LIST : STRUCT_DECLARATION {}
 STRUCT_DECLARATION : SPECIFIER_QUALIFIER_LIST STRUCT_DECLARATOR_LIST ';'
 	               ;
 
+SPECIFIER_QUALIFIER_LIST : TYPE_SPECIFIER SPECIFIER_QUALIFIER_LIST {}
+                         | TYPE_SPECIFIER {}
+                         | TYPE_QUALIFIER SPECIFIER_QUALIFIER_LIST {}
+                         | TYPE_QUALIFIER {}
+                         ;
+
+STRUCT_DECLARATOR_LIST : STRUCT_DECLARATOR {}
+                       | STRUCT_DECLARATOR_LIST ',' STRUCT_DECLARATOR {}
+                       ;
+
+STRUCT_DECLARATOR : DECLARATOR {}
+                  | CONSTANT_EXPRESSION {}
+                  | DECLARATOR ':' CONSTANT_EXPRESSION {}
+                  ;
+
 //TODO:FILL IN GRAMMARS
+ENUM_SPEC : ENUM '{' ENUMERATOR_LIST '}' {}
+          | ENUM IDENTIFIER '{' ENUMERATOR_LIST '}' {}
+          | ENUM IDENTIFIER
+          ;
 
-SPECIFIER_QUALIFIER_LIST : 
+ENUMERATOR_LIST : ENUMERATOR
+                | ENUMERATOR_LIST ',' ENUMERATOR {}
+                ;
 
-STRUCT_DECLARATOR_LIST : 
-
-ENUM_SPEC : 
-
-TYPEDEF_NAME : 
+ENUMERATOR : IDENTIFIER {}
+           | IDENTIFIER '=' CONSTANT_EXPRESSION {}
+           ;
 
 TYPE_QUALIFIER : CONST {}
                 | VOLATILE {}
 
+declarator : pointer direct_declarator {}
+           | direct_declarator {}
+           ;
+
+direct_declarator : IDENTIFIER {}
+                  | '(' declarator ')' {}
+                  | direct_declarator '[' constant_expression ']' {}
+                	| direct_declarator '[' ']' {}
+                	| direct_declarator '(' parameter_type_list ')' {}
+                	| direct_declarator '(' identifier_list ')' {}
+                	| direct_declarator '(' ')' {}
+                	;
+
+pointer : '*' {}
+        | '*' pointer {}
+	      | '*' type_qualifier_list {}
+	      | '*' type_qualifier_list pointer {}
+	      ;
+
+type_qualifier_list : TYPE_QUALIFIER
+                    | type_qualifier_list TYPE_QUALIFIER {}
+                    ;
+
+parameter_type_list : parameter_list {} //TODO: CHECK THAT WE DON'T NEED ELLIPSIS
+                    ;
+
+parameter_list : parameter_declaration {}
+               | parameter_list ',' parameter_declaration {}
+               ;
+
+parameter_declaration : DECLARATION_SPECIFIER DECLARATOR {}
+                      | DECLARATION_SPECIFIER abstract_declarator {}
+                      | DECLARATION_SPECIFIER {}
+                      ;
+
+identifier_list : identifier_list ',' IDENTIFIER {}
+                | IDENTIFIER {}
+                ;
+
+type_name : specifier_qualifier_list {}
+	        | specifier_qualifier_list abstract_declarator
+	        ;
+//TODO: do we need abstract_declarator?
+abstract_declarator : pointer {}
+                    ;
+
+initializer : ASSIGNMENT_EXPRESSION {}
+            | '{' initializer_list '}'
+            | '{' initializer_list ',' '}'
+            ;
+
+initializer_list : initializer {}
+                 | initializer_list ',' initializer {}
+                 ;
 
 //**************************************************************************************
 //-------------------------------------- STATEMENTS ------------------------------------
@@ -148,7 +221,7 @@ STATEMENT : LABELED_STATEMENT        { $$ = $1; }
           ;
 
 LABELED_STATEMENT : CASE CONSTANT_EXPRESSION ':' STATEMENT   { $$ = new CaseBlock($2, $4); }
-                 | DEFAULT ':' STATEMENT                    { $$ = new DefaultBlock($3); }  
+                 | DEFAULT ':' STATEMENT                    { $$ = new DefaultBlock($3); }
                  ;
 
 COMPOUND_STATEMENT : '{' '}'                                        { $$ = new ExpressionStatement(); }
@@ -184,7 +257,7 @@ ITERATION_STATEMENT : WHILE '(' EXPRESSION ')' STATEMENT                        
                     | FOR '(' ';' EXPRESSION ';' EXPRESSION ')' STATEMENT               { $$ = new ForLoop(NULL,$4,  $6  ,$8); }
                     | FOR '(' EXPRESSION ';' ';' EXPRESSION ')' STATEMENT               { $$ = new ForLoop($3,  NULL,$6  ,$8); }
                     | FOR '(' EXPRESSION ';' EXPRESSION ';' EXPRESSION ')' STATEMENT    { $$ = new ForLoop($3,  $5,  $7  ,$9); }
-                    ;    
+                    ;
 
 JUMP_STATEMENT : CONTINUE ';'           { $$ = new Continue(); }
                | BREAK ';'              { $$ = new Break(); }
@@ -237,7 +310,7 @@ LOGICAL_OR_EXPRESSION : LOGICAL_AND_EXPRESSION                                  
 
 LOGICAL_AND_EXPRESSION : INCLUSIVE_OR_EXPRESSION                                { $$ = $1; }
                        | LOGICAL_AND_EXPRESSION AND INCLUSIVE_OR_EXPRESSION     { $$ = new LogicalANDOp($1, $3); }
-                       ;    
+                       ;
 
 INCLUSIVE_OR_EXPRESSION : EXCLUSIVE_OR_EXPRESSION                               { $$ = $1; }
                         | INCLUSIVE_OR_EXPRESSION '|' EXCLUSIVE_OR_EXPRESSION   { $$ = new BitwiseInclusiveOROp($1, $3); }
@@ -299,7 +372,7 @@ UNARY_EXPRESSION : POSTFIX_EXPRESSION                           { $$ = $1;}
 POSTFIX_EXPRESSION : PRIMARY_EXPRESSION                                     { $$ = $1;}
                     | POSTFIX_EXPRESSION '[' EXPRESSION ']'                 { $$ = new Postfix_ArrIndex($1, $3); }
                     | POSTFIX_EXPRESSION '(' ')'                            { $$ = new Postfix_FnCall($1); }
-                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')'   { $$ = new Postfix_FnCall($1, reinterpret_cast<ArgumentExpressionList*>($3)); } 
+                    | POSTFIX_EXPRESSION '(' ARGUMENT_EXPRESSION_LIST ')'   { $$ = new Postfix_FnCall($1, reinterpret_cast<ArgumentExpressionList*>($3)); }
                     | POSTFIX_EXPRESSION '.' IDENTIFIER                     { $$ = new Postfix_DotIdentifier($1,*$3); }
                     | POSTFIX_EXPRESSION ARROW IDENTIFIER                   { $$ = new Postfix_ArrowIdentifier($1,*$3); }
                     | POSTFIX_EXPRESSION PLUSPLUS                           { $$ = new Postfix_IncOp($1); }
