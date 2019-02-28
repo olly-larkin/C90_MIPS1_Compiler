@@ -21,7 +21,7 @@ protected:
     std::string iden;
 };
 
-/*class PrimaryExpression : public Expression {  // TODO: primary expression inheritance
+/*class PrimaryExpression : public Expression { 
 public:
     std::string name() { return "primary_expression"; }
     void print(std::ostream& os, int level) {
