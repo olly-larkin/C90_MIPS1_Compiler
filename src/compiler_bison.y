@@ -38,7 +38,7 @@
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL //TYPE_NAME TODO: bring back once being used
+%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL
 %type <Char> assignment_operator
 %type <number> NUMBER
 %type <ExpressionPtr> expression assignment_expression unary_expression cast_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
@@ -55,10 +55,6 @@
 %%
 
 ROOT : statement { g_root = $1; }
-
-//TYPE_NAME : IDENTIFIER {$$ = $1;  /* TODO: Fill in later */}
-//          ;
-
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
@@ -379,14 +375,14 @@ multiplicative_expression : cast_expression                               { $$ =
                           ;
 
 cast_expression : unary_expression                              { $$ = $1; }
-//                | '(' TYPE_NAME ')' cast_expression             { $$ = new Cast_ToType($4, *$2); }
+//                | '(' type_name ')' cast_expression             { $$ = new Cast_ToType($4, *$2); }
                 ;
 
 unary_expression : postfix_expression                           { $$ = $1;}
                  | PLUSPLUS unary_expression                    { $$ = new Unary_PrefixInc($2); }
                  | MINUSMINUS unary_expression                  { $$ = new Unary_PrefixDec($2); }
                  | SIZEOF unary_expression                      { $$ = new Unary_SizeOfExpr($2); }
-//                 | SIZEOF '(' TYPE_NAME ')'                     { /* TODO: return after creating type_name */ }
+//                 | SIZEOF '(' type_name ')'                     { /* TODO: return after creating type_name */ }
                  | '&' cast_expression                          { $$ = new Unary_Reference($2); }
                  | '*' cast_expression                          { $$ = new Unary_Dereference($2);}
                  | '+' cast_expression                          { $$ = $2; /* TODO: CHECK */}
