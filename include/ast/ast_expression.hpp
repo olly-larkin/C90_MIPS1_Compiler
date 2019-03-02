@@ -11,23 +11,7 @@ class Expression : public AST {};
 //----------------ARGUMENT EXPRESSION LIST--------------------
 //************************************************************
 
-class ArgumentExpressionList : public Expression {     // TODO: Check this
-/*public:
-    ArgumentExpressionList(Expression *assignmentExpression){
-        addArg(assignmentExpression);
-    }
-    virtual std::string name() { return "Argument Expression List:"; };
-    void print(std::ostream& os, int level) {
-        for(int i=0; i< (int)arg_list.size(); i++){
-            os << indent(level) << arg_list[i]->name() << std::endl;
-            arg_list[i]->print(os, level+1);
-        }
-    }
-    void addArg(Expression *newArg){
-        arg_list.push_back(newArg);
-    }
-protected:
-    std::vector<Expression*> arg_list;*/
+class ArgumentExpressionList : public Expression {
 public:
     ArgumentExpressionList(ArgumentExpressionList *_arg_expr_list, Expression *_expression) : arg_expr_list(_arg_expr_list), expression(_expression) {}
     ArgumentExpressionList(Expression *_expression) : arg_expr_list(NULL), expression(_expression) {}
@@ -373,23 +357,6 @@ public:
     }
 protected:
     Expression *mul_expression, *cast_expression;
-};
-
-//************************************************************
-//------------------CAST & ASSIGNMENT-------------------------
-//************************************************************
-
-class Cast_ToType : public Expression {     // TODO: TYPE_NAME is not going to be a string
-public:
-    Cast_ToType(Expression *_cast_expr, const std::string& _type_name) : cast_expr(_cast_expr), type_name(_type_name) {}
-    std::string name() { return "Cast:"; }
-    void print(std::ostream &os, int level) {
-        os << indent(level) << cast_expr->name() << std::endl;
-        os << indent(level) << "To: " << type_name;
-    }
-protected:
-    Expression *cast_expr;
-    std::string type_name;
 };
 
 //************************************************************
