@@ -7,6 +7,23 @@
 class Declaration : public AST {};
 class Type : public AST {};
 
+//********************************************************
+class DeclarationList : public Declaration {
+public:
+    DeclarationList(DeclarationList *_list, Declaration *_declaration) : list(_list), declaration(_declaration) {}
+    std::string name() { return "Declaration List: "; }
+    void print(std::ostream &os, int level) {
+        if (list != NULL)
+            list->print(os, level);
+        os << indent(level) << declaration->name() << std::endl;
+        declaration->print(os, level+1);
+    }
+protected:
+    DeclarationList *list;
+    Declaration *declaration;
+};
+//********************************************************
+
 class Declarator : public Declaration {
 public:
     Declarator(std::string initializer){}

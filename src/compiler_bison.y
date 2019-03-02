@@ -21,6 +21,7 @@
     Expression *ExpressionPtr;
     ArgumentExpressionList *ArgumentExpressionListPtr;
     Statement *StatementPtr;
+    StatementList *StatementListPtr;
     Declaration *DeclarationPtr;
     Type *TypePtr;
 }
@@ -44,7 +45,8 @@
 %type <number> NUMBER
 %type <ExpressionPtr> expression assignment_expression unary_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
 %type <ArgumentExpressionListPtr> argument_expression_list
-%type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement statement_list
+%type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement 
+%type <StatementListPtr> statement_list
 %type <DeclarationPtr> declaration initializer initializer_list
 %type <TypePtr> pointer enumerator enum_list
 
@@ -55,7 +57,7 @@
 
 %%
 
-ROOT : constant_expression { g_root = $1; }
+ROOT : statement { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
@@ -226,10 +228,10 @@ labeled_statement : CASE constant_expression ':' statement   { $$ = new CaseBloc
                  | DEFAULT ':' statement                    { $$ = new DefaultBlock($3); }
                  ;
 
-compound_statement : '{' '}'                                        { $$ = new ExpressionStatement(); }
- //                  | '{' declaration_list '}'
-                   | '{' statement_list '}'                         { $$ = $2; }
- //                  | '{' declaration_list statement_list '}'
+compound_statement : '{' '}'                                        { $$ = new CompoundStatement(NULL, NULL); }
+ //                  | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }
+                   | '{' statement_list '}'                         { $$ = new CompoundStatement(NULL, $2); }
+ //                  | '{' declaration_list statement_list '}'        { $$ = new CompoundStatement($2, $3); }
                    ;
 
 //declaration_list : declaration
