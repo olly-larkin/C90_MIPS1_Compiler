@@ -124,7 +124,23 @@ protected:
     Enum_element *data;
 };
 
+class Enum_Specifier : public Type {
+public:
+    Enum_Specifier(Enum_element_list *_list) : list(_list) {}
+    Enum_Specifier(std::string _identifier) : 
+        identifier(_identifier) {}
+    Enum_Specifier(Enum_element_list *_list, std::string _identifier) : 
+        list(_list), identifier(_identifier) {}
 
+    std::string name() { return "Enum: "; }
+    void print(std::ostream &os, int level){
+        os << indent(level) << "Identifier: " << identifier << std::endl;
+        list->print(os, level+1);
+    }
+protected:
+    Enum_element_list *list;
+    std::string identifier;
+};
 
 
 #endif
