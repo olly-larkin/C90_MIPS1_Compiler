@@ -56,6 +56,7 @@
 %type <PointerPtr> pointer
 %type <EnumElement> enumerator 
 %type <EnumElementList> enum_list
+%type <TypePtr> enum_specifier
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -64,7 +65,7 @@
 
 %%
 
-ROOT : enum_list { g_root = $1; }
+ROOT : enum_specifier { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
@@ -147,9 +148,9 @@ struct_declarator : declarator {}
 
 
 
-enum_specifier : ENUM '{' enum_list '}' {}
-          | ENUM IDENTIFIER '{' enum_list '}' {}
-          | ENUM IDENTIFIER {}
+enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier(reinterpret_cast<Enum_element_list*>($3)); }
+          | ENUM IDENTIFIER '{' enum_list '}' { $$ = new Enum_Specifier(reinterpret_cast<Enum_element_list*>($4), *$2); }
+          | ENUM IDENTIFIER { $$ = new Enum_Specifier(*$2); }
           ;
 
 enum_list : enumerator { $$ = new Enum_element_list(NULL, $1); }
