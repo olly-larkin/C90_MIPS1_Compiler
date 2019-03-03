@@ -146,10 +146,8 @@ struct_declarator : declarator {}
                   | declarator ':' constant_expression {}
                   ;
 
-
-
-enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier(reinterpret_cast<Enum_element_list*>($3)); }
-          | ENUM IDENTIFIER '{' enum_list '}' { $$ = new Enum_Specifier(reinterpret_cast<Enum_element_list*>($4), *$2); }
+enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier($3); }
+          | ENUM IDENTIFIER '{' enum_list '}' { $$ = new Enum_Specifier($4, *$2); }
           | ENUM IDENTIFIER { $$ = new Enum_Specifier(*$2); }
           ;
 
