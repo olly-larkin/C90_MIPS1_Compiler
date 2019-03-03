@@ -7,6 +7,22 @@
 class Declaration : public AST {};
 class Type : public AST {};
 
+//********************************************************
+class DeclarationList : public Declaration {
+public:
+    DeclarationList(DeclarationList *_list, Declaration *_declaration) : list(_list), declaration(_declaration) {}
+    std::string name() { return "Declaration List: "; }
+    void print(std::ostream &os, int level) {
+        if (list != NULL)
+            list->print(os, level);
+        os << indent(level) << declaration->name() << std::endl;
+        declaration->print(os, level+1);
+    }
+protected:
+    DeclarationList *list;
+    Declaration *declaration;
+};
+//********************************************************
 
 class Declarator : public Declaration {
 public:
@@ -33,18 +49,10 @@ protected:
     Expression *assignment_expr;
 };
 
-
-class Decl_init_list_element : public Declaration {
+class Decl_init_list : public Declaration {
 public:
-    Decl_init_list_element(Decl_init_list_element *_list, Declaration *_init) : 
-        list(_list),
-        init(_init)
-        {}
-
-    Decl_init_list_element(Declaration *_init) : 
-        list(NULL),
-        init(_init)
-        {}
+    Decl_init_list(Decl_init_list *_list, Declaration *_init) : list(_list), init(_init) {}
+    Decl_init_list(Declaration *_init) : list(NULL), init(_init) {}
 
     std::string name() { return "Init List: "; }
     void print(std::ostream &os, int level){
@@ -54,7 +62,7 @@ public:
         init->print(os, level+1);
     }
 protected:
-    Decl_init_list_element *list;
+    Decl_init_list *list;
     Declaration *init;
 };
 
@@ -115,22 +123,21 @@ protected:
 
 class Enum_Specifier : public Type {
 public:
-    Enum_Specifier(Enum_Element_List *_list) : list(_list) {}
-    Enum_Specifier(std::string _identifier) : 
-        identifier(_identifier) {}
-    Enum_Specifier(Enum_Element_List *_list, std::string _identifier) : 
-        list(_list), identifier(_identifier) {}
+    Enum_Specifier(Enum_element_list *_list) : list(_list) {}
+    Enum_Specifier(std::string _identifier) : identifier(_identifier) {}
+    Enum_Specifier(Enum_element_list *_list, std::string _identifier) : list(_list), identifier(_identifier) {}
 
     std::string name() { return "Enum: "; }
     void print(std::ostream &os, int level){
         os << indent(level) << "Identifier: " << identifier << std::endl;
-        list->print(os, level+1);
+        list->print(os, level);
     }
 protected:
     Enum_Element_List *list;
     std::string identifier;
 };
 
+//TODO:Resolve Cyclic behaviour with Struct_Specifier
 class Struct_Specifier;
 class Type_Specifier : public Type {
 public:
@@ -242,7 +249,7 @@ protected:
     Struct_Declaration *data;
 };
 
-
+//TODO:Resolve Cyclic behaviour with Type Specifier
 class Struct_Specifier : public Type {
 public:
     Struct_Specifier(Struct_Declaration_List *_list) : list(_list) {}
