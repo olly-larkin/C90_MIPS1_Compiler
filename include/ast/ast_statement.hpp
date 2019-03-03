@@ -3,6 +3,7 @@
 
 #include "ast_node.hpp"
 #include "ast_expression.hpp"
+#include "ast_declaration.hpp"
 
 class Statement : public AST {};
 
@@ -19,6 +20,41 @@ public:
     }
 protected:
     Expression *expression;
+};
+
+class StatementList : public Statement {
+public:
+    StatementList(Statement *_statement) : statement_list(NULL), statement(_statement) {}
+    StatementList(StatementList *_statement_list, Statement *_statement) : statement_list(_statement_list), statement(_statement) {}
+    std::string name() { return "Statement List:"; }
+    void print(std::ostream &os, int level) {
+        if (statement_list != NULL)
+            statement_list->print(os, level);
+        os << indent(level) << statement->name() << std::endl;
+        statement->print(os, level+1);
+    }
+private:
+    StatementList *statement_list;
+    Statement *statement;
+};
+
+class CompoundStatement : public Statement {
+public:
+    CompoundStatement(DeclarationList *_declarationList, StatementList *_statementList) : declarationList(_declarationList), statementList(_statementList) {}
+    std::string name() { return "Compound Statement:"; }
+    void print(std::ostream &os, int level) {
+        if (declarationList != NULL) {
+            os << indent(level) << declarationList->name() << std::endl;
+            declarationList->print(os, level+1);
+        }
+        if (statementList != NULL) {
+            os << indent(level) << statementList->name() << std::endl;
+            statementList->print(os, level+1);
+        }
+    }
+protected:
+    DeclarationList *declarationList;
+    StatementList *statementList;
 };
 
 class IfStatement : public Statement {
@@ -178,22 +214,6 @@ public:
         statement->print(os, level);
     }
 private:
-    Statement *statement;
-};
-
-class StatementList : public Statement {
-public:
-    StatementList(Statement *_statement) : statement_list(NULL), statement(_statement) {}
-    StatementList(StatementList *_statement_list, Statement *_statement) : statement_list(_statement_list), statement(_statement) {}
-    std::string name() { return "Statement List:"; }
-    void print(std::ostream &os, int level) {
-        if (statement_list != NULL)
-            statement_list->print(os, level);
-        os << indent(level) << statement->name() << std::endl;
-        statement->print(os, level+1);
-    }
-private:
-    StatementList *statement_list;
     Statement *statement;
 };
 

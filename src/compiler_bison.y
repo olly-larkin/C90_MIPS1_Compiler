@@ -19,10 +19,15 @@
 
     AST *ast;
     Expression *ExpressionPtr;
-    //ArgumentExpressionList *ArgumentExpressionListPtr;
+    ArgumentExpressionList *ArgumentExpressionListPtr;
     Statement *StatementPtr;
+    StatementList *StatementListPtr;
     Declaration *DeclarationPtr;
+    Decl_init_list *DeclInitList;
     Type *TypePtr;
+    Pointer *PointerPtr;
+    Enum_element_list *EnumElementList;
+    Enum_element *EnumElement;
 }
 
 %token STRING_LITERAL
@@ -42,12 +47,16 @@
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE
 %type <Char> assignment_operator
 %type <number> NUMBER
-%type <ExpressionPtr> expression assignment_expression unary_expression cast_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
-%type <ExpressionPtr> argument_expression_list
-//%type <ArgumentExpressionListPtr> argument_expression_list
-%type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement statement_list
-%type <DeclarationPtr> declaration initializer initializer_list
-%type <TypePtr> pointer enumerator enum_list enum_specifier
+%type <ExpressionPtr> expression assignment_expression unary_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
+%type <ArgumentExpressionListPtr> argument_expression_list
+%type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement 
+%type <StatementListPtr> statement_list
+%type <DeclarationPtr> declaration initializer
+%type <DeclInitList> initializer_list
+%type <PointerPtr> pointer
+%type <EnumElement> enumerator 
+%type <EnumElementList> enum_list
+%type <TypePtr> enum_specifier
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -144,16 +153,13 @@ enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier(reinterpret_ca
           | ENUM IDENTIFIER { $$ = new Enum_Specifier(*$2); }
           ;
 
-enum_list : enumerator { $$ = new Enum_element_list(NULL, reinterpret_cast<Enum_element*>($1)); }
-          | enum_list ',' enumerator { $$ = new Enum_element_list(reinterpret_cast<Enum_element_list*>($1), reinterpret_cast<Enum_element*>($3)); }
+enum_list : enumerator { $$ = new Enum_element_list(NULL, $1); }
+          | enum_list ',' enumerator { $$ = new Enum_element_list($1, $3); }
           ;
 
 enumerator : IDENTIFIER { $$ = new Enum_element(*$1, NULL); }
            | IDENTIFIER '=' constant_expression { $$ = new Enum_element(*$1, $3); }
            ;
-
-
-
 
 declarator : pointer direct_declarator {}
            | direct_declarator {}
@@ -168,7 +174,7 @@ direct_declarator : IDENTIFIER {}
                   ;
 
 pointer : '*' { $$ = new Pointer(NULL); }
-        | '*' pointer { $$ = new Pointer(reinterpret_cast<Pointer*>($2)); }
+        | '*' pointer { $$ = new Pointer($2); }
 	    ;
 
 parameter_list : parameter_declaration {}
@@ -207,8 +213,8 @@ initializer : assignment_expression { $$ = new Decl_initializer_expr($1); }
             | '{' initializer_list ',' '}' { $$ = $2; }
             ;
 
-initializer_list : initializer { $$ = new Decl_init_list_element($1); }
-                 | initializer_list ',' initializer { $$ = new Decl_init_list_element(reinterpret_cast<Decl_init_list_element*>($1), $3); }
+initializer_list : initializer { $$ = new Decl_init_list($1); }
+                 | initializer_list ',' initializer { $$ = new Decl_init_list($1, $3); }
                  ;
 
 //**************************************************************************************
@@ -227,14 +233,14 @@ labeled_statement : CASE constant_expression ':' statement   { $$ = new CaseBloc
                  | DEFAULT ':' statement                    { $$ = new DefaultBlock($3); }
                  ;
 
-compound_statement : '{' '}'                                        { $$ = new ExpressionStatement(); }
- //                  | '{' declaration_list '}'
-                   | '{' statement_list '}'                         { $$ = $2; }
- //                  | '{' declaration_list statement_list '}'
+compound_statement : '{' '}'                                        { $$ = new CompoundStatement(NULL, NULL); }
+ //                  | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }     TODO: need to come back and fix once 
+                   | '{' statement_list '}'                         { $$ = new CompoundStatement(NULL, $2); }
+ //                  | '{' declaration_list statement_list '}'        { $$ = new CompoundStatement($2, $3); }
                    ;
 
-//declaration_list : declaration
-//                 | declaration_list declaration
+//declaration_list : declaration                    { $$ = new DeclarationList(NULL, $1); }         // TODO: return once declaration has been made
+//                 | declaration_list declaration   { $$ = new DeclarationList($1, $2); }
 //                ;
 
 statement_list : statement                  { $$ = new StatementList($1); }
@@ -278,12 +284,8 @@ constant_expression : expression   { $$ = $1; }
 expression : assignment_expression { $$ = $1; }
            ;
 
-//argument_expression_list : assignment_expression                                { $$ = new ArgumentExpressionList($1); }
-//                         | argument_expression_list ',' assignment_expression   { $$ = $1; $$->addArg($3); }
-//                         ;
-
 argument_expression_list : assignment_expression                                { $$ = new ArgumentExpressionList($1); }
-                         | argument_expression_list ',' assignment_expression   { $$ = new ArgumentExpressionList(reinterpret_cast<ArgumentExpressionList*>($1), $3); }
+                         | argument_expression_list ',' assignment_expression   { $$ = new ArgumentExpressionList($1, $3); }
                          ;
 
 assignment_expression : conditional_expression                                      { $$ = $1; }
@@ -349,33 +351,29 @@ additive_expression : multiplicative_expression                           { $$ =
                     | additive_expression '-' multiplicative_expression   { $$ = new SubOp($1, $3); }
                     ;
 
-multiplicative_expression : cast_expression                               { $$ = $1; }
-                          | multiplicative_expression '*' cast_expression { $$ = new MultiplyOp($1, $3); }
-                          | multiplicative_expression '/' cast_expression { $$ = new DivideOp($1, $3); }
-                          | multiplicative_expression '%' cast_expression { $$ = new ModOp($1, $3); }
+multiplicative_expression : unary_expression                               { $$ = $1; }
+                          | multiplicative_expression '*' unary_expression { $$ = new MultiplyOp($1, $3); }
+                          | multiplicative_expression '/' unary_expression { $$ = new DivideOp($1, $3); }
+                          | multiplicative_expression '%' unary_expression { $$ = new ModOp($1, $3); }
                           ;
 
-cast_expression : unary_expression                              { $$ = $1; }
-//                | '(' type_name ')' cast_expression             { $$ = new Cast_ToType($4, *$2); }
-                ;
-
-unary_expression : postfix_expression                           { $$ = $1;}
-                 | PLUSPLUS unary_expression                    { $$ = new Unary_PrefixInc($2); }
-                 | MINUSMINUS unary_expression                  { $$ = new Unary_PrefixDec($2); }
-                 | SIZEOF unary_expression                      { $$ = new Unary_SizeOfExpr($2); }
-//                 | SIZEOF '(' type_name ')'                     { /* TODO: return after creating type_name */ }
-                 | '&' cast_expression                          { $$ = new Unary_Reference($2); }
-                 | '*' cast_expression                          { $$ = new Unary_Dereference($2);}
-                 | '+' cast_expression                          { $$ = $2; /* TODO: CHECK */}
-                 | '-' cast_expression                          { $$ = new Unary_Negation($2); }
-                 | '~' cast_expression                          { $$ = new Unary_InvertOp($2); }
-                 | '!' cast_expression                          { $$ = new Unary_NotOp($2); }
+unary_expression : postfix_expression                            { $$ = $1;}
+                 | PLUSPLUS unary_expression                     { $$ = new Unary_PrefixInc($2); }
+                 | MINUSMINUS unary_expression                   { $$ = new Unary_PrefixDec($2); }
+                 | SIZEOF unary_expression                       { $$ = new Unary_SizeOfExpr($2); }
+//                 | SIZEOF '(' type_name ')'                      { /* TODO: return after creating type_name */ }
+                 | '&' unary_expression                          { $$ = new Unary_Reference($2); }
+                 | '*' unary_expression                          { $$ = new Unary_Dereference($2);}
+                 | '+' unary_expression                          { $$ = $2; /* TODO: CHECK */}
+                 | '-' unary_expression                          { $$ = new Unary_Negation($2); }
+                 | '~' unary_expression                          { $$ = new Unary_InvertOp($2); }
+                 | '!' unary_expression                          { $$ = new Unary_NotOp($2); }
                  ;
 
 postfix_expression : primary_expression                                     { $$ = $1;}
                     | postfix_expression '[' expression ']'                 { $$ = new Postfix_ArrIndex($1, $3); }
                     | postfix_expression '(' ')'                            { $$ = new Postfix_FnCall($1); }
-                    | postfix_expression '(' argument_expression_list ')'   { $$ = new Postfix_FnCall($1, reinterpret_cast<ArgumentExpressionList*>($3)); }
+                    | postfix_expression '(' argument_expression_list ')'   { $$ = new Postfix_FnCall($1, $3); }
                     | postfix_expression '.' IDENTIFIER                     { $$ = new Postfix_DotIdentifier($1,*$3); }
                     | postfix_expression ARROW IDENTIFIER                   { $$ = new Postfix_ArrowIdentifier($1,*$3); }
                     | postfix_expression PLUSPLUS                           { $$ = new Postfix_IncOp($1); }
