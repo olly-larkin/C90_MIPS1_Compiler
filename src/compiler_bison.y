@@ -23,7 +23,11 @@
     Statement *StatementPtr;
     StatementList *StatementListPtr;
     Declaration *DeclarationPtr;
+    Decl_init_list *DeclInitList;
     Type *TypePtr;
+    Pointer *PointerPtr;
+    Enum_element_list *EnumElementList;
+    Enum_element *EnumElement;
 }
 
 %token STRING_LITERAL
@@ -47,8 +51,11 @@
 %type <ArgumentExpressionListPtr> argument_expression_list
 %type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement 
 %type <StatementListPtr> statement_list
-%type <DeclarationPtr> declaration initializer initializer_list
-%type <TypePtr> pointer enumerator enum_list
+%type <DeclarationPtr> declaration initializer
+%type <DeclInitList> initializer_list
+%type <PointerPtr> pointer
+%type <EnumElement> enumerator 
+%type <EnumElementList> enum_list
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -57,7 +64,7 @@
 
 %%
 
-ROOT : statement { g_root = $1; }
+ROOT : enum_list { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
@@ -145,16 +152,13 @@ enum_specifier : ENUM '{' enum_list '}' {}
           | ENUM IDENTIFIER {}
           ;
 
-enum_list : enumerator { $$ = new Enum_element_list(NULL, reinterpret_cast<Enum_element*>($1)); }
-          | enum_list ',' enumerator { $$ = new Enum_element_list(reinterpret_cast<Enum_element_list*>($1), reinterpret_cast<Enum_element*>($3)); }
+enum_list : enumerator { $$ = new Enum_element_list(NULL, $1); }
+          | enum_list ',' enumerator { $$ = new Enum_element_list($1, $3); }
           ;
 
 enumerator : IDENTIFIER { $$ = new Enum_element(*$1, NULL); }
            | IDENTIFIER '=' constant_expression { $$ = new Enum_element(*$1, $3); }
            ;
-
-
-
 
 declarator : pointer direct_declarator {}
            | direct_declarator {}
@@ -169,7 +173,7 @@ direct_declarator : IDENTIFIER {}
                   ;
 
 pointer : '*' { $$ = new Pointer(NULL); }
-        | '*' pointer { $$ = new Pointer(reinterpret_cast<Pointer*>($2)); }
+        | '*' pointer { $$ = new Pointer($2); }
 	    ;
 
 parameter_list : parameter_declaration {}
@@ -208,8 +212,8 @@ initializer : assignment_expression { $$ = new Decl_initializer_expr($1); }
             | '{' initializer_list ',' '}' { $$ = $2; }
             ;
 
-initializer_list : initializer { $$ = new Decl_init_list_element($1); }
-                 | initializer_list ',' initializer { $$ = new Decl_init_list_element(reinterpret_cast<Decl_init_list_element*>($1), $3); }
+initializer_list : initializer { $$ = new Decl_init_list($1); }
+                 | initializer_list ',' initializer { $$ = new Decl_init_list($1, $3); }
                  ;
 
 //**************************************************************************************
@@ -229,13 +233,13 @@ labeled_statement : CASE constant_expression ':' statement   { $$ = new CaseBloc
                  ;
 
 compound_statement : '{' '}'                                        { $$ = new CompoundStatement(NULL, NULL); }
- //                  | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }
+ //                  | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }     TODO: need to come back and fix once 
                    | '{' statement_list '}'                         { $$ = new CompoundStatement(NULL, $2); }
  //                  | '{' declaration_list statement_list '}'        { $$ = new CompoundStatement($2, $3); }
                    ;
 
-//declaration_list : declaration
-//                 | declaration_list declaration
+//declaration_list : declaration                    { $$ = new DeclarationList(NULL, $1); }         // TODO: return once declaration has been made
+//                 | declaration_list declaration   { $$ = new DeclarationList($1, $2); }
 //                ;
 
 statement_list : statement                  { $$ = new StatementList($1); }
