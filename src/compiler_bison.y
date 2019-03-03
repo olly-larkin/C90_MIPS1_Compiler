@@ -47,7 +47,7 @@
 //%type <ArgumentExpressionListPtr> argument_expression_list
 %type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement statement_list
 %type <DeclarationPtr> declaration initializer initializer_list
-%type <TypePtr> pointer enumerator enum_list enum_specifier
+%type <TypePtr> pointer enumerator enum_list enum_specifier struct_declarator
 
 %nonassoc NOELSE
 %nonassoc ELSE
