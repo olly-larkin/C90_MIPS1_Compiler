@@ -399,12 +399,6 @@ protected:
     Expression *cast_expr;
 };
 
-class Unary_SizeOfType : public Expression { //TODO: make this
-public:
-    std::string name() { return "Size of:"; }
-protected:
-};
-
 class Unary_Reference : public Expression {
 public:
     Unary_Reference(Expression *_cast_expr) : cast_expr(_cast_expr) {}
