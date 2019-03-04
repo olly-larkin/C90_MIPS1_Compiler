@@ -41,6 +41,7 @@
     Direct_Declarator *DirectDeclarator;
     Param_List *ParamList;
     Param_Dec *ParamDec;
+    Type_Name *TypeName;
 }
 
 %token STRING_LITERAL
@@ -83,6 +84,7 @@
 %type <DirectDeclarator> direct_declarator
 %type <ParamList> parameter_list
 %type <ParamDec> parameter_declaration
+%type <TypeName> type_name
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -209,10 +211,9 @@ parameter_declaration : declaration_specifier declarator { $$ = new Param_Dec($1
                       | declaration_specifier { $$ = new Param_Dec($1, NULL); }
                       ;
 
-/* 
 //TODO: abstract declarators=====================================
-type_name : specifier_list {}
-	      | specifier_list abstract_declarator {}
+type_name : specifier_list { $$ = new Type_Name($1, NULL); }
+//	      | specifier_list abstract_declarator { $$ = new Type_Name($1, $2); }
 	      ;
 
 abstract_declarator : pointer {}
@@ -231,7 +232,6 @@ direct_abstract_declarator : '(' abstract_declarator ')' {}
                            | direct_abstract_declarator '(' parameter_list ')' {}
                            ;
 //==============================================================
-*/
 
 initializer : assignment_expression { $$ = new Decl_initializer_expr($1); }
             | '{' initializer_list '}' { $$ = $2; }
@@ -386,7 +386,7 @@ unary_expression : postfix_expression                            { $$ = $1;}
                  | PLUSPLUS unary_expression                     { $$ = new Unary_PrefixInc($2); }
                  | MINUSMINUS unary_expression                   { $$ = new Unary_PrefixDec($2); }
                  | SIZEOF unary_expression                       { $$ = new Unary_SizeOfExpr($2); }
-//                 | SIZEOF '(' type_name ')'                      { /* TODO: return after creating type_name */ }
+                 | SIZEOF '(' type_name ')'                      { $$ = new Unary_SizeOfType($3); }
                  | '&' unary_expression                          { $$ = new Unary_Reference($2); }
                  | '*' unary_expression                          { $$ = new Unary_Dereference($2);}
                  | '+' unary_expression                          { $$ = $2; /* TODO: CHECK */}

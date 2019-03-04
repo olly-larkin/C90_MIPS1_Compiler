@@ -26,6 +26,8 @@ protected:
 };
 //********************************************************
 
+class Abstract_Declarator : public Declaration {};
+
 class Declarator : public Declaration {};
 
 class Initializer : public Declaration {};
@@ -446,5 +448,7 @@ protected:
     Direct_Declarator *dec;
     Param_List *paramList;
 };
+
+
 
 #endif
