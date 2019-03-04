@@ -105,9 +105,7 @@ external_declaration : function_definition {}
                      | declaration {}
                      ;
 
-function_definition : declaration_specifier declarator declaration_list compound_statement {}
-                    | declaration_specifier declarator compound_statement {}
-                    | declarator declaration_list compound_statement {}
+function_definition : declaration_specifier declarator compound_statement {}
                     | declarator compound_statement {}
                     ;
 
