@@ -38,6 +38,9 @@
     Declarator *DeclaratorPtr;
     Init_Dec_List *InitDecList;
     Dec_Spec *DecSpec;
+    Direct_Declarator *DirectDeclarator;
+    Param_List *ParamList;
+    Param_Dec *ParamDec;
 }
 
 %token STRING_LITERAL
@@ -62,7 +65,7 @@
 %type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement 
 %type <StatementListPtr> statement_list
 %type <DeclarationPtr> declaration 
-%type <Initializer> initializer
+%type <InitializerPtr> initializer
 %type <DeclInitList> initializer_list
 %type <PointerPtr> pointer
 %type <EnumElement> enumerator 
@@ -77,6 +80,9 @@
 %type <DeclaratorPtr> declarator init_declarator
 %type <InitDecList> init_declarator_list
 %type <DecSpec> declaration_specifier
+%type <DirectDeclarator> direct_declarator
+%type <ParamList> parameter_list
+%type <ParamDec> parameter_declaration
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -85,7 +91,7 @@
 
 %%
 
-ROOT : specifier_list { g_root = $1; }
+ROOT : statement { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
@@ -114,32 +120,32 @@ declaration : declaration_specifier ';' { $$ = new DeclarationNode($1, NULL); }
             ;
 
 declaration_specifier : TYPEDEF declaration_specifier { $$ = new Dec_Spec_TypeDef($2); }
-                    |   TYPEDEF { $$ = new Dec_Spec_TypeDef(NULL); }
-                    |   type_specifier declaration_specifier { $$ = new Dec_Spec_TypeSpec($2, $1); }
-                    |   type_specifier { $$ = new Dec_Spec_TypeSpec(NULL, $1); }
-                    ;
+                      | TYPEDEF { $$ = new Dec_Spec_TypeDef(NULL); }
+                      | type_specifier declaration_specifier { $$ = new Dec_Spec_TypeSpec($2, $1); }
+                      | type_specifier { $$ = new Dec_Spec_TypeSpec(NULL, $1); }
+                      ;
 
 init_declarator_list : init_declarator { $$ = new Init_Dec_List(NULL, $1); }
-                    |  init_declarator_list ',' init_declarator  { $$ = new Init_Dec_List($1, $3); }
-                    ;
+                     | init_declarator_list ',' init_declarator  { $$ = new Init_Dec_List($1, $3); }
+                     ;
 
 init_declarator : declarator { $$ = $1; }
                 | declarator '=' initializer  { $$ = new Init_Declarator($1, $3); }
                 ;
 
 type_specifier :  VOID { $$ = new Type_Specifier_Basic("void"); }
-                | CHAR { $$ = new Type_Specifier_Basic("char"); }
-                | SHORT { $$ = new Type_Specifier_Basic("short"); }
-                | INT { $$ = new Type_Specifier_Basic("int"); }
-                | LONG { $$ = new Type_Specifier_Basic("long"); }
-                | FLOAT { $$ = new Type_Specifier_Basic("float"); }
-                | DOUBLE { $$ = new Type_Specifier_Basic("double"); }
-                | SIGNED { $$ = new Type_Specifier_Basic("signed"); }
-                | UNSIGNED { $$ = new Type_Specifier_Basic("unsigned"); }
-                | struct_spec { $$ = $1; }
-                | enum_specifier { $$ = $1; }
-                | TYPEDEF_T { $$ = new Type_Specifier_Typedef(*$1); }
-                ;
+               | CHAR { $$ = new Type_Specifier_Basic("char"); }
+               | SHORT { $$ = new Type_Specifier_Basic("short"); }
+               | INT { $$ = new Type_Specifier_Basic("int"); }
+               | LONG { $$ = new Type_Specifier_Basic("long"); }
+               | FLOAT { $$ = new Type_Specifier_Basic("float"); }
+               | DOUBLE { $$ = new Type_Specifier_Basic("double"); }
+               | SIGNED { $$ = new Type_Specifier_Basic("signed"); }
+               | UNSIGNED { $$ = new Type_Specifier_Basic("unsigned"); }
+               | struct_spec { $$ = $1; }
+               | enum_specifier { $$ = $1; }
+               | TYPEDEF_T { $$ = new Type_Specifier_Typedef(*$1); }
+               ;
 
 specifier_list : type_specifier specifier_list { $$ = new Type_Specifier_List($2, $1); }
                | type_specifier { $$ = new Type_Specifier_List(NULL, $1); }
@@ -178,35 +184,36 @@ enumerator : IDENTIFIER { $$ = new Enum_Element(*$1, NULL); }
            | IDENTIFIER '=' constant_expression { $$ = new Enum_Element(*$1, $3); }
            ;
 
-declarator : pointer direct_declarator {}
-           | direct_declarator {}
+declarator : pointer direct_declarator { $$ = new Direct_Dec_Pointer($2, $1); }
+           | direct_declarator { $$ = $1; }
            ;
 
-direct_declarator : IDENTIFIER {}
-                  | '(' declarator ')' {}
-                  | direct_declarator '[' constant_expression ']' {}
-                  | direct_declarator '[' ']' {}
-                  | direct_declarator '(' parameter_list ')' {}
-                  | direct_declarator '(' ')' {}
+direct_declarator : IDENTIFIER { $$ = new Dir_Dec_Iden(*$1); }
+                  | '(' declarator ')' { $$ = new Dir_Dec_Dec($2); }
+                  | direct_declarator '[' constant_expression ']' { $$ = new Dir_Dec_Arr($1, $3); }
+                  | direct_declarator '[' ']' { $$ = new Dir_Dec_Arr($1, NULL); }
+                  | direct_declarator '(' parameter_list ')' { $$ = new Dir_Dec_Func($1, $3); }
+                  | direct_declarator '(' ')' { $$ = new Dir_Dec_Func($1, NULL); }
                   ;
 
 pointer : '*' { $$ = new Pointer(NULL); }
         | '*' pointer { $$ = new Pointer($2); }
 	    ;
 
-parameter_list : parameter_declaration {}
-               | parameter_list ',' parameter_declaration {}
+parameter_list : parameter_declaration { $$ = new Param_List(NULL, $1); }
+               | parameter_list ',' parameter_declaration { $$ = new Param_List($1, $3); }
                ;
 
-parameter_declaration : declaration_specifier declarator {}
-                      | declaration_specifier abstract_declarator {}
-                      | declaration_specifier {}
+parameter_declaration : declaration_specifier declarator { $$ = new Param_Dec($1, $2); }
+//                      | declaration_specifier abstract_declarator {}
+                      | declaration_specifier { $$ = new Param_Dec($1, NULL); }
                       ;
 
+/* 
 //TODO: abstract declarators=====================================
 type_name : specifier_list {}
-	        | specifier_list abstract_declarator {}
-	        ;
+	      | specifier_list abstract_declarator {}
+	      ;
 
 abstract_declarator : pointer {}
                     | direct_abstract_declarator {}
@@ -224,6 +231,7 @@ direct_abstract_declarator : '(' abstract_declarator ')' {}
                            | direct_abstract_declarator '(' parameter_list ')' {}
                            ;
 //==============================================================
+*/
 
 initializer : assignment_expression { $$ = new Decl_initializer_expr($1); }
             | '{' initializer_list '}' { $$ = $2; }
@@ -238,7 +246,7 @@ initializer_list : initializer { $$ = new Decl_init_list($1); }
 //-------------------------------------- STATEMENTS ------------------------------------
 //**************************************************************************************
 
-statement : labeled_statement        { $$ = $1; }
+statement : labeled_statement       { $$ = $1; }
           | compound_statement      { $$ = $1; }
           | expression_statement    { $$ = $1; }
           | selection_statement     { $$ = $1; }
@@ -247,8 +255,8 @@ statement : labeled_statement        { $$ = $1; }
           ;
 
 labeled_statement : CASE constant_expression ':' statement   { $$ = new CaseBlock($2, $4); }
-                 | DEFAULT ':' statement                    { $$ = new DefaultBlock($3); }
-                 ;
+                  | DEFAULT ':' statement                    { $$ = new DefaultBlock($3); }
+                  ;
 
 compound_statement : '{' '}'                                        { $$ = new CompoundStatement(NULL, NULL); }
                    | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }     
