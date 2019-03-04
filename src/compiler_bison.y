@@ -30,6 +30,7 @@
     Enum_Element *EnumElement;
     Type_Specifier_List *TypeSpecifierList;
     Struct_Declaration_List *StructDeclarationList;
+    Struct_Declaration *StructDeclaration;
     Struct_Declarator_List *StructDeclaratorList;
     Struct_Declarator *StructDeclarator;
 }
@@ -63,6 +64,7 @@
 %type <TypePtr> enum_specifier type_specifier struct_spec
 %type <TypeSpecifierList> specifier_list
 %type <StructDeclarationList> struct_declaration_list
+%type <StructDeclaration> struct_declaration
 %type <StructDeclaratorList> struct_declarator_list
 %type <StructDeclarator> struct_declarator
 
