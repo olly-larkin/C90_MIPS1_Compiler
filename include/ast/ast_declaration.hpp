@@ -26,17 +26,46 @@ protected:
 
 class Declarator : public Declaration {
 public:
-    Declarator(std::string initializer){}
-    std::string name() { return "Declarator: "; }
-    void print(std::ostream &os, int level){
-        
+    Declarator(){}
+    virtual std::string name() { return "Declarator: "; }
+    virtual void print(std::ostream &os, int level){
+        // TODO: needs making
     }
 protected:
-    std::string initializer;
+    
 };
 
+class Initializer : public Declaration {};
 
-class Decl_initializer_expr : public Declaration {
+class Init_Declarator : public Declarator {
+public:
+    Init_Declarator(Declarator *_dec, Initializer *_init) : Declarator(*_dec), init(_init) {
+        delete _dec;
+    }
+    std::string name() { return "Initializer Declarator:"; }
+    void print(std::ostream &os, int level) {
+        // TODO: needs making
+    }
+protected:
+    Initializer *init;
+};
+
+class Init_Dec_List : public Declaration {
+public:
+    Init_Dec_List(Init_Dec_List *_list, Declarator *_dec) : list(_list), dec(_dec) {}
+    std::string name() { return "Declaration List:"; }
+    void print(std::ostream &os, int level) {
+        if (list != NULL)
+            list->print(os, level);
+        os << indent(level) << dec->name() << std::endl;
+        dec->print(os, level+1);
+    }
+protected:
+    Init_Dec_List *list;
+    Declarator *dec;
+};
+
+class Decl_initializer_expr : public Initializer {
 public:
     Decl_initializer_expr(Expression *_assignment_expr) : assignment_expr(_assignment_expr) {}
 
@@ -49,10 +78,10 @@ protected:
     Expression *assignment_expr;
 };
 
-class Decl_init_list : public Declaration {
+class Decl_init_list : public Initializer {
 public:
-    Decl_init_list(Decl_init_list *_list, Declaration *_init) : list(_list), init(_init) {}
-    Decl_init_list(Declaration *_init) : list(NULL), init(_init) {}
+    Decl_init_list(Decl_init_list *_list, Initializer *_init) : list(_list), init(_init) {}
+    Decl_init_list(Initializer *_init) : list(NULL), init(_init) {}
 
     std::string name() { return "Init List: "; }
     void print(std::ostream &os, int level){
@@ -63,7 +92,7 @@ public:
     }
 protected:
     Decl_init_list *list;
-    Declaration *init;
+    Initializer *init;
 };
 
 
@@ -123,9 +152,9 @@ protected:
 
 class Enum_Specifier : public Type {
 public:
-    Enum_Specifier(Enum_element_list *_list) : list(_list) {}
+    Enum_Specifier(Enum_Element_List *_list) : list(_list) {}
     Enum_Specifier(std::string _identifier) : identifier(_identifier) {}
-    Enum_Specifier(Enum_element_list *_list, std::string _identifier) : list(_list), identifier(_identifier) {}
+    Enum_Specifier(Enum_Element_List *_list, std::string _identifier) : list(_list), identifier(_identifier) {}
 
     std::string name() { return "Enum: "; }
     void print(std::ostream &os, int level){
@@ -137,46 +166,94 @@ protected:
     std::string identifier;
 };
 
-//TODO:Resolve Cyclic behaviour with Struct_Specifier
-class Struct_Specifier;
-class Type_Specifier : public Type {
+class Type_Specifier_Basic : public Type {
 public:
-    Type_Specifier(std::string _type_name, Struct_Specifier *_struct_spec, Enum_Specifier* _enum_spec) : 
-    type_name(_type_name), enum_spec(_enum_spec) {}
+    Type_Specifier_Basic(const std::string &_type_name) : type_name(_type_name) {}
 
-    std::string name() { return "Type: "; }
+    std::string name() { return "Basic Type: "; }
     void print(std::ostream &os, int level){
-        if(struct_spec != NULL)
-            struct_spec->print(os, level+1);
-        else if(enum_spec != NULL)
-            enum_spec->print(os, level+1);
-        else
-            os << indent(level) << type_name << std::endl;
-        
+        os << indent(level) << type_name << std::endl;
     }
 protected:
     std::string type_name;
-    Struct_Specifier *struct_spec;
-    Enum_Specifier *enum_spec;
+};
+
+class Type_Specifier_Typedef : public Type {
+public:
+    Type_Specifier_Typedef(const std::string &_name) : type_name(_name) {}
+
+    std::string name() { return "Typedef Type: "; }
+    void print(std::ostream &os, int level){
+        os << indent(level) << type_name << std::endl;
+    }
+protected:
+    std::string type_name;
 };
 
 
 class Type_Specifier_List : public Type {
 public:
-    Type_Specifier_List(Type_Specifier_List *_next_elem, Type_Specifier *_data) : 
-    next_elem(_next_elem), data(_data) {}
+    Type_Specifier_List(Type_Specifier_List *_next_elem, Type *_data) : 
+        next_elem(_next_elem), data(_data) {}
 
     std::string name() { return "Type List: "; }
     void print(std::ostream &os, int level){
-        if(next_elem != NULL)
-            next_elem->print(os, level+1);
+        os << indent(level) << data->name() << std::endl;
         data->print(os, level+1);
+        if(next_elem != NULL)
+            next_elem->print(os, level);
     }
 protected:
     Type_Specifier_List *next_elem;
-    Type_Specifier *data;
+    Type *data;
 };
 
+class Dec_Spec : public Declaration {};
+
+class Dec_Spec_TypeDef : public Dec_Spec {
+public:
+    Dec_Spec_TypeDef(Dec_Spec *_decList) : decList(_decList) {}
+    std::string name() { return "Declaration Specifier List:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << "Typedef node" << std::endl;
+        if (decList != NULL)
+            decList->print(os, level);
+    }
+protected:
+    Dec_Spec *decList;
+};
+
+class Dec_Spec_TypeSpec : public Dec_Spec {
+public:
+    Dec_Spec_TypeSpec(Dec_Spec *_decList, Type *_typeSpec) : decList(_decList), typeSpec(_typeSpec) {}
+    std::string name() { return "Declaration Specifier List:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << typeSpec->name() << std::endl;
+        typeSpec->print(os, level+1);
+        if (decList != NULL)
+            decList->print(os, level);
+    }
+protected:
+    Dec_Spec *decList;
+    Type *typeSpec;
+};
+
+class DeclarationNode : public Declaration {
+public:
+    DeclarationNode(Dec_Spec *_decSpec, Init_Dec_List *_decList) : decSpec(_decSpec), decList(_decList) {}
+    std::string name() { return "Declaration:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << decSpec->name() << std::endl;
+        decSpec->print(os, level+1);
+        if (decList != NULL) {
+            os << indent(level) << decList->name() << std::endl;
+            decList->print(os, level+1);
+        }
+    }
+protected:
+    Dec_Spec *decSpec;
+    Init_Dec_List *decList;
+};
 
 class Struct_Declarator : public Declaration {
 public:
@@ -204,8 +281,8 @@ public:
     std::string name() { return "Struct Declarator List: "; }
     void print(std::ostream &os, int level){
         if(next_elem != NULL)
-            next_elem->print(os, level+1);
-
+            next_elem->print(os, level);
+        os << indent(level) << data->name() << std::endl;
         data->print(os, level+1);
     }
 protected:
@@ -235,13 +312,13 @@ protected:
 class Struct_Declaration_List : public Type {
 public:
     Struct_Declaration_List(Struct_Declaration_List *_next_elem, Struct_Declaration *_data) : 
-    next_elem(_next_elem), data(_data) {}
+        next_elem(_next_elem), data(_data) {}
 
     std::string name() { return "Struct Declaration List: "; }
     void print(std::ostream &os, int level){
         if(next_elem != NULL)
-            next_elem->print(os, level+1);
-
+            next_elem->print(os, level);
+        os << indent(level) << data->name() << std::endl;
         data->print(os, level+1);
     }
 protected:
@@ -249,7 +326,7 @@ protected:
     Struct_Declaration *data;
 };
 
-//TODO:Resolve Cyclic behaviour with Type Specifier
+
 class Struct_Specifier : public Type {
 public:
     Struct_Specifier(Struct_Declaration_List *_list) : list(_list) {}
@@ -260,11 +337,12 @@ public:
     std::string name() { return "Struct: "; }
     void print(std::ostream &os, int level){
         os << indent(level) << "Identifier: " << identifier << std::endl;
+        os << indent(level) << list->name() << std::endl;
         list->print(os, level+1);
     }
 protected:
-    Struct_Declaration_List *list;
-    std::string identifier;
+    Struct_Declaration_List *list = NULL;
+    std::string identifier = "";
 };
 
 

@@ -23,11 +23,21 @@
     Statement *StatementPtr;
     StatementList *StatementListPtr;
     Declaration *DeclarationPtr;
+    Initializer *InitializerPtr;
     Decl_init_list *DeclInitList;
     Type *TypePtr;
     Pointer *PointerPtr;
-    Enum_element_list *EnumElementList;
-    Enum_element *EnumElement;
+    Enum_Element_List *EnumElementList;
+    Enum_Element *EnumElement;
+    Type_Specifier_List *TypeSpecifierList;
+    Struct_Declaration_List *StructDeclarationList;
+    Struct_Declaration *StructDeclaration;
+    Struct_Declarator_List *StructDeclaratorList;
+    Struct_Declarator *StructDeclarator;
+    DeclarationList *DeclarationListPtr;
+    Declarator *DeclaratorPtr;
+    Init_Dec_List *InitDecList;
+    Dec_Spec *DecSpec;
 }
 
 %token STRING_LITERAL
@@ -44,20 +54,30 @@
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE
+%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE TYPEDEF_T
 %type <Char> assignment_operator
 %type <number> NUMBER
 %type <ExpressionPtr> expression assignment_expression unary_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
 %type <ArgumentExpressionListPtr> argument_expression_list
 %type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement 
 %type <StatementListPtr> statement_list
-%type <DeclarationPtr> declaration initializer
+%type <DeclarationPtr> declaration 
+%type <Initializer> initializer
 %type <DeclInitList> initializer_list
 %type <PointerPtr> pointer
 %type <EnumElement> enumerator 
 %type <EnumElementList> enum_list
-%type <TypePtr> enum_specifier
-//TODO: add struct types
+%type <TypePtr> enum_specifier type_specifier struct_spec
+%type <TypeSpecifierList> specifier_list
+%type <StructDeclarationList> struct_declaration_list
+%type <StructDeclaration> struct_declaration
+%type <StructDeclaratorList> struct_declarator_list
+%type <StructDeclarator> struct_declarator
+%type <DeclarationListPtr> declaration_list
+%type <DeclaratorPtr> declarator init_declarator
+%type <InitDecList> init_declarator_list
+%type <DecSpec> declaration_specifier
+
 %nonassoc NOELSE
 %nonassoc ELSE
 
@@ -65,7 +85,7 @@
 
 %%
 
-ROOT : enum_specifier { g_root = $1; }
+ROOT : specifier_list { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
@@ -79,71 +99,70 @@ external_declaration : function_definition {}
                      | declaration {}
                      ;
 
-function_definition : //declaration_specifiers declarator declaration_list compound_statement {}
-                    //| declaration_specifiers declarator compound_statement {}
-                    //| declarator declaration_list compound_statement {}
-                     declarator compound_statement {}
+function_definition : declaration_specifier declarator declaration_list compound_statement {}
+                    | declaration_specifier declarator compound_statement {}
+                    | declarator declaration_list compound_statement {}
+                    | declarator compound_statement {}
                     ;
 
 //**************************************************************************************
 //------------------------------------- DECLARATIONS -----------------------------------
 //**************************************************************************************
 
-declaration : declaration_specifier ';' {}
-            | declaration_specifier init_declarator_list ';' {}
+declaration : declaration_specifier ';' { $$ = new DeclarationNode($1, NULL); }
+            | declaration_specifier init_declarator_list ';' { $$ = new DeclarationNode($1, $2); }
             ;
 
-declaration_specifier : TYPEDEF declaration_specifier {}
-                    |   TYPEDEF {}
-                    |   type_specifier declaration_specifier {}
-                    |   type_specifier {}
+declaration_specifier : TYPEDEF declaration_specifier { $$ = new Dec_Spec_TypeDef($2); }
+                    |   TYPEDEF { $$ = new Dec_Spec_TypeDef(NULL); }
+                    |   type_specifier declaration_specifier { $$ = new Dec_Spec_TypeSpec($2, $1); }
+                    |   type_specifier { $$ = new Dec_Spec_TypeSpec(NULL, $1); }
                     ;
 
-init_declarator_list : init_declarator {}
-                    |  init_declarator_list ',' init_declarator  {}
+init_declarator_list : init_declarator { $$ = new Init_Dec_List(NULL, $1); }
+                    |  init_declarator_list ',' init_declarator  { $$ = new Init_Dec_List($1, $3); }
                     ;
 
-init_declarator : declarator {}
-                | declarator '=' initializer  {}
+init_declarator : declarator { $$ = $1; }
+                | declarator '=' initializer  { $$ = new Init_Declarator($1, $3); }
                 ;
 
-type_specifier :  VOID {}
-                | CHAR {}
-                | SHORT {}
-                | INT {}
-                | LONG {}
-                | FLOAT {}
-                | DOUBLE {}
-                | SIGNED {}
-                | UNSIGNED {}
-                | struct_spec {}
-                | enum_specifier {}
-                | TYPEDEF_T {}
+type_specifier :  VOID { $$ = new Type_Specifier_Basic("void"); }
+                | CHAR { $$ = new Type_Specifier_Basic("char"); }
+                | SHORT { $$ = new Type_Specifier_Basic("short"); }
+                | INT { $$ = new Type_Specifier_Basic("int"); }
+                | LONG { $$ = new Type_Specifier_Basic("long"); }
+                | FLOAT { $$ = new Type_Specifier_Basic("float"); }
+                | DOUBLE { $$ = new Type_Specifier_Basic("double"); }
+                | SIGNED { $$ = new Type_Specifier_Basic("signed"); }
+                | UNSIGNED { $$ = new Type_Specifier_Basic("unsigned"); }
+                | struct_spec { $$ = $1; }
+                | enum_specifier { $$ = $1; }
+                | TYPEDEF_T { $$ = new Type_Specifier_Typedef(*$1); }
                 ;
 
-specifier_list : type_specifier specifier_list {}
-               | type_specifier {}
+specifier_list : type_specifier specifier_list { $$ = new Type_Specifier_List($2, $1); }
+               | type_specifier { $$ = new Type_Specifier_List(NULL, $1); }
                ;
 
-struct_spec : STRUCT IDENTIFIER '{' struct_declaration_list '}' {}
-            | STRUCT '{' struct_declaration_list '}' {}
-            | STRUCT IDENTIFIER {}
+struct_spec : STRUCT IDENTIFIER '{' struct_declaration_list '}' { $$ = new Struct_Specifier($4, *$2); }
+            | STRUCT '{' struct_declaration_list '}' { $$ = new Struct_Specifier($3); }
+            | STRUCT IDENTIFIER { $$ = new Struct_Specifier(*$2); }
             ;
 
+struct_declaration_list : struct_declaration { $$ = new Struct_Declaration_List(NULL, $1); }
+                        | struct_declaration_list struct_declaration { $$ = new Struct_Declaration_List($1, $2); }
 
-struct_declaration_list : struct_declaration {}
-                        | struct_declaration_list struct_declaration {}
-
-struct_declaration : specifier_list struct_declarator_list ';' {}
+struct_declaration : specifier_list struct_declarator_list ';' { $$ = new Struct_Declaration($1, $2); }
 	               ;
 
-struct_declarator_list : struct_declarator {}
-                       | struct_declarator_list ',' struct_declarator {}
+struct_declarator_list : struct_declarator { $$ = new Struct_Declarator_List(NULL, $1); }
+                       | struct_declarator_list ',' struct_declarator { $$ = new Struct_Declarator_List($1, $3); }
                        ;
 
-struct_declarator : declarator {}
-                  | constant_expression {}
-                  | declarator ':' constant_expression {}
+struct_declarator : declarator { $$ = new Struct_Declarator($1, NULL); }
+                  | ':' constant_expression { $$ = new Struct_Declarator(NULL, $2); }
+                  | declarator ':' constant_expression { $$ = new Struct_Declarator($1, $3); }
                   ;
 
 enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier($3); }
@@ -151,12 +170,12 @@ enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier($3); }
           | ENUM IDENTIFIER { $$ = new Enum_Specifier(*$2); }
           ;
 
-enum_list : enumerator { $$ = new Enum_element_list(NULL, $1); }
-          | enum_list ',' enumerator { $$ = new Enum_element_list($1, $3); }
+enum_list : enumerator { $$ = new Enum_Element_List(NULL, $1); }
+          | enum_list ',' enumerator { $$ = new Enum_Element_List($1, $3); }
           ;
 
-enumerator : IDENTIFIER { $$ = new Enum_element(*$1, NULL); }
-           | IDENTIFIER '=' constant_expression { $$ = new Enum_element(*$1, $3); }
+enumerator : IDENTIFIER { $$ = new Enum_Element(*$1, NULL); }
+           | IDENTIFIER '=' constant_expression { $$ = new Enum_Element(*$1, $3); }
            ;
 
 declarator : pointer direct_declarator {}
@@ -232,14 +251,14 @@ labeled_statement : CASE constant_expression ':' statement   { $$ = new CaseBloc
                  ;
 
 compound_statement : '{' '}'                                        { $$ = new CompoundStatement(NULL, NULL); }
- //                  | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }     TODO: need to come back and fix once 
+                   | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }     
                    | '{' statement_list '}'                         { $$ = new CompoundStatement(NULL, $2); }
- //                  | '{' declaration_list statement_list '}'        { $$ = new CompoundStatement($2, $3); }
+                   | '{' declaration_list statement_list '}'        { $$ = new CompoundStatement($2, $3); }
                    ;
 
-//declaration_list : declaration                    { $$ = new DeclarationList(NULL, $1); }         // TODO: return once declaration has been made
-//                 | declaration_list declaration   { $$ = new DeclarationList($1, $2); }
-//                ;
+declaration_list : declaration                    { $$ = new DeclarationList(NULL, $1); }         
+                 | declaration_list declaration   { $$ = new DeclarationList($1, $2); }
+                 ;
 
 statement_list : statement                  { $$ = new StatementList($1); }
                | statement_list statement   { $$ = new StatementList(reinterpret_cast<StatementList*>($1), $2); }
