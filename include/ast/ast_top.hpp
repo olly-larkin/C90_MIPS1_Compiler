@@ -10,48 +10,6 @@
 #include <vector>
 #include <iostream>
 
-class Translation_Unit : public AST {
-public:
-    Translation_Unit(Translation_Unit *_next, External_Declaration *_data) : 
-    next(_next),
-    data(_data){}
-
-    std::string name(){ return "External Declaration: "; }
-    void print(std::ostream &os, int level){
-        if(next != NULL){
-            next->print(os, level);
-        }
-        os << indent(level) << data->name() << std::endl;
-        data->print(os, level+1);
-    }
-private:
-    Translation_Unit *next;
-    External_Declaration *data;
-};
-
-
-class External_Declaration : public AST {
-public:
-    External_Declaration(Function_Definition *fd, Declaration *decla) : 
-    fn_defn(fd),
-    dec(decla){}
-
-    std::string name(){ return "External Declaration: "; }
-    void print(std::ostream &os, int level){
-        if(fn_defn != NULL){
-            os << indent(level) << fn_defn->name() << std::endl;
-            fn_defn->print(os, level+1);
-        }
-        else{
-            os << indent(level) << dec->name() << std::endl;
-            dec->print(os, level+1);
-        }
-    }
-private:
-    Function_Definition *fn_defn;
-    Declaration *dec;
-};
-
 class Function_Definition : public AST {
 public:
     Function_Definition(Dec_Spec *_rettypes, Declarator *_dec, CompoundStatement *_seq) : 
@@ -81,4 +39,46 @@ private:
     CompoundStatement *sequence;
 };
 
+
+class External_Declaration : public AST {
+public:
+    External_Declaration(Function_Definition *fd, Declaration *decla) : 
+    fn_defn(fd),
+    dec(decla){}
+
+    std::string name(){ return "External Declaration: "; }
+    void print(std::ostream &os, int level){
+        if(fn_defn != NULL){
+            os << indent(level) << fn_defn->name() << std::endl;
+            fn_defn->print(os, level+1);
+        }
+        else{
+            os << indent(level) << dec->name() << std::endl;
+            dec->print(os, level+1);
+        }
+    }
+private:
+    Function_Definition *fn_defn;
+    Declaration *dec;
+};
+
+
+class Translation_Unit : public AST {
+public:
+    Translation_Unit(Translation_Unit *_next, External_Declaration *_data) : 
+    next(_next),
+    data(_data){}
+
+    std::string name(){ return "Translation Unit: "; }
+    void print(std::ostream &os, int level){
+        if(next != NULL){
+            next->print(os, level);
+        }
+        os << indent(level) << data->name() << std::endl;
+        data->print(os, level+1);
+    }
+private:
+    Translation_Unit *next;
+    External_Declaration *data;
+};
 #endif

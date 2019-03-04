@@ -8,6 +8,7 @@
 #include "ast/ast_declaration.hpp"
 #include "ast/ast_type_name.hpp"
 #include "ast/ast_statement.hpp"
+#include "ast/ast_top.hpp"
 
 extern AST* parseAST();
 

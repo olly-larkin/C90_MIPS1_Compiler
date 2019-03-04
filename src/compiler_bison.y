@@ -21,6 +21,7 @@
     Expression *ExpressionPtr;
     ArgumentExpressionList *ArgumentExpressionListPtr;
     Statement *StatementPtr;
+    CompoundStatement *CompoundStatementPtr;
     StatementList *StatementListPtr;
     Declaration *DeclarationPtr;
     Initializer *InitializerPtr;
@@ -42,6 +43,9 @@
     Param_List *ParamList;
     Param_Dec *ParamDec;
     Type_Name *TypeName;
+    Function_Definition *FuncDefn;
+    External_Declaration *ExtrnDecl;
+    Translation_Unit *TransUnit;
 }
 
 %token STRING_LITERAL
@@ -63,7 +67,8 @@
 %type <number> NUMBER
 %type <ExpressionPtr> expression assignment_expression unary_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
 %type <ArgumentExpressionListPtr> argument_expression_list
-%type <StatementPtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement 
+%type <StatementPtr> statement labeled_statement expression_statement selection_statement iteration_statement jump_statement 
+%type <CompoundStatementPtr> compound_statement
 %type <StatementListPtr> statement_list
 %type <DeclarationPtr> declaration 
 %type <InitializerPtr> initializer
@@ -85,6 +90,9 @@
 %type <ParamList> parameter_list
 %type <ParamDec> parameter_declaration
 %type <TypeName> type_name
+%type <FuncDefn> function_definition
+%type <ExtrnDecl> external_declaration
+%type <TransUnit> translation_unit
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -93,22 +101,22 @@
 
 %%
 
-ROOT : statement { g_root = $1; }
+ROOT : translation_unit { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
 //**************************************************************************************
 
-translation_unit : external_declaration {}
-                 | translation_unit external_declaration {}
+translation_unit : external_declaration { $$ = new Translation_Unit(NULL, $1); }
+                 | translation_unit external_declaration { $$ = new Translation_Unit($1, $2); }
                  ;
 
-external_declaration : function_definition {}
-                     | declaration {}
+external_declaration : function_definition { $$ = new External_Declaration($1, NULL); }
+                     | declaration { $$ = new External_Declaration(NULL, $1); }
                      ;
 
-function_definition : declaration_specifier declarator compound_statement {}
-                    | declarator compound_statement {}
+function_definition : declaration_specifier declarator compound_statement { $$ = new Function_Definition($1, $2, $3); }
+                    | declarator compound_statement { $$ = new Function_Definition(NULL, $1, $2); }
                     ;
 
 //**************************************************************************************
