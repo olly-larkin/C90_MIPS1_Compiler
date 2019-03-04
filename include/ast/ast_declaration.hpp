@@ -26,8 +26,6 @@ protected:
 };
 //********************************************************
 
-class Abstract_Declarator : public Declaration {};
-
 class Declarator : public Declaration {};
 
 class Initializer : public Declaration {};
@@ -449,6 +447,74 @@ protected:
     Param_List *paramList;
 };
 
+class Dir_Abs_Declarator : public Declaration {};
 
+class Abstract_Declarator : public Declaration {
+public:
+    Abstract_Declarator(Pointer *_pointer, Dir_Abs_Declarator *_dirAbs) : pointer(_pointer), dirAbs(_dirAbs) {}
+    virtual std::string name() { return "Abstract Declarator:"; }
+    virtual void print(std::ostream &os, int level) {
+        if (pointer != NULL) {
+            os << indent(level) << pointer->name() << std::endl;
+            pointer->print(os, level+1);
+        }
+        if (dirAbs != NULL) {
+            os << indent(level) << dirAbs->name() << std::endl;
+            dirAbs->print(os, level+1);
+        }
+    }
+protected:
+    Pointer *pointer;
+    Dir_Abs_Declarator *dirAbs;
+};
+
+class Dir_Abs_Dec : public Dir_Abs_Declarator {
+public:
+    Dir_Abs_Dec(Abstract_Declarator *_abs) : abs(_abs) {}
+    virtual std::string name() { return "( Abstract Declarator ):"; }
+    virtual void print(std::ostream &os, int level) {
+        abs->print(os, level);
+    }
+protected:
+    Abstract_Declarator *abs;
+};
+
+class Dir_Abs_Arr : public Dir_Abs_Declarator {
+public:
+    Dir_Abs_Arr(Dir_Abs_Declarator *_dec, Expression *_expr) : dec(_dec), expr(_expr) {}
+    virtual std::string name() { return "Direct Abstract Declarator Array:"; }
+    virtual void print(std::ostream &os, int level) {
+        if (dec != NULL) {
+            os << indent(level) << dec->name() << std::endl;
+            dec->print(os, level);
+        }
+        if (expr != NULL) {
+            os << indent(level) << expr->name() << std::endl;
+            expr->print(os, level+1);
+        }
+    }
+protected:
+    Dir_Abs_Declarator *dec;
+    Expression *expr;
+};
+
+class Dir_Abs_Func : public Dir_Abs_Declarator {
+public:
+    Dir_Abs_Func(Dir_Abs_Declarator *_dec, Param_List *_params) : dec(_dec), params(_params) {}
+    virtual std::string name() { return "Direct Abstract Declarator Function:"; }
+    virtual void print(std::ostream &os, int level) {
+        if (dec != NULL) {
+            os << indent(level) << dec->name() << std::endl;
+            dec->print(os, level);
+        }
+        if (params != NULL) {
+            os << indent(level) << params->name() << std::endl;
+            params->print(os, level+1);
+        }
+    }
+protected:
+    Dir_Abs_Declarator *dec;
+    Param_List *params;
+};
 
 #endif
