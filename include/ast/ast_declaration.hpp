@@ -123,9 +123,9 @@ protected:
 
 class Enum_Specifier : public Type {
 public:
-    Enum_Specifier(Enum_element_list *_list) : list(_list) {}
+    Enum_Specifier(Enum_Element_List *_list) : list(_list) {}
     Enum_Specifier(std::string _identifier) : identifier(_identifier) {}
-    Enum_Specifier(Enum_element_list *_list, std::string _identifier) : list(_list), identifier(_identifier) {}
+    Enum_Specifier(Enum_Element_List *_list, std::string _identifier) : list(_list), identifier(_identifier) {}
 
     std::string name() { return "Enum: "; }
     void print(std::ostream &os, int level){
@@ -137,44 +137,46 @@ protected:
     std::string identifier;
 };
 
-//TODO:Resolve Cyclic behaviour with Struct_Specifier
-class Struct_Specifier;
-class Type_Specifier : public Type {
+class Type_Specifier_Basic : public Type {
 public:
-    Type_Specifier(std::string _type_name, Struct_Specifier *_struct_spec, Enum_Specifier* _enum_spec) : 
-    type_name(_type_name), enum_spec(_enum_spec) {}
+    Type_Specifier_Basic(const std::string &_type_name) : type_name(_type_name) {}
 
-    std::string name() { return "Type: "; }
+    std::string name() { return "Basic Type: "; }
     void print(std::ostream &os, int level){
-        if(struct_spec != NULL)
-            struct_spec->print(os, level+1);
-        else if(enum_spec != NULL)
-            enum_spec->print(os, level+1);
-        else
-            os << indent(level) << type_name << std::endl;
-        
+        os << indent(level) << type_name << std::endl;
     }
 protected:
     std::string type_name;
-    Struct_Specifier *struct_spec;
-    Enum_Specifier *enum_spec;
+};
+
+class Type_Specifier_Typedef : public Type {
+public:
+    Type_Specifier_Typedef(const std::string &_name) : type_name(_name) {}
+
+    std::string name() { return "Typedef Type: "; }
+    void print(std::ostream &os, int level){
+        os << indent(level) << type_name << std::endl;
+    }
+protected:
+    std::string type_name;
 };
 
 
 class Type_Specifier_List : public Type {
 public:
-    Type_Specifier_List(Type_Specifier_List *_next_elem, Type_Specifier *_data) : 
-    next_elem(_next_elem), data(_data) {}
+    Type_Specifier_List(Type_Specifier_List *_next_elem, Type *_data) : 
+        next_elem(_next_elem), data(_data) {}
 
     std::string name() { return "Type List: "; }
     void print(std::ostream &os, int level){
-        if(next_elem != NULL)
-            next_elem->print(os, level+1);
+        os << indent(level) << data->name() << std::endl;
         data->print(os, level+1);
+        if(next_elem != NULL)
+            next_elem->print(os, level);
     }
 protected:
     Type_Specifier_List *next_elem;
-    Type_Specifier *data;
+    Type *data;
 };
 
 

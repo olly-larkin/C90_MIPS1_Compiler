@@ -26,8 +26,9 @@
     Decl_init_list *DeclInitList;
     Type *TypePtr;
     Pointer *PointerPtr;
-    Enum_element_list *EnumElementList;
-    Enum_element *EnumElement;
+    Enum_Element_List *EnumElementList;
+    Enum_Element *EnumElement;
+    Type_Specifier_List *TypeSpecifierList;
 }
 
 %token STRING_LITERAL
@@ -44,7 +45,7 @@
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE
+%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE TYPEDEF_T
 %type <Char> assignment_operator
 %type <number> NUMBER
 %type <ExpressionPtr> expression assignment_expression unary_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
@@ -56,8 +57,9 @@
 %type <PointerPtr> pointer
 %type <EnumElement> enumerator 
 %type <EnumElementList> enum_list
-%type <TypePtr> enum_specifier
-//TODO: add struct types
+%type <TypePtr> enum_specifier type_specifier
+%type <TypeSpecifierList> specifier_list
+
 %nonassoc NOELSE
 %nonassoc ELSE
 
@@ -65,7 +67,7 @@
 
 %%
 
-ROOT : enum_specifier { g_root = $1; }
+ROOT : specifier_list { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
@@ -107,22 +109,22 @@ init_declarator : declarator {}
                 | declarator '=' initializer  {}
                 ;
 
-type_specifier :  VOID {}
-                | CHAR {}
-                | SHORT {}
-                | INT {}
-                | LONG {}
-                | FLOAT {}
-                | DOUBLE {}
-                | SIGNED {}
-                | UNSIGNED {}
-                | struct_spec {}
-                | enum_specifier {}
-                | TYPEDEF_T {}
+type_specifier :  VOID { $$ = new Type_Specifier_Basic("void"); }
+                | CHAR { $$ = new Type_Specifier_Basic("char"); }
+                | SHORT { $$ = new Type_Specifier_Basic("short"); }
+                | INT { $$ = new Type_Specifier_Basic("int"); }
+                | LONG { $$ = new Type_Specifier_Basic("long"); }
+                | FLOAT { $$ = new Type_Specifier_Basic("float"); }
+                | DOUBLE { $$ = new Type_Specifier_Basic("double"); }
+                | SIGNED { $$ = new Type_Specifier_Basic("signed"); }
+                | UNSIGNED { $$ = new Type_Specifier_Basic("unsigned"); }
+//                | struct_spec { $$ = $1; }
+                | enum_specifier { $$ = $1; }
+                | TYPEDEF_T { $$ = new Type_Specifier_Typedef(*$1); }
                 ;
 
-specifier_list : type_specifier specifier_list {}
-               | type_specifier {}
+specifier_list : type_specifier specifier_list { $$ = new Type_Specifier_List($2, $1); }
+               | type_specifier { $$ = new Type_Specifier_List(NULL, $1); }
                ;
 
 struct_spec : STRUCT IDENTIFIER '{' struct_declaration_list '}' {}
@@ -151,12 +153,12 @@ enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier($3); }
           | ENUM IDENTIFIER { $$ = new Enum_Specifier(*$2); }
           ;
 
-enum_list : enumerator { $$ = new Enum_element_list(NULL, $1); }
-          | enum_list ',' enumerator { $$ = new Enum_element_list($1, $3); }
+enum_list : enumerator { $$ = new Enum_Element_List(NULL, $1); }
+          | enum_list ',' enumerator { $$ = new Enum_Element_List($1, $3); }
           ;
 
-enumerator : IDENTIFIER { $$ = new Enum_element(*$1, NULL); }
-           | IDENTIFIER '=' constant_expression { $$ = new Enum_element(*$1, $3); }
+enumerator : IDENTIFIER { $$ = new Enum_Element(*$1, NULL); }
+           | IDENTIFIER '=' constant_expression { $$ = new Enum_Element(*$1, $3); }
            ;
 
 declarator : pointer direct_declarator {}
