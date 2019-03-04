@@ -206,8 +206,8 @@ public:
     std::string name() { return "Struct Declarator List: "; }
     void print(std::ostream &os, int level){
         if(next_elem != NULL)
-            next_elem->print(os, level+1);
-
+            next_elem->print(os, level);
+        os << indent(level) << data->name() << std::endl;
         data->print(os, level+1);
     }
 protected:
@@ -237,13 +237,13 @@ protected:
 class Struct_Declaration_List : public Type {
 public:
     Struct_Declaration_List(Struct_Declaration_List *_next_elem, Struct_Declaration *_data) : 
-    next_elem(_next_elem), data(_data) {}
+        next_elem(_next_elem), data(_data) {}
 
     std::string name() { return "Struct Declaration List: "; }
     void print(std::ostream &os, int level){
         if(next_elem != NULL)
-            next_elem->print(os, level+1);
-
+            next_elem->print(os, level);
+        os << indent(level) << data->name() << std::endl;
         data->print(os, level+1);
     }
 protected:
@@ -251,7 +251,7 @@ protected:
     Struct_Declaration *data;
 };
 
-//TODO:Resolve Cyclic behaviour with Type Specifier
+
 class Struct_Specifier : public Type {
 public:
     Struct_Specifier(Struct_Declaration_List *_list) : list(_list) {}
@@ -262,11 +262,12 @@ public:
     std::string name() { return "Struct: "; }
     void print(std::ostream &os, int level){
         os << indent(level) << "Identifier: " << identifier << std::endl;
+        os << indent(level) << list->name() << std::endl;
         list->print(os, level+1);
     }
 protected:
-    Struct_Declaration_List *list;
-    std::string identifier;
+    Struct_Declaration_List *list = NULL;
+    std::string identifier = "";
 };
 
 

@@ -29,6 +29,9 @@
     Enum_Element_List *EnumElementList;
     Enum_Element *EnumElement;
     Type_Specifier_List *TypeSpecifierList;
+    Struct_Declaration_List *StructDeclarationList;
+    Struct_Declarator_List *StructDeclaratorList;
+    Struct_Declarator *StructDeclarator;
 }
 
 %token STRING_LITERAL
@@ -57,8 +60,11 @@
 %type <PointerPtr> pointer
 %type <EnumElement> enumerator 
 %type <EnumElementList> enum_list
-%type <TypePtr> enum_specifier type_specifier
+%type <TypePtr> enum_specifier type_specifier struct_spec
 %type <TypeSpecifierList> specifier_list
+%type <StructDeclarationList> struct_declaration_list
+%type <StructDeclaratorList> struct_declarator_list
+%type <StructDeclarator> struct_declarator
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -118,7 +124,7 @@ type_specifier :  VOID { $$ = new Type_Specifier_Basic("void"); }
                 | DOUBLE { $$ = new Type_Specifier_Basic("double"); }
                 | SIGNED { $$ = new Type_Specifier_Basic("signed"); }
                 | UNSIGNED { $$ = new Type_Specifier_Basic("unsigned"); }
-//                | struct_spec { $$ = $1; }
+                | struct_spec { $$ = $1; }
                 | enum_specifier { $$ = $1; }
                 | TYPEDEF_T { $$ = new Type_Specifier_Typedef(*$1); }
                 ;
@@ -127,25 +133,25 @@ specifier_list : type_specifier specifier_list { $$ = new Type_Specifier_List($2
                | type_specifier { $$ = new Type_Specifier_List(NULL, $1); }
                ;
 
-struct_spec : STRUCT IDENTIFIER '{' struct_declaration_list '}' {}
-            | STRUCT '{' struct_declaration_list '}' {}
-            | STRUCT IDENTIFIER {}
+struct_spec : STRUCT IDENTIFIER '{' struct_declaration_list '}' { $$ = new Struct_Specifier($4, *$2); }
+            | STRUCT '{' struct_declaration_list '}' { $$ = new Struct_Specifier($3); }
+            | STRUCT IDENTIFIER { $$ = new Struct_Specifier(*$2); }
             ;
 
 
-struct_declaration_list : struct_declaration {}
-                        | struct_declaration_list struct_declaration {}
+struct_declaration_list : struct_declaration { $$ = new Struct_Declaration_List(NULL, $1); }
+                        | struct_declaration_list struct_declaration { $$ = new Struct_Declaration_List($1, $2); }
 
-struct_declaration : specifier_list struct_declarator_list ';' {}
+struct_declaration : specifier_list struct_declarator_list ';' { $$ = new Struct_Declaration($1, $2); }
 	               ;
 
-struct_declarator_list : struct_declarator {}
-                       | struct_declarator_list ',' struct_declarator {}
+struct_declarator_list : struct_declarator { $$ = new Struct_Declarator_List(NULL, $1); }
+                       | struct_declarator_list ',' struct_declarator { $$ = new Struct_Declarator_List($1, $3); }
                        ;
 
-struct_declarator : declarator {}
-                  | constant_expression {}
-                  | declarator ':' constant_expression {}
+struct_declarator : declarator { $$ = new Struct_Declarator($1, NULL); }
+                  | ':' constant_expression { $$ = new Struct_Declaration(NULL, $2); }
+                  | declarator ':' constant_expression { $$ = new Struct_Declarator($1, $3); }
                   ;
 
 enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier($3); }
