@@ -26,17 +26,46 @@ protected:
 
 class Declarator : public Declaration {
 public:
-    Declarator(std::string initializer){}
-    std::string name() { return "Declarator: "; }
-    void print(std::ostream &os, int level){
-        
+    Declarator(){}
+    virtual std::string name() { return "Declarator: "; }
+    virtual void print(std::ostream &os, int level){
+        // TODO: needs making
     }
 protected:
-    std::string initializer;
+    
 };
 
+class Initializer : public Declaration {};
 
-class Decl_initializer_expr : public Declaration {
+class Init_Declarator : public Declarator {
+public:
+    Init_Declarator(Declarator *_dec, Initializer *_init) : Declarator(*_dec), init(_init) {
+        delete _dec;
+    }
+    std::string name() { return "Initializer Declarator:"; }
+    void print(std::ostream &os, int level) {
+        // TODO: needs making
+    }
+protected:
+    Initializer *init;
+};
+
+class Init_Dec_List : public Declaration {
+public:
+    Init_Dec_List(Init_Dec_List *_list, Declarator *_dec) : list(_list), dec(_dec) {}
+    std::string name() { return "Declaration List:"; }
+    void print(std::ostream &os, int level) {
+        if (list != NULL)
+            list->print(os, level);
+        os << indent(level) << dec->name() << std::endl;
+        dec->print(os, level+1);
+    }
+protected:
+    Init_Dec_List *list;
+    Declarator *dec;
+};
+
+class Decl_initializer_expr : public Initializer {
 public:
     Decl_initializer_expr(Expression *_assignment_expr) : assignment_expr(_assignment_expr) {}
 
@@ -49,10 +78,10 @@ protected:
     Expression *assignment_expr;
 };
 
-class Decl_init_list : public Declaration {
+class Decl_init_list : public Initializer {
 public:
-    Decl_init_list(Decl_init_list *_list, Declaration *_init) : list(_list), init(_init) {}
-    Decl_init_list(Declaration *_init) : list(NULL), init(_init) {}
+    Decl_init_list(Decl_init_list *_list, Initializer *_init) : list(_list), init(_init) {}
+    Decl_init_list(Initializer *_init) : list(NULL), init(_init) {}
 
     std::string name() { return "Init List: "; }
     void print(std::ostream &os, int level){
@@ -63,7 +92,7 @@ public:
     }
 protected:
     Decl_init_list *list;
-    Declaration *init;
+    Initializer *init;
 };
 
 
@@ -179,6 +208,52 @@ protected:
     Type *data;
 };
 
+class Dec_Spec : public Declaration {};
+
+class Dec_Spec_TypeDef : public Dec_Spec {
+public:
+    Dec_Spec_TypeDef(Dec_Spec *_decList) : decList(_decList) {}
+    std::string name() { return "Declaration Specifier List:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << "Typedef node" << std::endl;
+        if (decList != NULL)
+            decList->print(os, level);
+    }
+protected:
+    Dec_Spec *decList;
+};
+
+class Dec_Spec_TypeSpec : public Dec_Spec {
+public:
+    Dec_Spec_TypeSpec(Dec_Spec *_decList, Type *_typeSpec) : decList(_decList), typeSpec(_typeSpec) {}
+    std::string name() { return "Declaration Specifier List:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << typeSpec->name() << std::endl;
+        typeSpec->print(os, level+1);
+        if (decList != NULL)
+            decList->print(os, level);
+    }
+protected:
+    Dec_Spec *decList;
+    Type *typeSpec;
+};
+
+class DeclarationNode : public Declaration {
+public:
+    DeclarationNode(Dec_Spec *_decSpec, Init_Dec_List *_decList) : decSpec(_decSpec), decList(_decList) {}
+    std::string name() { return "Declaration:"; }
+    void print(std::ostream &os, int level) {
+        os << indent(level) << decSpec->name() << std::endl;
+        decSpec->print(os, level+1);
+        if (decList != NULL) {
+            os << indent(level) << decList->name() << std::endl;
+            decList->print(os, level+1);
+        }
+    }
+protected:
+    Dec_Spec *decSpec;
+    Init_Dec_List *decList;
+};
 
 class Struct_Declarator : public Declaration {
 public:
