@@ -68,11 +68,27 @@ struct LexContext {
 
     std::string currentName;
 
-    bool& declarationActive() { return stack.back().declarationActive; }
-    bool& typeDefActive() { return stack.back().typeDefActive; }
-    bool& enumActive() { return stack.back().enumActive; }
-    bool& storeEnumVals() { return stack.back().storeEnumVals; }
-    bool& ignoreIdentifier() { return stack.back().ignoreIdentifier; }
+    bool declarationActive() { return stack.back().declarationActive; }
+    bool typeDefActive() { return stack.back().typeDefActive; }
+    bool enumActive() { return stack.back().enumActive; }
+    bool storeEnumVals() { return stack.back().storeEnumVals; }
+    bool ignoreIdentifier() { return stack.back().ignoreIdentifier; } 
+
+    void declarationActive(bool cond) { 
+        stack.back().declarationActive = cond; 
+    }   
+    void typeDefActive(bool cond) { 
+        stack.back().typeDefActive = cond; 
+    }
+    void enumActive(bool cond) { 
+        stack.back().enumActive = cond; 
+    }
+    void storeEnumVals(bool cond) { 
+        stack.back().storeEnumVals = cond; 
+    }
+    void ignoreIdentifier(bool cond) { 
+        stack.back().ignoreIdentifier = cond; 
+    } 
 
     void addTypeDef(const std::string& str) {
         findAndDestroyE(str);
@@ -81,7 +97,26 @@ struct LexContext {
 
     void addEnumVal(const std::string& str) {
         findAndDestroyTD(str);
-        stack[stack.size()-2].Enum.push_back(str);
+        if (topSet) {
+            for (int i = topLevel; i < (int)stack.size()-1; ++i)
+                stack[i].Enum.push_back(str);
+        } else
+            stack[stack.size()-2].Enum.push_back(str);
+    }
+
+    int topLevel = 0;
+    bool topSet = false;
+
+    void setTopLevel() {
+        if (!topSet) {
+            topLevel = scopeLevel;
+            topSet = true;
+        }
+    }
+
+    void endTopLevel() {
+        if (topSet && topLevel == scopeLevel)
+            topSet = false;
     }
 };
 

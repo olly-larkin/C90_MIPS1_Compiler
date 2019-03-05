@@ -63,8 +63,9 @@ E			[Ee][+-]?{D}+
 ">>"            { return token(RIGHT_SHIFT); }
 
 "="             {
-                    context.declarationActive() = false;
-                    context.enumActive() = false;
+                    context.declarationActive(false);
+                    context.enumActive(false);
+                    context.endTopLevel();
                     return token('=');
                 }
 
@@ -89,10 +90,11 @@ E			[Ee][+-]?{D}+
 ";"             { 
                     if (context.typeDefActive()) {
                         context.addTypeDef(context.currentName);
-                        context.typeDefActive() = false;
+                        context.typeDefActive(false);
                     }
-                    context.declarationActive() = false;
-                    context.enumActive() = false;
+                    context.endTopLevel();
+                    context.declarationActive(false);
+                    context.enumActive(false);
                     return token(';'); 
                 }
 
@@ -102,15 +104,16 @@ E			[Ee][+-]?{D}+
 "]"             { return token(']'); }
 
 "{"             {
-                    context.ignoreIdentifier() = false;
-                    if (context.enumActive()) context.storeEnumVals() = true;
+                    context.ignoreIdentifier(false);
+                    if (context.enumActive()) 
+                        context.storeEnumVals(true);
                     context.addScope();
                     return token('{');
                 }
 "}"             {
                     context.subScope();
-                    context.enumActive() = false;
-                    context.storeEnumVals() = false;
+                    context.enumActive(false);
+                    context.storeEnumVals(false);
                     return token('}');
                 }
 
@@ -140,7 +143,7 @@ E			[Ee][+-]?{D}+
 "switch"        { return token(SWITCH); }
 
 "typedef"       { 
-                    context.typeDefActive() = true;
+                    context.typeDefActive(true);
                     return token(TYPEDEF); 
                 }
 
@@ -150,25 +153,27 @@ E			[Ee][+-]?{D}+
 "while"         { return token(WHILE); }
 
 "struct"                {   
-                            context.ignoreIdentifier() = true;
+                            context.setTopLevel();
+                            context.ignoreIdentifier(true);
                             return tokenTYPE(STRUCT); 
                         }
 
 "enum"                  {   
-                            context.ignoreIdentifier() = true;
-                            context.enumActive() = true;
+                            context.setTopLevel();
+                            context.ignoreIdentifier(true);
+                            context.enumActive(true);
                             return tokenTYPE(ENUM); 
                         }
 
 "union"                 {   
-                            context.ignoreIdentifier() = true;
+                            context.ignoreIdentifier(true);
                             return tokenTYPE(UNION); 
                         }
  
 [a-zA-Z_][0-9a-zA-Z_]*  {   
                             std::string temp = std::string(yytext);
                             if (context.declarationActive() && !context.ignoreIdentifier()) {
-                                context.declarationActive() = false;
+                                context.declarationActive(false);
                                 context.findAndDestroyTD(temp);
                                 context.findAndDestroyE(temp);
                                 if (context.typeDefActive())
@@ -182,7 +187,7 @@ E			[Ee][+-]?{D}+
                             }
 
                             if (context.ignoreIdentifier())
-                                context.ignoreIdentifier() = false;
+                                context.ignoreIdentifier(false);
 
                             if (context.typeDefActive())
                                 context.currentName = temp;
@@ -220,6 +225,7 @@ int token(int type) {
 
 int tokenTYPE(int type) {
     yylval.string = new std::string(yytext);
-    if (!context.typeDefActive()) context.declarationActive() = true;
+    if (!context.typeDefActive())
+        context.declarationActive(true);
     return type;
 }

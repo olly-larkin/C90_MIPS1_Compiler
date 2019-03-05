@@ -13,21 +13,18 @@ class Expression : public AST {};
 
 class ArgumentExpressionList : public Expression {
 public:
-    ArgumentExpressionList(Expression *assignmentExpression){
-        addArg(assignmentExpression);
-    }
-    virtual std::string name() { return "Argument Expression List:"; };
-    void print(std::ostream& os, int level) {
-        for(int i=0; i< (int)arg_list.size(); i++){
-            os << indent(level) << arg_list[i]->name() << std::endl;
-            arg_list[i]->print(os, level+1);
-        }
-    }
-    void addArg(Expression *newArg){
-        arg_list.push_back(newArg);
+    ArgumentExpressionList(ArgumentExpressionList *_arg_expr_list, Expression *_expression) : arg_expr_list(_arg_expr_list), expression(_expression) {}
+    ArgumentExpressionList(Expression *_expression) : arg_expr_list(NULL), expression(_expression) {}
+    std::string name() { return "Argument Expression List:"; }
+    void print(std::ostream &os, int level) {
+        if (arg_expr_list != NULL)
+            arg_expr_list->print(os, level);
+        os << indent(level) << expression->name() << std::endl;
+        expression->print(os, level+1);
     }
 protected:
-    std::vector<Expression*> arg_list;
+    ArgumentExpressionList *arg_expr_list;
+    Expression *expression;
 };
 
 //************************************************************
@@ -363,23 +360,6 @@ protected:
 };
 
 //************************************************************
-//------------------CAST & ASSIGNMENT-------------------------
-//************************************************************
-
-class Cast_ToType : public Expression {     // TODO: TYPE_NAME is not going to be a string
-public:
-    Cast_ToType(Expression *_cast_expr, const std::string& _type_name) : cast_expr(_cast_expr), type_name(_type_name) {}
-    std::string name() { return "Cast:"; }
-    void print(std::ostream &os, int level) {
-        os << indent(level) << cast_expr->name() << std::endl;
-        os << indent(level) << "To: " << type_name;
-    }
-protected:
-    Expression *cast_expr;
-    std::string type_name;
-};
-
-//************************************************************
 //-----------------------UNARY--------------------------------
 //************************************************************
 
@@ -417,12 +397,6 @@ public:
     }
 protected:
     Expression *cast_expr;
-};
-
-class Unary_SizeOfType : public Expression { //TODO: make this
-public:
-    std::string name() { return "Size of:"; }
-protected:
 };
 
 class Unary_Reference : public Expression {
