@@ -46,6 +46,8 @@
     Function_Definition *FuncDefn;
     External_Declaration *ExtrnDecl;
     Translation_Unit *TransUnit;
+    Dir_Abs_Declarator *DirAbsDeclarator;
+    Abstract_Declarator *AbstractDeclarator;
 }
 
 %token STRING_LITERAL
@@ -93,6 +95,8 @@
 %type <FuncDefn> function_definition
 %type <ExtrnDecl> external_declaration
 %type <TransUnit> translation_unit
+%type <DirAbsDeclarator> direct_abstract_declarator
+%type <AbstractDeclarator> abstract_declarator
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -111,8 +115,8 @@ translation_unit : external_declaration { $$ = new Translation_Unit(NULL, $1); }
                  | translation_unit external_declaration { $$ = new Translation_Unit($1, $2); }
                  ;
 
-external_declaration : function_definition { $$ = new External_Declaration($1, NULL); }
-                     | declaration { $$ = new External_Declaration(NULL, $1); }
+external_declaration : function_definition { $$ = new External_Declaration_Func($1); }
+                     | declaration { $$ = new External_Declaration_Dec($1); }
                      ;
 
 function_definition : declaration_specifier declarator compound_statement { $$ = new Function_Definition($1, $2, $3); }
@@ -212,32 +216,30 @@ parameter_list : parameter_declaration { $$ = new Param_List(NULL, $1); }
                | parameter_list ',' parameter_declaration { $$ = new Param_List($1, $3); }
                ;
 
-parameter_declaration : declaration_specifier declarator { $$ = new Param_Dec($1, $2); }
-//                      | declaration_specifier abstract_declarator {}
-                      | declaration_specifier { $$ = new Param_Dec($1, NULL); }
+parameter_declaration : declaration_specifier declarator { $$ = new Param_Dec($1, $2, NULL); }
+                      | declaration_specifier abstract_declarator { $$ = new Param_Dec($1, NULL, $2); }
+                      | declaration_specifier { $$ = new Param_Dec($1, NULL, NULL); }
                       ;
 
-//TODO: abstract declarators=====================================
 type_name : specifier_list { $$ = new Type_Name($1, NULL); }
-//	      | specifier_list abstract_declarator { $$ = new Type_Name($1, $2); }
+	      | specifier_list abstract_declarator { $$ = new Type_Name($1, $2); }
 	      ;
 
-abstract_declarator : pointer {}
-                    | direct_abstract_declarator {}
-                    | pointer direct_abstract_declarator {}
+abstract_declarator : pointer { $$ = new Abstract_Declarator($1, NULL); }
+                    | direct_abstract_declarator { $$ = new Abstract_Declarator(NULL, $1); }
+                    | pointer direct_abstract_declarator { $$ = new Abstract_Declarator($1, $2); }
                     ;
 
-direct_abstract_declarator : '(' abstract_declarator ')' {}
-                           | '[' ']' {}
-                           | '[' constant_expression ']' {}
-                           | direct_abstract_declarator '[' ']' {}
-                           | direct_abstract_declarator '[' constant_expression ']' {}
-                           | '(' ')' {}
-                           | '(' parameter_list ')' {}
-                           | direct_abstract_declarator '(' ')' {}
-                           | direct_abstract_declarator '(' parameter_list ')' {}
+direct_abstract_declarator : '(' abstract_declarator ')' { $$ = new Dir_Abs_Dec($2); }
+                           | '[' ']' { $$ = new Dir_Abs_Arr(NULL, NULL); }
+                           | '[' constant_expression ']' { $$ = new Dir_Abs_Arr(NULL, $2); }
+                           | direct_abstract_declarator '[' ']' { $$ = new Dir_Abs_Arr($1, NULL); }
+                           | direct_abstract_declarator '[' constant_expression ']' { $$ = new Dir_Abs_Arr($1, $3); }
+                           | '(' ')' { $$ = new Dir_Abs_Func(NULL, NULL); }
+                           | '(' parameter_list ')' { $$ = new Dir_Abs_Func(NULL, $2); }
+                           | direct_abstract_declarator '(' ')' { $$ = new Dir_Abs_Func($1, NULL); }
+                           | direct_abstract_declarator '(' parameter_list ')' { $$ = new Dir_Abs_Func($1, $3); }
                            ;
-//==============================================================
 
 initializer : assignment_expression { $$ = new Decl_initializer_expr($1); }
             | '{' initializer_list '}' { $$ = $2; }

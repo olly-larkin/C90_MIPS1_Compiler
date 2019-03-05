@@ -315,8 +315,10 @@ public:
     virtual void print(std::ostream &os, int level){
         if(decl != NULL)
             decl->print(os, level+1);
-        if(decl != NULL)
+        if(constant_expr != NULL) {
+            os << indent(level) << constant_expr->name() << std::endl;
             constant_expr->print(os, level+1);
+        }
     }
 protected:
     Declarator *decl;
@@ -327,7 +329,7 @@ protected:
 class Struct_Declarator_List : public Type {
 public:
     Struct_Declarator_List(Struct_Declarator_List *_next_elem, Struct_Declarator *_data) : 
-    next_elem(_next_elem), data(_data) {}
+        next_elem(_next_elem), data(_data) {}
 
     virtual std::string name() { return "Struct Declarator List: "; }
     virtual void print(std::ostream &os, int level){
@@ -396,10 +398,30 @@ protected:
     std::string identifier = "";
 };
 
+class Dir_Abs_Declarator : public Declaration {};
+
+class Abstract_Declarator : public Declaration {
+public:
+    Abstract_Declarator(Pointer *_pointer, Dir_Abs_Declarator *_dirAbs) : pointer(_pointer), dirAbs(_dirAbs) {}
+    virtual std::string name() { return "Abstract Declarator:"; }
+    virtual void print(std::ostream &os, int level) {
+        if (pointer != NULL) {
+            os << indent(level) << pointer->name() << std::endl;
+            pointer->print(os, level+1);
+        }
+        if (dirAbs != NULL) {
+            os << indent(level) << dirAbs->name() << std::endl;
+            dirAbs->print(os, level+1);
+        }
+    }
+protected:
+    Pointer *pointer;
+    Dir_Abs_Declarator *dirAbs;
+};
 
 class Param_Dec : public Declaration {
 public:
-    Param_Dec(Dec_Spec *_decSpec, Declarator *_dec) : decSpec(_decSpec), dec(_dec) {}
+    Param_Dec(Dec_Spec *_decSpec, Declarator *_dec, Abstract_Declarator *_abs) : decSpec(_decSpec), dec(_dec), abs(_abs) {}
     virtual std::string name() { return "Parameter Declaration:"; }
     virtual void print(std::ostream &os, int level) {
         os << indent(level) << decSpec->name() << std::endl;
@@ -408,10 +430,15 @@ public:
             os << indent(level) << dec->name() << std::endl;
             dec->print(os, level+1);
         }
+        if (abs != NULL) {
+            os << indent(level) << abs->name() << std::endl;
+            abs->print(os, level+1);
+        }
     }
 protected:
     Dec_Spec *decSpec;
     Declarator *dec;
+    Abstract_Declarator *abs;
 };
 
 class Param_List : public Declaration {
@@ -447,26 +474,6 @@ protected:
     Param_List *paramList;
 };
 
-class Dir_Abs_Declarator : public Declaration {};
-
-class Abstract_Declarator : public Declaration {
-public:
-    Abstract_Declarator(Pointer *_pointer, Dir_Abs_Declarator *_dirAbs) : pointer(_pointer), dirAbs(_dirAbs) {}
-    virtual std::string name() { return "Abstract Declarator:"; }
-    virtual void print(std::ostream &os, int level) {
-        if (pointer != NULL) {
-            os << indent(level) << pointer->name() << std::endl;
-            pointer->print(os, level+1);
-        }
-        if (dirAbs != NULL) {
-            os << indent(level) << dirAbs->name() << std::endl;
-            dirAbs->print(os, level+1);
-        }
-    }
-protected:
-    Pointer *pointer;
-    Dir_Abs_Declarator *dirAbs;
-};
 
 class Dir_Abs_Dec : public Dir_Abs_Declarator {
 public:

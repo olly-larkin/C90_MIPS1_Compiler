@@ -13,9 +13,10 @@
 class Function_Definition : public AST {
 public:
     Function_Definition(Dec_Spec *_rettypes, Declarator *_dec, CompoundStatement *_seq) : 
-    return_types(_rettypes), 
-    dec(_dec),
-    sequence(_seq) {}
+        return_types(_rettypes), 
+        dec(_dec),
+        sequence(_seq) 
+    {}
 
     std::string name(){ return "Function Definition: "; }
     void print(std::ostream &os, int level){
@@ -39,26 +40,31 @@ private:
     CompoundStatement *sequence;
 };
 
+class External_Declaration : public AST {};
 
-class External_Declaration : public AST {
+class External_Declaration_Func : public External_Declaration {
 public:
-    External_Declaration(Function_Definition *fd, Declaration *decla) : 
-    fn_defn(fd),
-    dec(decla){}
+    External_Declaration_Func(Function_Definition *fd) : fn_defn(fd) {}
 
-    std::string name(){ return "External Declaration: "; }
+    std::string name(){ return "External Declaration Function: "; }
     void print(std::ostream &os, int level){
-        if(fn_defn != NULL){
-            os << indent(level) << fn_defn->name() << std::endl;
-            fn_defn->print(os, level+1);
-        }
-        else{
-            os << indent(level) << dec->name() << std::endl;
-            dec->print(os, level+1);
-        }
+        os << indent(level) << fn_defn->name() << std::endl;
+        fn_defn->print(os, level+1);
     }
 private:
     Function_Definition *fn_defn;
+};
+
+class External_Declaration_Dec : public External_Declaration {
+public:
+    External_Declaration_Dec(Declaration *decla) : dec(decla) {}
+
+    std::string name(){ return "External Declaration: "; }
+    void print(std::ostream &os, int level){
+        os << indent(level) << dec->name() << std::endl;
+        dec->print(os, level+1);
+    }
+private:
     Declaration *dec;
 };
 
