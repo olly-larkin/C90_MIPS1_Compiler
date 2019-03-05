@@ -13,6 +13,7 @@
     int yylex(void);
     void yyerror(const char *);
 }
+%define parse.error verbose
 
 %union{
     std::string *string;

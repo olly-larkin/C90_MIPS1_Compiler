@@ -100,6 +100,8 @@ public:
         os << identifier;
         if (context.declaration)
             os << " = 0";
+        if (context.globalDec)
+            context.globals.push_back(identifier);
     } 
 
 protected:

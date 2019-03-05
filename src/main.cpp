@@ -5,12 +5,22 @@
 
 int main(int argc, char* argv[])
 {
-    AST* ast = parseAST();
+    AST* ast;
+    if (argc > 2)
+        ast = parseAST(argv[2]);
+    else
+        ast = parseAST();
 
     PyContext context;
 
-    std::ostream& os = std::cout;
-    ast->print_py(os, context);
+    std::ostream* os = &std::cout;
+    std::ofstream tempStrm;
+    if (argc > 4) {
+        tempStrm.open(argv[4]);
+        if (tempStrm.is_open())
+            os = &tempStrm;
+    }
+    ast->print_py(*os, context);
 
     return 0;
 }

@@ -91,9 +91,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         logical_or_expression->print_py(os, context);
         os << " or ";
         logical_and_expression->print_py(os, context);
+        os << ")";
     }
 
 protected:
@@ -116,9 +118,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         logical_and_expression->print_py(os, context);
         os << " and ";
         inclusive_or_expression->print_py(os, context);
+        os << ")";
     }
 
 protected:
@@ -195,9 +199,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         equality_expression->print_py(os, context);
         os << " == ";
         relational_expression->print_py(os, context);
+        os << ")";
     }
 
 protected:
@@ -234,9 +240,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         relational_expression->print_py(os, context);
         os << " < ";
         shift_expression->print_py(os, context);
+        os << ")";
     }
 
 protected:
@@ -333,9 +341,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         add_expression->print_py(os, context);
-        os << " + ";
+        os << "+";
         mul_expression->print_py(os, context);
+        os << ")";
     }
 
 protected:
@@ -354,9 +364,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         add_expression->print_py(os, context);
-        os << " - ";
+        os << "-";
         mul_expression->print_py(os, context);
+        os << ")";
     }
 
 protected:
@@ -407,9 +419,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         mul_expression->print_py(os, context);
-        os << " * ";
+        os << "*";
         cast_expression->print_py(os, context);
+        os << ")";
     }
 
 protected:
@@ -490,8 +504,10 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
+        os << "(";
         os << "-";
         cast_expr->print_py(os, context);
+        os << ")";
     }
 
 protected:
