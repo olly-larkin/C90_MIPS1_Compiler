@@ -2,6 +2,7 @@
 #define AST_HPP
 
 #include <iostream>
+#include <fstream>
 
 #include "ast/ast_node.hpp"
 #include "ast/ast_expression.hpp"
@@ -11,5 +12,6 @@
 #include "ast/ast_top.hpp"
 
 extern AST* parseAST();
+extern AST* parseAST(char* in);
 
 #endif
