@@ -19,7 +19,7 @@
     double number;
     char Char;
 
-    AST *ast;
+    Top_Container *TopContainer;
     Expression *ExpressionPtr;
     ArgumentExpressionList *ArgumentExpressionListPtr;
     Statement *StatementPtr;
@@ -99,6 +99,7 @@
 %type <TransUnit> translation_unit
 %type <DirAbsDeclarator> direct_abstract_declarator
 %type <AbstractDeclarator> abstract_declarator
+%type <TopContainer> top_container
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -107,11 +108,12 @@
 
 %%
 
-ROOT : translation_unit { g_root = $1; }
+ROOT : top_container { g_root = $1; }
 
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
 //**************************************************************************************
+top_container : translation_unit { $$ = new Top_Container($1); }
 
 translation_unit : external_declaration { $$ = new Translation_Unit(NULL, $1); }
                  | translation_unit external_declaration { $$ = new Translation_Unit($1, $2); }
@@ -147,7 +149,7 @@ init_declarator : declarator { $$ = $1; }
                 | declarator '=' initializer  { $$ = new Init_Declarator($1, $3); }
                 ;
 
-type_specifier :  VOID { $$ = new Type_Specifier_Basic("void"); }
+type_specifier : VOID { $$ = new Type_Specifier_Basic("void"); }
                | CHAR { $$ = new Type_Specifier_Basic("char"); }
                | SHORT { $$ = new Type_Specifier_Basic("short"); }
                | INT { $$ = new Type_Specifier_Basic("int"); }

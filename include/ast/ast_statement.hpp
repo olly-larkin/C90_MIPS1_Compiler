@@ -18,6 +18,13 @@ public:
             expression->print(os, level+1);
         }
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << context.indentPy();
+        expression->print_py(os, context);
+        os << std::endl;
+    }
+
 protected:
     Expression *expression;
 };
@@ -32,6 +39,12 @@ public:
             statement_list->print(os, level);
         os << indent(level) << statement->name() << std::endl;
         statement->print(os, level+1);
+    }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        if (statement_list != NULL)
+            statement_list->print_py(os, context);
+        statement->print_py(os, context);
     }
 private:
     StatementList *statement_list;
@@ -52,6 +65,14 @@ public:
             statementList->print(os, level+1);
         }
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        if (declarationList != NULL)
+            declarationList->print_py(os, context);
+        if (statementList != NULL)
+            statementList->print_py(os, context);
+    }
+
 protected:
     DeclarationList *declarationList;
     StatementList *statementList;
@@ -67,6 +88,16 @@ public:
         os << indent(level) << "Body: " << statement->name() << std::endl;
         statement->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << context.indentPy() << "if (";
+        expression->print_py(os, context);
+        os << ") :" << std::endl;
+        context.addScope();
+        statement->print_py(os, context);
+        context.subScope();
+    }
+
 protected:
     Expression *expression;
     Statement *statement;
@@ -84,6 +115,20 @@ public:
         os << indent(level) << "False: " << false_statement->name() << std::endl;
         false_statement->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << context.indentPy() << "if (";
+        expression->print_py(os, context);
+        os << ") :" << std::endl;
+        context.addScope();
+        true_statement->print_py(os, context);
+        context.subScope();
+        os << context.indentPy() << "else: " << std::endl;
+        context.addScope();
+        false_statement->print_py(os, context);
+        context.subScope();
+    }
+
 protected:
     Expression *expression;
     Statement *true_statement, *false_statement;
@@ -114,6 +159,16 @@ public:
         os << indent(level) << "Body: " << statement->name() << std::endl;
         statement->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << context.indentPy() << "while (";
+        expression->print_py(os, context);
+        os << ") :" << std::endl;
+        context.addScope();
+        statement->print_py(os, context);
+        context.subScope();
+    }
+
 protected:
     Expression *expression;
     Statement *statement;
@@ -186,6 +241,13 @@ public:
             expression->print(os, level+1);
         }
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << context.indentPy() << "return ";
+        expression->print_py(os, context);
+        os << std::endl;
+    }
+
 protected:
     Expression *expression;
 };

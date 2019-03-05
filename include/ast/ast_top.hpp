@@ -34,6 +34,17 @@ public:
         os << indent(level) << sequence->name() << std::endl;
         sequence->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << "def ";
+        dec->print_py(os, context);
+        os << ":" << std::endl;
+        context.addScopeFunc(os);
+        sequence->print_py(os, context);
+        context.subScope();
+        os << std::endl;
+    }
+
 private:
     Dec_Spec *return_types;
     Declarator *dec;
@@ -51,6 +62,11 @@ public:
         os << indent(level) << fn_defn->name() << std::endl;
         fn_defn->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        fn_defn->print_py(os, context);
+    }
+
 private:
     Function_Definition *fn_defn;
 };
@@ -64,6 +80,13 @@ public:
         os << indent(level) << dec->name() << std::endl;
         dec->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        context.globalDec = true;
+        dec->print_py(os, context);
+        context.globalDec = false;
+    }
+
 private:
     Declaration *dec;
 };
@@ -83,8 +106,38 @@ public:
         os << indent(level) << data->name() << std::endl;
         data->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        if(next != NULL)
+            next->print_py(os, context);
+        data->print_py(os, context);
+    }
+
 private:
     Translation_Unit *next;
     External_Declaration *data;
 };
+
+class Top_Container : public AST {
+public:
+    Top_Container(Translation_Unit *_tu) : tu(_tu) {}
+    std::string name(){ return "Root: "; }
+    void print(std::ostream &os, int level){
+        os << tu->name() << std::endl;
+        tu->print(os, level+1);
+    }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        tu->print_py(os, context);
+        os << "# Invoke main as the starting point" << std::endl
+           << "if __name__ == \"__main__\": " << std::endl
+           << "\timport sys" << std::endl
+           << "\tret=main()" << std::endl
+           << "\tsys.exit(ret)" << std::endl;
+    }
+
+private:
+    Translation_Unit *tu;
+};
+
 #endif

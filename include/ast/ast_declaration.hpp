@@ -20,6 +20,13 @@ public:
         os << indent(level) << declaration->name() << std::endl;
         declaration->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        if (list != NULL)
+            list->print_py(os, context);
+        declaration->print_py(os, context);
+    }
+
 protected:
     DeclarationList *list;
     Declaration *declaration;
@@ -40,6 +47,14 @@ public:
         os << indent(level) << init->name() << std::endl;
         init->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        context.declaration = false;
+        dec->print_py(os, context);
+        os << " = ";
+        init->print_py(os, context);
+    }
+
 protected:
     Declarator *dec;
     Initializer *init;
@@ -55,6 +70,17 @@ public:
         os << indent(level) << dec->name() << std::endl;
         dec->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        if (list != NULL)
+            list->print_py(os, context);
+        context.declaration = true;
+        os << context.indentPy();
+        dec->print_py(os, context);
+        os << std::endl;
+        context.declaration = false;
+    }
+
 protected:
     Init_Dec_List *list;
     Declarator *dec;
@@ -69,6 +95,13 @@ public:
     virtual void print(std::ostream &os, int level) {
         os << indent(level) << identifier << std::endl;
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        os << identifier;
+        if (context.declaration)
+            os << " = 0";
+    } 
+
 protected:
     std::string identifier;
 };
@@ -81,6 +114,11 @@ public:
         os << indent(level) << dec->name() << std::endl;
         dec->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        //TODO: Might have to do
+    } 
+
 protected:
     Declarator *dec;
 };
@@ -111,6 +149,11 @@ public:
         os << indent(level) << assignment_expr->name() << std::endl;
         assignment_expr->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        assignment_expr->print_py(os, context);
+    } 
+    
 protected:
     Expression *assignment_expr;
 };
@@ -301,6 +344,12 @@ public:
             decList->print(os, level+1);
         }
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        if (decList != NULL)
+            decList->print_py(os, context);
+    }
+
 protected:
     Dec_Spec *decSpec;
     Init_Dec_List *decList;
@@ -435,6 +484,11 @@ public:
             abs->print(os, level+1);
         }
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        dec->print_py(os, context);
+    } 
+
 protected:
     Dec_Spec *decSpec;
     Declarator *dec;
@@ -451,6 +505,15 @@ public:
         os << indent(level) << dec->name() << std::endl;
         dec->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        if (list != NULL) {
+            list->print_py(os, context);
+            os << ", ";
+        }
+        dec->print_py(os, context);
+    } 
+
 protected:
     Param_List *list;
     Param_Dec *dec;
@@ -469,6 +532,15 @@ public:
             paramList->print(os, level+1);
         }
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context) {
+        dec->print_py(os, context);
+        os << "(";
+        if (paramList != NULL)
+            paramList->print_py(os, context);
+        os << ")";
+    } 
+
 protected:
     Direct_Declarator *dec;
     Param_List *paramList;

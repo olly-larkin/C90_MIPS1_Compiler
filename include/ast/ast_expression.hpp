@@ -42,6 +42,14 @@ public:
         os << indent(level) << assignment_expression->name() << std::endl;
         assignment_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        //TODO: WARNING: currently ignoring flag
+        unary_expression->print_py(os, context);
+        os << " = ";
+        assignment_expression->print_py(os, context);
+    }
+
 protected:
     Expression *unary_expression, *assignment_expression;
     char flag;
@@ -81,6 +89,13 @@ public:
         os << indent(level) << logical_and_expression->name() << std::endl;
         logical_and_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        logical_or_expression->print_py(os, context);
+        os << " or ";
+        logical_and_expression->print_py(os, context);
+    }
+
 protected:
     Expression *logical_or_expression, *logical_and_expression;
 };
@@ -99,6 +114,13 @@ public:
         os << indent(level) << inclusive_or_expression->name() << std::endl;
         inclusive_or_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        logical_and_expression->print_py(os, context);
+        os << " and ";
+        inclusive_or_expression->print_py(os, context);
+    }
+
 protected:
     Expression *logical_and_expression, *inclusive_or_expression;
 };
@@ -171,6 +193,13 @@ public:
         os << indent(level) << relational_expression->name() << std::endl;
         relational_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        equality_expression->print_py(os, context);
+        os << " == ";
+        relational_expression->print_py(os, context);
+    }
+
 protected:
     Expression *equality_expression, *relational_expression;
 };
@@ -203,6 +232,13 @@ public:
         os << indent(level) << shift_expression->name() << std::endl;
         shift_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        relational_expression->print_py(os, context);
+        os << " < ";
+        shift_expression->print_py(os, context);
+    }
+
 protected:
     Expression *relational_expression, *shift_expression;
 };
@@ -295,6 +331,13 @@ public:
         os << indent(level) << mul_expression->name() << std::endl;
         mul_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        add_expression->print_py(os, context);
+        os << " + ";
+        mul_expression->print_py(os, context);
+    }
+
 protected:
     Expression *add_expression, *mul_expression;
 };
@@ -309,6 +352,13 @@ public:
         os << indent(level) << mul_expression->name() << std::endl;
         mul_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        add_expression->print_py(os, context);
+        os << " - ";
+        mul_expression->print_py(os, context);
+    }
+
 protected:
     Expression *add_expression, *mul_expression;
 };
@@ -355,6 +405,13 @@ public:
         os << indent(level) << cast_expression->name() << std::endl;
         cast_expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        mul_expression->print_py(os, context);
+        os << " * ";
+        cast_expression->print_py(os, context);
+    }
+
 protected:
     Expression *mul_expression, *cast_expression;
 };
@@ -431,6 +488,12 @@ public:
         os << indent(level) << cast_expr->name() << std::endl;
         cast_expr->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << "-";
+        cast_expr->print_py(os, context);
+    }
+
 protected:
     Expression *cast_expr;
 };
@@ -490,6 +553,11 @@ public:
             argList->print(os, level+1);
         }
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        //TODO: me
+    }
+
 protected:
     Expression *postfix;
     ArgumentExpressionList *argList;
@@ -543,6 +611,8 @@ public:
         os << indent(level) << postfix->name() << std::endl;
         postfix->print(os, level+1);
     }
+
+
 protected:
     Expression *postfix;
 };
@@ -550,7 +620,6 @@ protected:
 //************************************************************
 //----------------------PRIMARY-------------------------------
 //************************************************************
-
 class PrimaryExp_Identifier : public Expression {
 public:
     PrimaryExp_Identifier(const std::string &_identifier) : identifier(_identifier){}
@@ -558,6 +627,11 @@ public:
     void print(std::ostream& os, int level){
         os << indent(level) << identifier << std::endl;
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << identifier;
+    }
+
 protected:
     std::string identifier;
 };
@@ -570,6 +644,11 @@ public:
     void print(std::ostream& os, int level){
         os << indent(level) << constant << std::endl;
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << (int)constant;
+    }
+
 protected:
     double constant;
 };
@@ -582,6 +661,11 @@ class PrimaryExp_StrLiteral : public Expression {
     void print(std::ostream& os, int level){
         os << indent(level) << string << std::endl;
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        os << "\"" << string << "\"";
+    }
+
 protected:
     std::string string;
 };

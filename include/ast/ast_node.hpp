@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+
 class AST {         // TODO: Destructors
 public:
     virtual std::string name() = 0;
@@ -13,6 +14,9 @@ public:
         else
             return indent(num-1) + "\t|";
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){}
+
 protected:
 };
 
