@@ -31,8 +31,11 @@ E			[Ee][+-]?{D}+
                         return STRING_LITERAL;
                     }
 
-\'([^\']|"\\\'")\'  {
-                        yylval.number = yytext[1];
+\'([^\']|"\\\'")\'  {   
+                        if (yytext[1] == '\\')
+                            yylval.number = yytext[2];
+                        else
+                            yylval.number = yytext[1];
                         return NUMBER;
                     }
 
