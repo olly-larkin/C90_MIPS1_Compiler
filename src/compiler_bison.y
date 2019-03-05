@@ -2,7 +2,9 @@
     #include "ast.hpp"
 
     #include <cassert>
+    #include <fstream>
 
+    extern FILE *yyin;
     extern AST* g_root; // A way of getting the AST out
 
     //! This is to fix problems when generating C++
@@ -426,5 +428,15 @@ AST* g_root; // Definition of variable (to match declaration earlier)
 AST* parseAST() {
     g_root = 0;
     yyparse();
+    return g_root;
+}
+
+AST* parseAST(char* in) {
+    g_root = 0;
+    yyin = fopen(in, "r");
+    if(yyin) { 
+	    yyparse();
+    }
+    fclose(yyin);
     return g_root;
 }
