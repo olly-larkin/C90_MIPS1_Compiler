@@ -22,6 +22,15 @@ public:
         os << indent(level) << expression->name() << std::endl;
         expression->print(os, level+1);
     }
+
+    virtual void print_py(std::ostream &os, PyContext &context){
+        if (arg_expr_list != NULL) {
+            arg_expr_list->print_py(os, context);
+            os << ", ";
+        }
+        expression->print_py(os, context);
+    }
+
 protected:
     ArgumentExpressionList *arg_expr_list;
     Expression *expression;
@@ -571,7 +580,11 @@ public:
     }
 
     virtual void print_py(std::ostream &os, PyContext &context){
-        //TODO: me
+        postfix->print_py(os, context);
+        os << "(";
+        if (argList != NULL)
+            argList->print_py(os, context);
+        os << ")";
     }
 
 protected:

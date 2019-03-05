@@ -24,4 +24,5 @@ clean :
 	@rm -rf src/*.yy.cpp
 	@rm -rf src/*.output
 	@rm -rf src/*.tab.hpp
+	@rm -rf tmp
 	@echo "\nall clean.\n"
