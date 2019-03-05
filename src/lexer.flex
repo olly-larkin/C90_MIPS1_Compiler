@@ -18,11 +18,16 @@ L			[a-zA-Z_]
 H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 
+%x COMMENT
+
 %%
 
-("/*"[^"*/"]*"*/")|("//".*) {}
+"//".           {}
 [ \t\n\r]       {}
 "#".*           {}
+"/*"            { BEGIN(COMMENT); }
+<COMMENT>"*/"   { BEGIN(INITIAL); }
+<COMMENT>(.|\n) {}
 
 \"([^\"]|"\\\"")*\" { 
                         std::string temp = std::string(yytext);
