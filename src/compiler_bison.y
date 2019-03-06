@@ -418,11 +418,11 @@ postfix_expression : primary_expression                                     { $$
                     | postfix_expression MINUSMINUS                         { $$ = new Postfix_DecOp($1); }
                     ;
 
-primary_expression : IDENTIFIER                 { $$ = new PrimaryExp_Identifier(*$1); }
-                   | NUMBER                     { $$ = new PrimaryExp_Constant($1); }
-                   | STRING_LITERAL      	    { $$ = new PrimaryExp_StrLiteral(*$1); }
+primary_expression : IDENTIFIER                 { $$ = new PrimaryExpIdentifier(*$1); }
+                   | NUMBER                     { $$ = new PrimaryExpConstant($1); }
+                   | STRING_LITERAL      	    { $$ = new PrimaryExpStrLiteral(*$1); }
                    | '(' expression ')'         { $$ = $2; }
-                   | ENUM_VAL                   { $$ = new PrimaryExp_EnumVal(*$1); }
+                   | ENUM_VAL                   { $$ = new PrimaryExpEnumVal(*$1); }
                    ;
 %%
 
