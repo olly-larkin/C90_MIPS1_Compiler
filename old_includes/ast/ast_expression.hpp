@@ -65,7 +65,7 @@ protected:
 };
 
 //************************************************************
-//------------------LOGICAL OR EXPRESSION---------------------
+//-----------------CONDITIONAL EXPRESSION---------------------
 //************************************************************
 
 class ConditionalOp : public Expression {
@@ -444,7 +444,7 @@ protected:
 //************************************************************
 
 class Unary_PrefixInc : public Expression {
-    public:
+public:
     Unary_PrefixInc(Expression *_cast_expr) : cast_expr(_cast_expr) {}
     std::string name() { return "Prefix Increment:"; }
     void print(std::ostream &os, int level) {

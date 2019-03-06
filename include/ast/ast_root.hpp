@@ -17,7 +17,7 @@ public:
     
     virtual ~AST() {}
     virtual void print(std::ostream& os, int level) {}
-    virtual void print_py(std::ostream &os, PyContext &context) {}
+    virtual void printPy(std::ostream &os, PyContext &context) {}
     virtual void generateMIPS() {}  //TODO: code gen
 protected:
 };

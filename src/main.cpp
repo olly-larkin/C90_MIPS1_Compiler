@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         if (tempStrm.is_open())
             os = &tempStrm;
     }
-    ast->print_py(*os, context);
+    ast->printPy(*os, context);
 
     return 0;
 }

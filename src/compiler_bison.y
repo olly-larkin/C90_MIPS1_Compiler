@@ -18,39 +18,9 @@
 %union{
     std::string *string;
     double number;
-    char Char;
 
-    Top_Container *TopContainer;
-    Expression *ExpressionPtr;
-    ArgumentExpressionList *ArgumentExpressionListPtr;
-    Statement *StatementPtr;
-    CompoundStatement *CompoundStatementPtr;
-    StatementList *StatementListPtr;
-    Declaration *DeclarationPtr;
-    Initializer *InitializerPtr;
-    Decl_init_list *DeclInitList;
-    Type *TypePtr;
-    Pointer *PointerPtr;
-    Enum_Element_List *EnumElementList;
-    Enum_Element *EnumElement;
-    Type_Specifier_List *TypeSpecifierList;
-    Struct_Declaration_List *StructDeclarationList;
-    Struct_Declaration *StructDeclaration;
-    Struct_Declarator_List *StructDeclaratorList;
-    Struct_Declarator *StructDeclarator;
-    DeclarationList *DeclarationListPtr;
-    Declarator *DeclaratorPtr;
-    Init_Dec_List *InitDecList;
-    Dec_Spec *DecSpec;
-    Direct_Declarator *DirectDeclarator;
-    Param_List *ParamList;
-    Param_Dec *ParamDec;
-    Type_Name *TypeName;
-    Function_Definition *FuncDefn;
-    External_Declaration *ExtrnDecl;
-    Translation_Unit *TransUnit;
-    Dir_Abs_Declarator *DirAbsDeclarator;
-    Abstract_Declarator *AbstractDeclarator;
+    BaseExpression *BaseExpressionPtr;
+    BaseList *BaseListPtr;
 }
 
 %token STRING_LITERAL
@@ -68,39 +38,9 @@
 %token NUMBER IDENTIFIER TYPEDEF_T
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE TYPEDEF_T
-%type <Char> assignment_operator
 %type <number> NUMBER
-%type <ExpressionPtr> expression assignment_expression unary_expression postfix_expression primary_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression constant_expression
-%type <ArgumentExpressionListPtr> argument_expression_list
-%type <StatementPtr> statement labeled_statement expression_statement selection_statement iteration_statement jump_statement 
-%type <CompoundStatementPtr> compound_statement
-%type <StatementListPtr> statement_list
-%type <DeclarationPtr> declaration 
-%type <InitializerPtr> initializer
-%type <DeclInitList> initializer_list
-%type <PointerPtr> pointer
-%type <EnumElement> enumerator 
-%type <EnumElementList> enum_list
-%type <TypePtr> enum_specifier type_specifier struct_spec
-%type <TypeSpecifierList> specifier_list
-%type <StructDeclarationList> struct_declaration_list
-%type <StructDeclaration> struct_declaration
-%type <StructDeclaratorList> struct_declarator_list
-%type <StructDeclarator> struct_declarator
-%type <DeclarationListPtr> declaration_list
-%type <DeclaratorPtr> declarator init_declarator
-%type <InitDecList> init_declarator_list
-%type <DecSpec> declaration_specifier
-%type <DirectDeclarator> direct_declarator
-%type <ParamList> parameter_list
-%type <ParamDec> parameter_declaration
-%type <TypeName> type_name
-%type <FuncDefn> function_definition
-%type <ExtrnDecl> external_declaration
-%type <TransUnit> translation_unit
-%type <DirAbsDeclarator> direct_abstract_declarator
-%type <AbstractDeclarator> abstract_declarator
-%type <TopContainer> top_container
+%type <BaseListPtr> argument_expression_list
+%type <BaseExpressionPtr> expression conditional_expression logical_or_expression logical_and_expression inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression unary_expression postfix_expression primary_expression
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -109,8 +49,9 @@
 
 %%
 
-ROOT : top_container { g_root = $1; }
+ROOT : expression { g_root = $1; }
 
+/*
 //**************************************************************************************
 //----------------------------------------- TOP ----------------------------------------
 //**************************************************************************************
@@ -311,37 +252,28 @@ jump_statement : CONTINUE ';'           { $$ = new Continue(); }
                | RETURN ';'             { $$ = new Return(); }
                | RETURN expression ';'  { $$ = new Return($2); }
                ;
-
+*/
 //**************************************************************************************
 //------------------------------------- EXPRESSIONS ------------------------------------
 //**************************************************************************************
 
-constant_expression : expression   { $$ = $1; }
-                    ;
-
-expression : assignment_expression { $$ = $1; }
-           ;
-
-argument_expression_list : assignment_expression                                { $$ = new ArgumentExpressionList($1); }
-                         | argument_expression_list ',' assignment_expression   { $$ = new ArgumentExpressionList($1, $3); }
+argument_expression_list : expression                                { $$ = new ArgumentExprList(NULL, $1); }
+                         | argument_expression_list ',' expression   { $$ = new ArgumentExprList($1, $3); }
                          ;
 
-assignment_expression : conditional_expression                                      { $$ = $1; }
-                      | unary_expression assignment_operator assignment_expression  { $$ = new Assignment($1, $3, $2); }
-                      ;
-
-assignment_operator : '='                   { $$ = '='; }
-                    | PLUS_EQUAL            { $$ = '+'; }
-                    | MINUS_EQUAL           { $$ = '-'; }
-                    | TIMES_EQUAL           { $$ = '*'; }
-                    | DIVIDE_EQUAL          { $$ = '/'; }
-                    | MOD_EQUAL             { $$ = '%'; }
-                    | LEFT_SHIFT_EQUAL      { $$ = '<'; }
-                    | RIGHT_SHIFT_EQUAL     { $$ = '>'; }
-                    | B_AND_EQUAL           { $$ = '&'; }
-                    | XOR_EQUAL             { $$ = '^'; }
-                    | B_OR_EQUAL            { $$ = '|'; }
-                    ;
+expression : conditional_expression                         { $$ = $1; }
+           | unary_expression '=' expression                { $$ = new Assignment($1, $3); }
+           | unary_expression PLUS_EQUAL expression         { $$ = new AddAssignment($1, $3); }
+           | unary_expression MINUS_EQUAL expression        { $$ = new SubAssignment($1, $3); }
+           | unary_expression TIMES_EQUAL expression        { $$ = new MulAssignment($1, $3); }
+           | unary_expression DIVIDE_EQUAL expression       { $$ = new DivAssignment($1, $3); }
+           | unary_expression MOD_EQUAL expression          { $$ = new ModAssignment($1, $3); }
+           | unary_expression LEFT_SHIFT_EQUAL expression   { $$ = new LeftShiftAssignment($1, $3); }
+           | unary_expression RIGHT_SHIFT_EQUAL expression  { $$ = new RightShiftAssignment($1, $3); }
+           | unary_expression B_AND_EQUAL expression        { $$ = new BitwiseANDAssignment($1, $3); }
+           | unary_expression XOR_EQUAL expression          { $$ = new BitwiseXORAssignment($1, $3); }
+           | unary_expression B_OR_EQUAL expression         { $$ = new BitwiseORAssignment($1, $3); }
+           ;
 
 conditional_expression : logical_or_expression                                              { $$ = $1; }
                        | logical_or_expression '?' expression ':' conditional_expression    { $$ = new ConditionalOp($1, $3, $5); }
@@ -375,8 +307,8 @@ equality_expression : relational_expression                                     
 relational_expression : shift_expression                                          { $$ = $1; }
                       | relational_expression '<' shift_expression                { $$ = new LessThanOp($1, $3); }
                       | relational_expression '>' shift_expression                { $$ = new MoreThanOp($1, $3); }
-                      | relational_expression LESS_THAN_EQUAL shift_expression    { $$ = new LessThanEqualOp($1, $3); }
-                      | relational_expression MORE_THAN_EQUAL shift_expression    { $$ = new MoreThanEqualOp($1, $3); }
+                      | relational_expression LESS_THAN_EQUAL shift_expression    { $$ = new LessThanEqualToOp($1, $3); }
+                      | relational_expression MORE_THAN_EQUAL shift_expression    { $$ = new MoreThanEqualToOp($1, $3); }
                       ;
 
 shift_expression : additive_expression                                  { $$ = $1; }
@@ -396,33 +328,33 @@ multiplicative_expression : unary_expression                               { $$ 
                           ;
 
 unary_expression : postfix_expression                            { $$ = $1;}
-                 | PLUSPLUS unary_expression                     { $$ = new Unary_PrefixInc($2); }
-                 | MINUSMINUS unary_expression                   { $$ = new Unary_PrefixDec($2); }
-                 | SIZEOF unary_expression                       { $$ = new Unary_SizeOfExpr($2); }
-                 | SIZEOF '(' type_name ')'                      { $$ = new Unary_SizeOfType($3); }
-                 | '&' unary_expression                          { $$ = new Unary_Reference($2); }
-                 | '*' unary_expression                          { $$ = new Unary_Dereference($2);}
-                 | '+' unary_expression                          { $$ = $2; /* TODO: CHECK */}
-                 | '-' unary_expression                          { $$ = new Unary_Negation($2); }
-                 | '~' unary_expression                          { $$ = new Unary_InvertOp($2); }
-                 | '!' unary_expression                          { $$ = new Unary_NotOp($2); }
+                 | PLUSPLUS unary_expression                     { $$ = new PrefixIncOp($2); }
+                 | MINUSMINUS unary_expression                   { $$ = new PrefixDecOp($2); }
+                 | SIZEOF unary_expression                       { $$ = new SizeOfExpr($2); }
+//TODO: come back                 | SIZEOF '(' type_name ')'                      { $$ = new SizeOfType($3); }
+                 | '&' unary_expression                          { $$ = new ReferenceOp($2); }
+                 | '*' unary_expression                          { $$ = new DereferenceOp($2);}
+                 | '+' unary_expression                          { $$ = $2; }
+                 | '-' unary_expression                          { $$ = new NegationOp($2); }
+                 | '~' unary_expression                          { $$ = new InvertOp($2); }
+                 | '!' unary_expression                          { $$ = new NotOp($2); }
                  ;
 
-postfix_expression : primary_expression                                     { $$ = $1;}
-                    | postfix_expression '[' expression ']'                 { $$ = new Postfix_ArrIndex($1, $3); }
-                    | postfix_expression '(' ')'                            { $$ = new Postfix_FnCall($1); }
-                    | postfix_expression '(' argument_expression_list ')'   { $$ = new Postfix_FnCall($1, $3); }
-                    | postfix_expression '.' IDENTIFIER                     { $$ = new Postfix_DotIdentifier($1,*$3); }
-                    | postfix_expression ARROW IDENTIFIER                   { $$ = new Postfix_ArrowIdentifier($1,*$3); }
-                    | postfix_expression PLUSPLUS                           { $$ = new Postfix_IncOp($1); }
-                    | postfix_expression MINUSMINUS                         { $$ = new Postfix_DecOp($1); }
-                    ;
+postfix_expression : primary_expression                                    { $$ = $1;}
+                   | postfix_expression '[' expression ']'                 { $$ = new PostfixArrIndex($1, $3); }
+                   | postfix_expression '(' ')'                            { $$ = new PostfixFuncCall($1, NULL); }
+                   | postfix_expression '(' argument_expression_list ')'   { $$ = new PostfixFuncCall($1, $3); }
+                   | postfix_expression '.' IDENTIFIER                     { $$ = new PostfixDotOp($1,*$3); }
+                   | postfix_expression ARROW IDENTIFIER                   { $$ = new PostfixArrowOp($1,*$3); }
+                   | postfix_expression PLUSPLUS                           { $$ = new PostfixIncOp($1); }
+                   | postfix_expression MINUSMINUS                         { $$ = new PostfixDecOp($1); }
+                   ;
 
-primary_expression : IDENTIFIER                 { $$ = new PrimaryExpIdentifier(*$1); }
-                   | NUMBER                     { $$ = new PrimaryExpConstant($1); }
-                   | STRING_LITERAL      	    { $$ = new PrimaryExpStrLiteral(*$1); }
+primary_expression : IDENTIFIER                 { $$ = new PrimaryExprIdentifier(*$1); }
+                   | NUMBER                     { $$ = new PrimaryExprConstant($1); }
+                   | STRING_LITERAL      	    { $$ = new PrimaryExprStrLiteral(*$1); }
                    | '(' expression ')'         { $$ = $2; }
-                   | ENUM_VAL                   { $$ = new PrimaryExpEnumVal(*$1); }
+                   | ENUM_VAL                   { $$ = new PrimaryExprEnumVal(*$1); }
                    ;
 %%
 
