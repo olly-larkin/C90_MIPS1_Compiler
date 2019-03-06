@@ -19,6 +19,7 @@
     std::string *string;
     double number;
 
+    BaseNode *BaseNodePtr;
     BaseExpression *BaseExpressionPtr;
     BaseList *BaseListPtr;
 }
@@ -39,8 +40,9 @@
 
 %type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE TYPEDEF_T
 %type <number> NUMBER
-%type <BaseListPtr> argument_expression_list
+%type <BaseListPtr> argument_expression_list statement_list //declaration_list
 %type <BaseExpressionPtr> expression conditional_expression logical_or_expression logical_and_expression inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression unary_expression postfix_expression primary_expression
+%type <BaseNodePtr> statement labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -49,7 +51,7 @@
 
 %%
 
-ROOT : expression { g_root = $1; }
+ROOT : statement { g_root = $1; }
 
 /*
 //**************************************************************************************
@@ -125,8 +127,8 @@ struct_declarator_list : struct_declarator { $$ = new Struct_Declarator_List(NUL
                        ;
 
 struct_declarator : declarator { $$ = new Struct_Declarator($1, NULL); }
-                  | ':' constant_expression { $$ = new Struct_Declarator(NULL, $2); }
-                  | declarator ':' constant_expression { $$ = new Struct_Declarator($1, $3); }
+                  | ':' expression { $$ = new Struct_Declarator(NULL, $2); }
+                  | declarator ':' expression { $$ = new Struct_Declarator($1, $3); }
                   ;
 
 enum_specifier : ENUM '{' enum_list '}' { $$ = new Enum_Specifier($3); }
@@ -139,7 +141,7 @@ enum_list : enumerator { $$ = new Enum_Element_List(NULL, $1); }
           ;
 
 enumerator : IDENTIFIER { $$ = new Enum_Element(*$1, NULL); }
-           | IDENTIFIER '=' constant_expression { $$ = new Enum_Element(*$1, $3); }
+           | IDENTIFIER '=' expression { $$ = new Enum_Element(*$1, $3); }
            ;
 
 declarator : pointer direct_declarator { $$ = new Direct_Dec_Pointer($2, $1); }
@@ -148,7 +150,7 @@ declarator : pointer direct_declarator { $$ = new Direct_Dec_Pointer($2, $1); }
 
 direct_declarator : IDENTIFIER { $$ = new Dir_Dec_Iden(*$1); }
                   | '(' declarator ')' { $$ = new Dir_Dec_Dec($2); }
-                  | direct_declarator '[' constant_expression ']' { $$ = new Dir_Dec_Arr($1, $3); }
+                  | direct_declarator '[' expression ']' { $$ = new Dir_Dec_Arr($1, $3); }
                   | direct_declarator '[' ']' { $$ = new Dir_Dec_Arr($1, NULL); }
                   | direct_declarator '(' parameter_list ')' { $$ = new Dir_Dec_Func($1, $3); }
                   | direct_declarator '(' ')' { $$ = new Dir_Dec_Func($1, NULL); }
@@ -178,9 +180,9 @@ abstract_declarator : pointer { $$ = new Abstract_Declarator($1, NULL); }
 
 direct_abstract_declarator : '(' abstract_declarator ')' { $$ = new Dir_Abs_Dec($2); }
                            | '[' ']' { $$ = new Dir_Abs_Arr(NULL, NULL); }
-                           | '[' constant_expression ']' { $$ = new Dir_Abs_Arr(NULL, $2); }
+                           | '[' expression ']' { $$ = new Dir_Abs_Arr(NULL, $2); }
                            | direct_abstract_declarator '[' ']' { $$ = new Dir_Abs_Arr($1, NULL); }
-                           | direct_abstract_declarator '[' constant_expression ']' { $$ = new Dir_Abs_Arr($1, $3); }
+                           | direct_abstract_declarator '[' expression ']' { $$ = new Dir_Abs_Arr($1, $3); }
                            | '(' ')' { $$ = new Dir_Abs_Func(NULL, NULL); }
                            | '(' parameter_list ')' { $$ = new Dir_Abs_Func(NULL, $2); }
                            | direct_abstract_declarator '(' ')' { $$ = new Dir_Abs_Func($1, NULL); }
@@ -195,7 +197,7 @@ initializer : assignment_expression { $$ = new Decl_initializer_expr($1); }
 initializer_list : initializer { $$ = new Decl_init_list($1); }
                  | initializer_list ',' initializer { $$ = new Decl_init_list($1, $3); }
                  ;
-
+*/
 //**************************************************************************************
 //-------------------------------------- STATEMENTS ------------------------------------
 //**************************************************************************************
@@ -208,25 +210,25 @@ statement : labeled_statement       { $$ = $1; }
           | jump_statement          { $$ = $1; }
           ;
 
-labeled_statement : CASE constant_expression ':' statement   { $$ = new CaseBlock($2, $4); }
-                  | DEFAULT ':' statement                    { $$ = new DefaultBlock($3); }
+labeled_statement : CASE expression ':' statement   { $$ = new CaseBlock($2, $4); }
+                  | DEFAULT ':' statement           { $$ = new DefaultCaseBlock($3); }
                   ;
 
 compound_statement : '{' '}'                                        { $$ = new CompoundStatement(NULL, NULL); }
-                   | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }     
+//TODO: come bback after declaration                   | '{' declaration_list '}'                       { $$ = new CompoundStatement($2, NULL); }     
                    | '{' statement_list '}'                         { $$ = new CompoundStatement(NULL, $2); }
-                   | '{' declaration_list statement_list '}'        { $$ = new CompoundStatement($2, $3); }
+//TODO: come bback after declaration                   | '{' declaration_list statement_list '}'        { $$ = new CompoundStatement($2, $3); }
                    ;
 
-declaration_list : declaration                    { $$ = new DeclarationList(NULL, $1); }         
-                 | declaration_list declaration   { $$ = new DeclarationList($1, $2); }
-                 ;
+//declaration_list : declaration                    { $$ = new DeclarationList(NULL, $1); }         
+//                 | declaration_list declaration   { $$ = new DeclarationList($1, $2); }
+//TODO: come bback after declaration                 ;
 
-statement_list : statement                  { $$ = new StatementList($1); }
+statement_list : statement                  { $$ = new StatementList(NULL, $1); }
                | statement_list statement   { $$ = new StatementList(reinterpret_cast<StatementList*>($1), $2); }
                ;
 
-expression_statement : ';'              { $$ = new ExpressionStatement(); }
+expression_statement : ';'              { $$ = new ExpressionStatement(NULL); }
                      | expression ';'   { $$ = new ExpressionStatement($1); }
                      ;
 
@@ -249,10 +251,10 @@ iteration_statement : WHILE '(' expression ')' statement                        
 
 jump_statement : CONTINUE ';'           { $$ = new Continue(); }
                | BREAK ';'              { $$ = new Break(); }
-               | RETURN ';'             { $$ = new Return(); }
+               | RETURN ';'             { $$ = new Return(NULL); }
                | RETURN expression ';'  { $$ = new Return($2); }
                ;
-*/
+
 //**************************************************************************************
 //------------------------------------- EXPRESSIONS ------------------------------------
 //**************************************************************************************
@@ -331,7 +333,7 @@ unary_expression : postfix_expression                            { $$ = $1;}
                  | PLUSPLUS unary_expression                     { $$ = new PrefixIncOp($2); }
                  | MINUSMINUS unary_expression                   { $$ = new PrefixDecOp($2); }
                  | SIZEOF unary_expression                       { $$ = new SizeOfExpr($2); }
-//TODO: come back                 | SIZEOF '(' type_name ')'                      { $$ = new SizeOfType($3); }
+//TODO: come back after type_name                | SIZEOF '(' type_name ')'                      { $$ = new SizeOfType($3); }
                  | '&' unary_expression                          { $$ = new ReferenceOp($2); }
                  | '*' unary_expression                          { $$ = new DereferenceOp($2);}
                  | '+' unary_expression                          { $$ = $2; }
