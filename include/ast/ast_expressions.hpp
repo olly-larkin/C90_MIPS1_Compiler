@@ -1,8 +1,6 @@
 #ifndef AST_EXPRESSIONS_HPP
 #define AST_EXPRESSIONS_HPP
 
-#include <iostream>
-
 #include "ast_base_classes.hpp"
 
 //************************************************************
@@ -527,6 +525,14 @@ public:
         os << indent(level) << "More Than Operator (>):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void printPy(std::ostream &os, PyContext &context) {
+        os << "(";
+        expr1->printPy(os, context);
+        os << " > ";
+        expr2->printPy(os, context);
+        os << ")";
     }
 
 protected:

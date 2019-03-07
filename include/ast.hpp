@@ -10,6 +10,7 @@
 #include "ast/ast_expressions.hpp"
 #include "ast/ast_declarations.hpp"
 #include "ast/ast_statements.hpp"
+#include "ast/ast_top.hpp"
 
 extern AST* parseAST();
 extern AST* parseAST(char* in);

@@ -1,6 +1,8 @@
 #ifndef AST_STATEMENTS_HPP
 #define AST_STATEMENTS_HPP
 
+#include "ast_base_classes.hpp"
+
 //************************************************************
 //---------------------JUMP STATEMENT-------------------------
 //************************************************************
@@ -277,8 +279,7 @@ public:
     }
 
     void printPy(std::ostream &os, PyContext &context) {
-        if (list != NULL)
-            list->printPy(os, context);
+        if (list != NULL) list->printPy(os, context);
         statement->printPy(os, context);
     }
 

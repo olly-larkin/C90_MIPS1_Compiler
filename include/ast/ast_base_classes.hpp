@@ -26,9 +26,15 @@ public:
 protected:
 };
 
-class BaseExpressionList : public AST {     //TODO: probably don't need
+class BaseExpressionList : public AST {
 public:
+    BaseExpressionList(BaseExpressionList *_list) : list(_list) {}
+    virtual ~BaseExpressionList() {
+        if (list != NULL)
+            delete list;
+    }
 protected:
+    BaseExpressionList *list;
 };
 
 #endif
