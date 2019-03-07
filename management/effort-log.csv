@@ -1,9 +1,9 @@
 Date,Effort,Developers,Milestones
 21st Feb, 1, dl5215, -
 23rd Feb, 4, oll16, Functional tokens
-25th Feb, 3, oll16, Functional Parsing
-26th Feb, 3, dl5215, Functional Parsing
-26th Feb, 3, dl5215, Functional Parsing
-27th Feb, 4, oll16, Functional Parsing
-28th Feb, 4, dl5215, Functional Parsing
-1st-4th March, 4, oll16, Functional Parsing
+25th Feb, 3, oll16, Expression Parsing
+26th Feb, 3, dl5215, Expression Parsing
+27th Feb, 4, oll16, Statement Parsing
+28th Feb, 4, oll16, Declaration Parsing
+1st-4th March, 4, oll16, Declaration Parsing
+5th March, 3, oll16, C -> Python (complete)

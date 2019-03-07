@@ -18,11 +18,16 @@ L			[a-zA-Z_]
 H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 
+%x COMMENT
+
 %%
 
-("/*"[^"*/"]*"*/")|("//".*) {}
+"//".*          {}
 [ \t\n\r]       {}
 "#".*           {}
+"/*"            { BEGIN(COMMENT); }
+<COMMENT>"*/"   { BEGIN(INITIAL); }
+<COMMENT>(.|\n) {}
 
 \"([^\"]|"\\\"")*\" { 
                         std::string temp = std::string(yytext);
@@ -31,8 +36,11 @@ E			[Ee][+-]?{D}+
                         return STRING_LITERAL;
                     }
 
-\'([^\']|"\\\'")\'  {
-                        yylval.number = yytext[1];
+\'([^\']|"\\\'")\'  {   
+                        if (yytext[1] == '\\')
+                            yylval.number = yytext[2];
+                        else
+                            yylval.number = yytext[1];
                         return NUMBER;
                     }
 

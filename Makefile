@@ -1,7 +1,7 @@
 CPPFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter -Wno-unneeded-internal-declaration -Wno-unused-function
 CPPFLAGS += -I include
 
-all : clean bin/print_tree
+all : clean bin/print_tree bin/c_compiler
 
 src/compiler_bison.tab.cpp src/compiler_bison.tab.hpp : src/compiler_bison.y
 	bison -v -d src/compiler_bison.y -o src/compiler_bison.tab.cpp
@@ -13,6 +13,10 @@ bin/print_tree : src/print_tree.o src/compiler_bison.tab.o src/lexer.yy.o src/co
 	mkdir -p bin
 	g++ $(CPPFLAGS) -o bin/print_tree $^
 
+bin/c_compiler : src/main.o src/compiler_bison.tab.o src/lexer.yy.o src/compiler_bison.tab.o
+	mkdir -p bin
+	g++ $(CPPFLAGS) -o bin/c_compiler $^
+
 clean :
 	@rm -rf bin
 	@rm -rf src/*.o
@@ -20,4 +24,5 @@ clean :
 	@rm -rf src/*.yy.cpp
 	@rm -rf src/*.output
 	@rm -rf src/*.tab.hpp
+	@rm -rf tmp
 	@echo "\nall clean.\n"
