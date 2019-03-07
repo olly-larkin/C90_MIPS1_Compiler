@@ -502,7 +502,19 @@ public:
     ~BasicTypeSpec() {}
 
     void print(std::ostream &os, int level) {
-        os << indent(level) << "Type: " << type << std::endl;
+        os << indent(level) << "Type: ";
+        switch(type) {
+            case VOID_T: os << "void"; break;
+            case CHAR_T: os << "char"; break;
+            case SHORT_T: os << "short"; break;
+            case INT_T: os << "int"; break;
+            case LONG_T: os << "long"; break;
+            case FLOAT_T: os << "float"; break;
+            case DOUBLE_T: os << "double"; break;
+            case SIGNED_T: os << "signed"; break;
+            case UNSIGNED_T: os << "unsigned"; break;
+        }
+        os << std::endl;
     }
 
 protected:
