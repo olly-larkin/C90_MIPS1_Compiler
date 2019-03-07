@@ -34,12 +34,12 @@
 %token LEFT_SHIFT_EQUAL RIGHT_SHIFT_EQUAL B_AND_EQUAL XOR_EQUAL B_OR_EQUAL
 %token ARROW
 %token AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO DOUBLE ELSE
-%token ENUM ENUM_VAL FLOAT FOR GOTO IF INT LONG REGISTER RETURN
+%token ENUM FLOAT FOR GOTO IF INT LONG REGISTER RETURN
 %token SHORT SIGNED SIZEOF STATIC STRUCT SWITCH TYPEDEF UNION
 %token UNSIGNED VOID WHILE EXTERN VOLATILE
 %token NUMBER IDENTIFIER TYPEDEF_T
 
-%type <string> IDENTIFIER STRING_LITERAL ENUM_VAL CONST VOLATILE TYPEDEF_T
+%type <string> IDENTIFIER STRING_LITERAL CONST VOLATILE TYPEDEF_T
 %type <number> NUMBER
 %type <BaseListPtr> argument_expression_list statement_list declaration_list parameter_list pointer enum_list struct_declarator_list struct_declaration_list specifier_list init_declarator_list translation_unit
 %type <BaseExpressionPtr> expression conditional_expression logical_or_expression logical_and_expression inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression unary_expression postfix_expression primary_expression initializer
@@ -358,7 +358,6 @@ primary_expression : IDENTIFIER                 { $$ = new PrimaryExprIdentifier
                    | NUMBER                     { $$ = new PrimaryExprConstant($1); }
                    | STRING_LITERAL      	    { $$ = new PrimaryExprStrLiteral(*$1); }
                    | '(' expression ')'         { $$ = $2; }
-                   | ENUM_VAL                   { $$ = new PrimaryExprEnumVal(*$1); }
                    ;
 %%
 

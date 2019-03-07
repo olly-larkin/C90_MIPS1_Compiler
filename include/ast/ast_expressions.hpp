@@ -58,19 +58,6 @@ protected:
     std::string literal;
 };
 
-class PrimaryExprEnumVal : public BaseExpression {
-public:
-    PrimaryExprEnumVal(const std::string &_val) : val(_val) {}
-    ~PrimaryExprEnumVal() {}
-
-    void print(std::ostream &os, int level) {
-        os << indent(level) << "Primary (Enum Val): " << val << std::endl;
-    }
-
-protected:
-    std::string val;
-};
-
 //************************************************************
 //----------------------POSTFIX-------------------------------
 //************************************************************
