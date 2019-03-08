@@ -72,8 +72,6 @@ E			[Ee][+-]?{D}+
 
 "="             {
                     context.declarationActive(false);
-                    context.enumActive(false);
-                    context.endTopLevel();
                     return token('=');
                 }
 
@@ -100,9 +98,7 @@ E			[Ee][+-]?{D}+
                         context.addTypeDef(context.currentName);
                         context.typeDefActive(false);
                     }
-                    context.endTopLevel();
                     context.declarationActive(false);
-                    context.enumActive(false);
                     return token(';'); 
                 }
 
@@ -113,15 +109,11 @@ E			[Ee][+-]?{D}+
 
 "{"             {
                     context.ignoreIdentifier(false);
-                    if (context.enumActive()) 
-                        context.storeEnumVals(true);
                     context.addScope();
                     return token('{');
                 }
 "}"             {
                     context.subScope();
-                    context.enumActive(false);
-                    context.storeEnumVals(false);
                     return token('}');
                 }
 
@@ -161,15 +153,12 @@ E			[Ee][+-]?{D}+
 "while"         { return token(WHILE); }
 
 "struct"                {   
-                            context.setTopLevel();
                             context.ignoreIdentifier(true);
                             return tokenTYPE(STRUCT); 
                         }
 
 "enum"                  {   
-                            context.setTopLevel();
                             context.ignoreIdentifier(true);
-                            context.enumActive(true);
                             return tokenTYPE(ENUM); 
                         }
 
@@ -183,14 +172,8 @@ E			[Ee][+-]?{D}+
                             if (context.declarationActive() && !context.ignoreIdentifier()) {
                                 context.declarationActive(false);
                                 context.findAndDestroyTD(temp);
-                                context.findAndDestroyE(temp);
                                 if (context.typeDefActive())
                                     context.currentName = temp;
-                                return token(IDENTIFIER);
-                            }
-
-                            if (context.storeEnumVals()) {
-                                context.addEnumVal(temp);
                                 return token(IDENTIFIER);
                             }
 
@@ -202,8 +185,6 @@ E			[Ee][+-]?{D}+
 
                             if (context.typeDefed(temp))
                                 return tokenTYPE(TYPEDEF_T);
-                            else if (context.enummed(temp))
-                                return token(ENUM_VAL);
                             else
                                 return token(IDENTIFIER);
                         }
