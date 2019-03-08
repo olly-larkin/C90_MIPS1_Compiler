@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "PyContext.hpp"
+#include "CompContext.hpp"
 #include "ast/ast_root.hpp"
 #include "ast/ast_base_classes.hpp"
 #include "ast/ast_expressions.hpp"
