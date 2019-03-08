@@ -1,8 +1,6 @@
 #ifndef AST_DECLARATION_HPP
 #define AST_DECLARATION_HPP
 
-#include "ast_base_classes.hpp"
-
 //************************************************************
 //--------------------DECLARATION LIST------------------------
 //************************************************************

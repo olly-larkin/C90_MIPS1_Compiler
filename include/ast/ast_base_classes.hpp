@@ -1,10 +1,6 @@
 #ifndef AST_BASE_CLASSES_HPP
 #define AST_BASE_CLASSES_HPP
 
-#include <iostream>
-
-#include "ast_root.hpp"
-
 class BaseNode : public AST {
 public:
 protected:

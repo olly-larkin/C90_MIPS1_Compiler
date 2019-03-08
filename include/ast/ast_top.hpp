@@ -1,9 +1,6 @@
 #ifndef AST_TOP_HPP
 #define AST_TOP_HPP
 
-#include "ast_base_classes.hpp"
-#include "ast_declarations.hpp"
-
 class FunctionDefinition : public BaseNode {
 public:
     FunctionDefinition(BaseNode *_decSpec, BaseNode *_dec, BaseNode *_statement) : decSpec(_decSpec), dec(_dec), statement(_statement) {}

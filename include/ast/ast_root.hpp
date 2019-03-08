@@ -1,10 +1,6 @@
 #ifndef AST_NODE_HPP
 #define AST_NODE_HPP
 
-#include <iostream>
-
-#include "../PyContext.hpp"
-
 class AST {
 public:
 

@@ -1,9 +1,6 @@
 #ifndef COMPCONTEXT_HPP
 #define COMPCONTEXT_HPP
 
-#include <iostream>
-#include <vector>
-
 enum typeEnum {
     VOID_T,
     CHAR_T,

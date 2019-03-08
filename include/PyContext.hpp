@@ -1,9 +1,6 @@
 #ifndef PYCONTEXT_HPP
 #define PYCONTEXT_HPP
 
-#include <iostream>
-#include <vector>
-
 struct PyContext{
     int scope_level = 0;
 
