@@ -17,4 +17,12 @@ struct CompContext {
 
 };
 
+struct Instruction {
+    std::string name;
+    std::string arg1, agr2, arg3;
+    long unsigned int number;
+    enum { R, I, J, LS, L, S } label; 
+};
+
 #endif
+
