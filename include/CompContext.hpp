@@ -19,9 +19,9 @@ struct CompContext {
 
 struct Instruction {
     std::string name;
-    std::string arg1, agr2, arg3;
+    std::string arg1, arg2, arg3;
     long unsigned int number;
-    enum { R, I, J, LS, L, S } label; 
+    enum { SSS, SSN, SN, SS, S, N, LS, E, L } printMethod;
 };
 
 #endif
