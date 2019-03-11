@@ -80,6 +80,11 @@ public:
            << "\tsys.exit(ret)" << std::endl;
     }
 
+    void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
+        instructions.push_back({"j",context.funcToLabel["main"],"","",0,Instruction::S});
+        topList->generateMIPS(os, context, instructions);
+    }
+
 protected:
     BaseList *topList;
 };

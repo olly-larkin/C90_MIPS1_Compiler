@@ -32,7 +32,7 @@ void printVec(std::ostream &os, const std::vector<Instruction> &instr) {
                 os << instr[i].name << std::endl;
                 break;
             case Instruction::L:
-                os << instr[i].name << ":" << std::endl;
+                os << instr[i].arg1 << ":" << std::endl;
                 break;
         }
     }

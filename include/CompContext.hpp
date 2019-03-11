@@ -1,6 +1,8 @@
 #ifndef COMPCONTEXT_HPP
 #define COMPCONTEXT_HPP
 
+#include <map>
+
 enum typeEnum {
     VOID_T,
     CHAR_T,
@@ -14,7 +16,7 @@ enum typeEnum {
 }; 
 
 struct CompContext {
-
+    std::map<std::string, std::string> funcToLabel = { {"main", "_main_"} };
 };
 
 struct Instruction {
