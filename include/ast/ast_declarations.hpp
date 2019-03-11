@@ -246,6 +246,16 @@ public:
             context.globals.push_back(identifier);
     }
 
+    void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
+        if (context.functionDef()) {
+            if (context.funcToLabel.find(identifier) == context.funcToLabel.end())
+                context.funcToLabel[identifier] = context.makeALabel(identifier);
+            instructions.push_back({"label", context.funcToLabel[identifier], "", "", 0, Instruction::L});
+        } else {
+            // TODO: need to fill in (non function definitions)
+        }
+    }
+
 protected:
     std::string identifier;
 };
@@ -297,6 +307,14 @@ public:
         os << ")";
     }
 
+    void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
+        context.functionDef() = true;
+        dec->generateMIPS(os, context, instructions);
+        if (params != NULL) params->generateMIPS(os, context, instructions);
+        //TODO: make parameters push into varMap and stack
+        context.functionDef() = false;
+    }
+
 protected:
     BaseNode *dec;
     BaseList *params;
@@ -315,6 +333,11 @@ public:
         os << indent(level+1) << "Pointer:" << std::endl;
         pointer->print(os, level+2);
         dec->print(os, level+1);
+    }
+
+    void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
+        //TODO: handle pointer -> changes return type -> probably need to update context
+        dec->generateMIPS(os, context, instructions);
     }
 
 protected:

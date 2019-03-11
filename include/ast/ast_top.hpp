@@ -33,6 +33,12 @@ public:
         os << std::endl;
     }
 
+    void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
+        context.addScope();     // increase the scope before processing function parameters
+        dec->generateMIPS(os, context, instructions);
+        context.subScope();
+    }
+
 protected:
     BaseNode *decSpec, *dec, *statement;
 };
@@ -55,6 +61,12 @@ public:
         context.globalDec = true;
         dec->printPy(os, context);
         context.globalDec = false;
+    }
+
+    void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
+        context.addScope();
+        if (list != NULL) list->generateMIPS(os, context, instructions);
+        dec->generateMIPS(os, context, instructions);
     }
 
 protected:

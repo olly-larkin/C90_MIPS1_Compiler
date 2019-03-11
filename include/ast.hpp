@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 
 #include "PyContext.hpp"
 #include "CompContext.hpp"
