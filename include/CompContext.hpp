@@ -30,10 +30,11 @@ const static std::map<typeEnum, std::string> typeStrings = {   // mainly for pri
 
 struct Type {
     int pointerNum;
+    int length;
     std::vector< std::pair<typeEnum, std::string> > typeSpecifiers;     // this will hold types, string only for typedef types
-    std::vector< int > arraySizes;    // each element represents a new dimention
+    std::vector< int > arraySizes;                              // each element represents a new dimention
     std::vector< std::pair<Type, std::string> > parameters;     // only for function type
-    std::vector< std::pair<Type, std::string> > structBody;     // TODO: need to add bit field to this
+    std::vector< std::pair<Type, std::string> > structBody;     // TODO: need to add bit field to this..?
     std::vector< std::pair<std::string, int> > enumVals;        // only for enumerated values
 };
 
@@ -61,29 +62,50 @@ struct CompContext {
 
     struct stackStruct {
         std::map<std::string, varStruct> varMap;
-        std::map<std::string, BaseNode*> typeMap;
+        std::map<std::string, Type> typeMap;
         bool functionDef = false;
-        bool functionDec = false;
+        bool paramDec = false;
     };
+
+    struct tempTypeStruct {
+        bool typeDef;
+        int stackOffset;
+        std::string identifier;
+        Type type;
+    } tempDec, tempParam;                     // as declarations happen, info should be pushed into tempType (will be handled after in declaration node)
+
+    tempTypeStruct &tempType() {
+        if (paramDec())
+            return tempParam;
+        else
+            return tempDec;
+    }
 
     std::vector<stackStruct> stack;         // to keep track of scopes and context
 
     //******* PASS THROUGHS ************
     std::map<std::string, varStruct>& varMap() { return stack.back().varMap; }
-    std::map<std::string, BaseNode*>& typeMap() { return stack.back().typeMap; }
+    std::map<std::string, Type>& typeMap() { return stack.back().typeMap; }
     bool& functionDef() { return stack.back().functionDef; }
-    bool& functionDec() { return stack.back().functionDec; }
+    bool& paramDec() { return stack.back().paramDec; }
     //**********************************
 
     void addScope() {
         if (stack.size() > 0) {             // this will handle function definitions find bc they are only in global scope
             stack.push_back(stack.back());
             functionDef() = false;
-            functionDec() = false;
+            paramDec() = false;
             //TODO: need to offset all the stackOffset fields by the change in frame pointer
         } else {
             stack.push_back({});
         }
+    }
+
+    void addScopeFuncCall() {           // when a function is called TODO: may need to pass pointer to params on MIPS stack
+        stack.push_back(stack[0]);      // only take the global context
+        functionDef() = false;
+        paramDec() = false;
+        //TODO: need to offset all the stackOffset fields by the change in frame pointer
     }
 
     void subScope() {

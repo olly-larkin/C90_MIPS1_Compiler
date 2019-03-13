@@ -46,8 +46,8 @@ void translate(AST *tree, std::ostream &os) {
 void compile(AST *tree, std::ostream &os) {
     CompContext context;
     std::vector<Instruction> instructions;
-    tree->generateMIPS(os, context, instructions);
-    printVec(std::cout, instructions);
+    tree->generateMIPS(context, instructions);
+    printVec(os, instructions);
 }
 
 int main(int argc, char* argv[]) {
