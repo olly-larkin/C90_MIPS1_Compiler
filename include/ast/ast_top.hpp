@@ -35,7 +35,9 @@ public:
 
     void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
         context.addScope();     // increase the scope before processing function parameters
+        context.functionDef() = true;        
         dec->generateMIPS(os, context, instructions);
+        context.functionDef() = false;
         context.subScope();
     }
 
@@ -93,7 +95,7 @@ public:
     }
 
     void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
-        instructions.push_back({"j",context.funcToLabel["main"],"","",0,Instruction::S});
+        instructions.push_back({"j","main","","",0,Instruction::S});
         topList->generateMIPS(os, context, instructions);
     }
 

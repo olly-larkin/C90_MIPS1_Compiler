@@ -204,6 +204,8 @@ public:
         param->printPy(os, context);
     }
 
+    //TODO: make parameters push into varMap and stack
+
 protected:
     BaseNode *param;
 };
@@ -248,11 +250,11 @@ public:
 
     void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
         if (context.functionDef()) {
-            if (context.funcToLabel.find(identifier) == context.funcToLabel.end())
-                context.funcToLabel[identifier] = context.makeALabel(identifier);
-            instructions.push_back({"label", context.funcToLabel[identifier], "", "", 0, Instruction::L});
+            instructions.push_back({"label", identifier, "", "", 0, Instruction::L});
+        } else if (context.functionDec()) {
+            // shouldn't print a label if only being declarared TODO: check this might remove flag
         } else {
-            // TODO: need to fill in (non function definitions)
+            // TODO: need to fill in (non function definitions or declarations)
         }
     }
 
@@ -308,11 +310,10 @@ public:
     }
 
     void generateMIPS(std::ostream &os, CompContext &context, std::vector<Instruction> &instructions) {
-        context.functionDef() = true;
+        if (!context.functionDef()) context.functionDec() = true; 
         dec->generateMIPS(os, context, instructions);
         if (params != NULL) params->generateMIPS(os, context, instructions);
-        //TODO: make parameters push into varMap and stack
-        context.functionDef() = false;
+        context.functionDec() = false;
     }
 
 protected:
@@ -511,19 +512,7 @@ public:
     ~BasicTypeSpec() {}
 
     void print(std::ostream &os, int level) {
-        os << indent(level) << "Type: ";
-        switch(type) {
-            case VOID_T: os << "void"; break;
-            case CHAR_T: os << "char"; break;
-            case SHORT_T: os << "short"; break;
-            case INT_T: os << "int"; break;
-            case LONG_T: os << "long"; break;
-            case FLOAT_T: os << "float"; break;
-            case DOUBLE_T: os << "double"; break;
-            case SIGNED_T: os << "signed"; break;
-            case UNSIGNED_T: os << "unsigned"; break;
-        }
-        os << std::endl;
+        os << indent(level) << "Type: " << typeStrings.at(type) << std::endl;
     }
 
 protected:
