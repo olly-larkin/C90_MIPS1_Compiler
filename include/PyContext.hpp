@@ -23,7 +23,7 @@ struct PyContext{
     void addScopeFunc(std::ostream &os) {
         addScope();
         for(int i=0; i<(int)globals.size(); i++){
-            os << indentPy() << "global " << globals[i] << std::endl;
+            os << indentPy() << "global " << globals[i] << std::endl; //TODO: Should we print global only when it's used?
         }
     }
 
