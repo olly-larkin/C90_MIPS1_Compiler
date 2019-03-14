@@ -120,9 +120,11 @@ public:
 
     void print(std::ostream &os, int level) {
         os << indent(level) << "Abstract Declarator:" << std::endl;
-        os << indent(level+1) << "Pointer:" << std::endl;
-        pointer->print(os, level+2);
-        absDec->print(os, level+1);
+        if (pointer != NULL) {
+            os << indent(level+1) << "Pointer:" << std::endl;
+            pointer->print(os, level+2);
+        }
+        if (absDec != NULL) absDec->print(os, level+1);
     }
 
 protected:

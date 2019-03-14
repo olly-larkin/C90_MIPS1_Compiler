@@ -175,8 +175,8 @@ type_name : specifier_list                      { $$ = new TypeName($1, NULL); }
 	      | specifier_list abstract_declarator  { $$ = new TypeName($1, $2); }
 	      ;
 
-abstract_declarator : pointer                               { $$ = $1; }
-                    | direct_abstract_declarator            { $$ = $1; }
+abstract_declarator : pointer                               { $$ = new AbstractDeclarator($1, NULL); }
+                    | direct_abstract_declarator            { $$ = new AbstractDeclarator(NULL, $1); }
                     | pointer direct_abstract_declarator    { $$ = new AbstractDeclarator($1, $2); }
                     ;
 
