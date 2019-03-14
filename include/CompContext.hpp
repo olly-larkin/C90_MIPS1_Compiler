@@ -42,7 +42,7 @@ struct Type {
 struct Instruction {
     std::string name;
     std::string arg1, arg2, arg3;
-    long unsigned int number;
+    long int number;
     enum { SSS, SSN, SN, SS, S, N, LS, E, L } printMethod;  
     // LS = load/store
     // E = empty (nop)
@@ -90,26 +90,69 @@ struct CompContext {
     bool& paramDec() { return stack.back().paramDec; }
     //**********************************
 
-    void addScope() {
-        if (stack.size() > 0) {             // this will handle function definitions find bc they are only in global scope
+    int memUsed = 0;
+
+    //TODO: double check this
+    int addToStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
+        // reg array for when size > 1 multiple registers need to be used or can store multiple registers at the same time
+        // should return offset from start of stack
+        int offset = memUsed;
+        for(int i = 0; i < (int)reg.size(); ++i) {
+            memUsed += 4;
+            instructions.push_back({"sw", regMap[reg[i]], regMap[$sp], "", 0, Instruction::LS});
+            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
+        }
+        return offset;
+    }
+
+    //TODO: double check this
+    void takeFromStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
+        // reg array for when size > 1 multiple registers need to be used or can load multiple registers at the same time
+        for(int i = 0; i < (int)reg.size(); ++i) {
+            memUsed -= 4;
+            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", 4, Instruction::SSN});
+            instructions.push_back({"lw", regMap[reg[i]], regMap[$sp], "", 0, Instruction::LS});
+        }
+    }
+
+    void addScope(std::vector<Instruction> &instructions) {
+        if (stack.size() > 0) {
+
             stack.push_back(stack.back());
             functionDef() = false;
             paramDec() = false;
-            //TODO: need to offset all the stackOffset fields by the change in frame pointer
+            // Items needed on the stack (first and second redundant for non function but need to be the same):
+            //      -> $4 / $a0  (function argument pointer)
+            //      -> $31 / $ra  (return address for function)
+            //      -> $30 / $fp (record the previous fp value to return to later)
+            addToStack({$a0, $ra, $fp}, instructions);
+            // need to move the $fp now that it is stored (sp + 4)
+            instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 4, Instruction::SSN});
         } else {
             stack.push_back({});
         }
     }
 
-    void addScopeFuncCall() {           // when a function is called TODO: may need to pass pointer to params on MIPS stack
+    void addScopeFuncCall(std::vector<Instruction> &instructions) {           // when a function is called
         stack.push_back(stack[0]);      // only take the global context
         functionDef() = false;
         paramDec() = false;
-        //TODO: need to offset all the stackOffset fields by the change in frame pointer
+        // Items needed on the stack:   (TODO: may need to make this save $s registers to be ISA compliant)
+        //      -> $4 / $a0  (function argument pointer)
+        //      -> $31 / $ra  (return address for function)
+        //      -> $30 / $fp (record the previous fp value to return to later)
+        addToStack({$a0, $ra, $fp}, instructions);
+        // need to move the $fp now that it is stored (sp + 4)
+        instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 4, Instruction::SSN});
     }
 
-    void subScope() {
+    void subScope(std::vector<Instruction> &instructions) {
         stack.pop_back();
+        //TODO: retreive from stack
+        // $sp = $fp   ->   $fp = read($fp)   ->   take other items off stack
+        instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});
+        instructions.push_back({"lw", regMap[$fp], regMap[$fp], "", 0, Instruction::LS});
+        takeFromStack({$ra, $a0}, instructions);
     }
 };
 

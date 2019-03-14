@@ -247,7 +247,7 @@ protected:
 //-----------------------DECLARATORS--------------------------
 //************************************************************
 
-class DeclaratorIdentifier : public BaseNode {  //MIPS DONE
+class DeclaratorIdentifier : public BaseNode {  //MIPS KINDA DONE
 public:
     DeclaratorIdentifier(const std::string &_iden) : identifier(_iden) {}
     ~DeclaratorIdentifier() {}
@@ -268,6 +268,8 @@ public:
         if (context.functionDef())
             instructions.push_back({"label", identifier, "", "", 0, Instruction::L});
         context.tempType().identifier = identifier;
+
+        //TODO: assign possition on stack
     }
 
 protected:
@@ -292,9 +294,9 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        dec->generateMIPS(context, instructions);
         context.tempType().type.length *= expr->eval();
         context.tempType().type.arraySizes.push_back(expr->eval());
+        dec->generateMIPS(context, instructions);
         //TODO: will not work with empty expr
     }
 

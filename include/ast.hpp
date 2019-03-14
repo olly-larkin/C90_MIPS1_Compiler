@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 
+#include "RegisterMaps.hpp"
 #include "PyContext.hpp"
 #include "CompContext.hpp"
 #include "ast/ast_root.hpp"

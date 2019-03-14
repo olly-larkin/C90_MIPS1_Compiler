@@ -34,11 +34,11 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.addScope();     // increase the scope before processing function parameters
+        context.addScope(instructions);     // increase the scope before processing function parameters
         context.functionDef() = true;        
         dec->generateMIPS(context, instructions);
         context.functionDef() = false;
-        context.subScope();
+        context.subScope(instructions);
     }
 
 protected:
@@ -66,7 +66,6 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.addScope();
         if (list != NULL) list->generateMIPS(context, instructions);
         dec->generateMIPS(context, instructions);
     }
@@ -95,6 +94,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.addScope(instructions);
         instructions.push_back({"j","main","","",0,Instruction::S});
         topList->generateMIPS(context, instructions);
     }
