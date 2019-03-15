@@ -34,11 +34,12 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.addScope(instructions);     // increase the scope before processing function parameters
         context.functionDef() = true;        
         dec->generateMIPS(context, instructions);
         context.functionDef() = false;
-        context.subScope(instructions);
+        // compound statement should increase scope
+        statement->generateMIPS(context, instructions);
+        // compound statement should decrease scope after
     }
 
 protected:

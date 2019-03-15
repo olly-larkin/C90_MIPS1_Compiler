@@ -117,41 +117,33 @@ struct CompContext {
 
     void addScope(std::vector<Instruction> &instructions) {
         if (stack.size() > 0) {
-
             stack.push_back(stack.back());
             functionDef() = false;
             paramDec() = false;
-            // Items needed on the stack (first and second redundant for non function but need to be the same):
-            //      -> $4 / $a0  (function argument pointer)
-            //      -> $31 / $ra  (return address for function)
-            //      -> $30 / $fp (record the previous fp value to return to later)
-            addToStack({$a0, $ra, $fp}, instructions);
-            // need to move the $fp now that it is stored (sp + 4)
+            //TODO: make sure to set other flags to false
+            addToStack({$fp}, instructions);
             instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 4, Instruction::SSN});
         } else {
             stack.push_back({});
         }
     }
 
-    void addScopeFuncCall(std::vector<Instruction> &instructions) {           // when a function is called
-        stack.push_back(stack[0]);      // only take the global context
-        functionDef() = false;
-        paramDec() = false;
+    void subScope(std::vector<Instruction> &instructions) {
+        stack.pop_back();
+        // $sp = $fp   ->   $fp = read($fp)
+        instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});
+        instructions.push_back({"lw", regMap[$fp], regMap[$fp], "", 0, Instruction::LS});
+    }
+
+    void funcCallStackPush(std::vector<Instruction> &instructions) {     // called before function call
         // Items needed on the stack:   (TODO: may need to make this save $s registers to be ISA compliant)
         //      -> $4 / $a0  (function argument pointer)
         //      -> $31 / $ra  (return address for function)
-        //      -> $30 / $fp (record the previous fp value to return to later)
-        addToStack({$a0, $ra, $fp}, instructions);
-        // need to move the $fp now that it is stored (sp + 4)
-        instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 4, Instruction::SSN});
+        addToStack({$a0, $ra}, instructions);
     }
 
-    void subScope(std::vector<Instruction> &instructions) {
-        stack.pop_back();
-        //TODO: retreive from stack
-        // $sp = $fp   ->   $fp = read($fp)   ->   take other items off stack
-        instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});
-        instructions.push_back({"lw", regMap[$fp], regMap[$fp], "", 0, Instruction::LS});
+    void funcCallStackPull(std::vector<Instruction> &instructions) {    // called after function call
+        // take items off stack
         takeFromStack({$ra, $a0}, instructions);
     }
 };
