@@ -5,7 +5,7 @@
 //--------------------DECLARATION LIST------------------------
 //************************************************************
 
-class DeclarationList : public BaseList {
+class DeclarationList : public BaseList {   //MIPS DONE
 public:
     DeclarationList(BaseList *_list, BaseNode *_declaration) : BaseList(_list), declaration(_declaration) {}
     ~DeclarationList() {
@@ -21,6 +21,11 @@ public:
     void printPy(std::ostream &os, PyContext &context) {
         if (list != NULL) list->printPy(os, context);
         declaration->printPy(os, context);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (list != NULL) list->generateMIPS(context, instructions);
+        declaration->generateMIPS(context, instructions);
     }
 
 protected:
@@ -247,7 +252,7 @@ protected:
 //-----------------------DECLARATORS--------------------------
 //************************************************************
 
-class DeclaratorIdentifier : public BaseNode {  //MIPS KINDA DONE
+class DeclaratorIdentifier : public BaseNode {  //MIPS DONE
 public:
     DeclaratorIdentifier(const std::string &_iden) : identifier(_iden) {}
     ~DeclaratorIdentifier() {}
@@ -602,7 +607,7 @@ protected:
 //-----------------------DECLARATIONS-------------------------
 //************************************************************
 
-class InitDeclarator : public BaseNode {        //MIPS KINDA DONE
+class InitDeclarator : public BaseNode {        //MIPS DONE
 public:
     InitDeclarator(BaseNode *_dec, BaseExpression *_init) : dec(_dec), init(_init) {}
     ~InitDeclarator() {
@@ -639,7 +644,7 @@ protected:
     BaseExpression *init;
 };
 
-class InitDecList : public BaseList {       //MIPS DONE
+class InitDecList : public BaseList {           //MIPS DONE
 public:
     InitDecList(BaseList *_list, BaseNode *_dec) : BaseList(_list), dec(_dec) {}
     ~InitDecList() {
