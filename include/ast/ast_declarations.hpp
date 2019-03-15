@@ -185,7 +185,7 @@ public:
         if (dec != NULL) dec->generateMIPS(context, instructions);
         if (absDec != NULL) dec->generateMIPS(context, instructions);
         context.paramDec() = false;
-        context.tempDec.type.parameters.push_back({context.tempParam.type, context.tempParam.identifier});
+        context.tempDec.type.parameters.push_back({{context.tempParam.type, context.tempParam.offset}, context.tempParam.identifier});
     }
 
 protected:
@@ -268,8 +268,18 @@ public:
         if (context.functionDef())
             instructions.push_back({"label", identifier, "", "", 0, Instruction::L});
         context.tempType().identifier = identifier;
-
-        //TODO: assign possition on stack
+        if (context.paramDec()) {
+            if (context.tempDec.type.parameters.size()) {   // num of parameters != 0
+                context.tempParam.offset = context.tempDec.type.parameters.back().first.offset + context.tempDec.type.parameters.back().first.type.length;
+            } else {
+                context.tempParam.offset = 0;
+            }
+        } else if (!context.functionDef()) {        // dont need anything on stack for functions
+            int delta = context.tempDec.type.length * 4;
+            context.tempDec.offset = context.memUsed;
+            context.memUsed += delta;
+            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -delta, Instruction::SSN});
+        }
     }
 
 protected:
@@ -332,6 +342,7 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         dec->generateMIPS(context, instructions);
+        context.functionDef() = false;
         if (params != NULL) params->generateMIPS(context, instructions);
     }
 
@@ -537,6 +548,10 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         context.tempType().type.typeSpecifiers.push_back({type, typeStrings.at(type)});
+        if (type == DOUBLE_T)       // TODO: may need changing
+            context.tempType().type.length = 2;
+        else
+            context.tempType().type.length = 1;
     }
 
 protected:
@@ -554,6 +569,7 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         context.tempType().type.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+        context.tempType().type.length = context.typeMap()[type].length;
     }
 
 protected:
@@ -610,11 +626,12 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         dec->generateMIPS(context, instructions);
-        //TODO: push reg 8 to stack
+        context.addToStack({$8}, instructions);
         char destination = 8;
         init->generateMIPS(context, instructions, destination);
-        //TODO: store result on stack (should be in tempType().stackOffset)
-        //TODO: restore reg 8 from stack
+        int offset = context.memUsed - context.tempDec.offset;
+        instructions.push_back({"sw", regMap[$8], regMap[$sp], "", offset, Instruction::LS});
+        context.takeFromStack({$8}, instructions);
     }
 
 protected:
@@ -721,7 +738,7 @@ public:
             if (context.tempType().typeDef)
                 context.typeMap()[context.tempType().identifier] = context.tempType().type;
             else
-                context.varMap()[context.tempType().identifier] = {context.tempType().type, context.tempType().stackOffset};
+                context.varMap()[context.tempType().identifier] = {context.tempType().type, context.tempType().offset};
         }
     }
 

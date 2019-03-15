@@ -34,12 +34,12 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.addScopeContext();
         context.functionDef() = true;        
         dec->generateMIPS(context, instructions);
-        context.functionDef() = false;
-        // compound statement should increase scope
+        context.functionDef() = false;      // should be set to false in dec but safety net
         statement->generateMIPS(context, instructions);
-        // compound statement should decrease scope after
+        context.subScopeContext();
     }
 
 protected:

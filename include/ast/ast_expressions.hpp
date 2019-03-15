@@ -18,11 +18,20 @@ public:
         os << identifier;
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (context.functionCall()) {
+            context.currentFunc = identifier;
+            //TODO: may need more
+        } else {
+            //TODO: needs doing
+        }
+    }
+
 protected:
     std::string identifier;
 };
 
-class PrimaryExprConstant : public BaseExpression {
+class PrimaryExprConstant : public BaseExpression {     //MIPS DONE..?
 public:
     PrimaryExprConstant(double _constant) : constant(_constant) {}
     ~PrimaryExprConstant() {}
@@ -33,6 +42,11 @@ public:
 
     void printPy(std::ostream &os, PyContext &context) {
         os << (int)constant;
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        instructions.push_back({"addi", regMap[destReg], regMap[$0], "", (int)constant, Instruction::SSN});
+        //TODO: might need to change int casting or creating new primaries
     }
 
 protected:
@@ -103,6 +117,19 @@ public:
         if (argList != NULL)
             argList->printPy(os, context);
         os << ")";
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.funcCallStackPush(instructions);
+        context.functionCall() = true;
+        postfix->generateMIPS(context, instructions);   // should set currentFunc
+        // make $a0 current SP (for function args)
+        instructions.push_back({"addi", regMap[$a0], regMap[$sp], "", 0, Instruction::LS});
+        argList->generateMIPS(context, instructions);   // should update reg 4 and 
+        context.functionCall() = false;
+        instructions.push_back({"jal", context.currentFunc, "", "", 0, Instruction::S});
+        context.funcCallStackPull(instructions);
+        // TODO: probs wont work... fix it
     }
 
 protected:
@@ -1002,6 +1029,10 @@ public:
             os << ", ";
         }
         expr->printPy(os, context);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //TODO: add each argument onto stack and context
     }
 
 protected:

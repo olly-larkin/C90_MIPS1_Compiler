@@ -28,16 +28,22 @@ const static std::map<typeEnum, std::string> typeStrings = {   // mainly for pri
     {UNSIGNED_T, "unsigned"}
 };
 
+struct varStruct;
+
 struct Type {
     int pointerNum;
     int length;
     std::vector< std::pair<typeEnum, std::string> > typeSpecifiers;     // this will hold types, string only for typedef types
     std::vector< int > arraySizes;                              // each element represents a new dimention
-    std::vector< std::pair<Type, std::string> > parameters;     // only for function type
+    std::vector< std::pair<varStruct, std::string> > parameters;     // only for function type
     std::vector< std::pair<Type, std::string> > structBody;     // TODO: need to add bit field to this..?
     std::vector< std::pair<std::string, int> > enumVals;        // only for enumerated values
 };
 
+struct varStruct {
+    Type type; 
+    int offset;
+};
 
 struct Instruction {
     std::string name;
@@ -55,21 +61,19 @@ struct CompContext {
         return "_" + str + "_" + std::to_string(id++);
     }
 
-    struct varStruct {
-        Type type; 
-        int stackOffset;
-    };
-
     struct stackStruct {
         std::map<std::string, varStruct> varMap;
         std::map<std::string, Type> typeMap;
         bool functionDef = false;
         bool paramDec = false;
+        bool functionCall = false;
     };
+
+    std::string currentFunc;
 
     struct tempTypeStruct {
         bool typeDef;
-        int stackOffset;
+        int offset;
         std::string identifier;
         Type type;
     } tempDec, tempParam;                     // as declarations happen, info should be pushed into tempType (will be handled after in declaration node)
@@ -88,6 +92,7 @@ struct CompContext {
     std::map<std::string, Type>& typeMap() { return stack.back().typeMap; }
     bool& functionDef() { return stack.back().functionDef; }
     bool& paramDec() { return stack.back().paramDec; }
+    bool& functionCall() { return stack.back().functionCall; }   
     //**********************************
 
     int memUsed = 0;
@@ -115,11 +120,28 @@ struct CompContext {
         }
     }
 
+    void addScopeContext() {
+        if (stack.size() > 0) {
+            stack.push_back(stack.back());
+            functionDef() = false;
+            paramDec() = false;
+            functionCall() = false;
+            //TODO: make sure to set other flags to false
+        } else {
+            stack.push_back({});
+        }
+    }
+
+    void subScopeContext() {
+        stack.pop_back();
+    }
+
     void addScope(std::vector<Instruction> &instructions) {
         if (stack.size() > 0) {
             stack.push_back(stack.back());
             functionDef() = false;
             paramDec() = false;
+            functionCall() = false;
             //TODO: make sure to set other flags to false
             addToStack({$fp}, instructions);
             instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 4, Instruction::SSN});
