@@ -622,7 +622,6 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        std::cout << "here" << std::endl;
         if (context.decFlags().init) {
             int destReg = $t0;
             context.pushToStack({destReg}, instructions);
