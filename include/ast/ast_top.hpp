@@ -1,7 +1,7 @@
 #ifndef AST_TOP_HPP
 #define AST_TOP_HPP
 
-class FunctionDefinition : public BaseNode {        //MIPS DONE
+class FunctionDefinition : public BaseNode {    //MIPS DONE
 public:
     FunctionDefinition(BaseNode *_decSpec, BaseNode *_dec, BaseNode *_statement) : decSpec(_decSpec), dec(_dec), statement(_statement) {}
     FunctionDefinition(BaseNode *_dec, BaseNode *_statement) : dec(_dec), statement(_statement) {
@@ -34,19 +34,20 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.addScopeContext();
-        context.functionDef() = true;        
         dec->generateMIPS(context, instructions);
-        context.functionDef() = false;      // should be set to false in dec but safety net
-        statement->generateMIPS(context, instructions);
-        context.subScopeContext();
+        decSpec->generateMIPS(context, instructions);
+        context.decFlags().functionBody = true;
+        context.addScopeFunc(instructions);
+        statement->generateMIPS(context, instructions);     // scope handles here - not in compound statement (cs should only scope if standalone)
+        context.subScopeFunc(instructions);
+        context.decFlags().functionBody = false;
     }
 
 protected:
     BaseNode *decSpec, *dec, *statement;
 };
 
-class TranslationUnit : public BaseList {           //MIPS DONE
+class TranslationUnit : public BaseList {       //MIPS DONE
 public:
     TranslationUnit(BaseList *_list, BaseNode *_dec) : BaseList(_list), dec(_dec) {}
     ~TranslationUnit() {
@@ -75,7 +76,7 @@ protected:
     BaseNode *dec;
 };
 
-class TopContainer : public BaseNode {              //MIPS DONE
+class TopContainer : public BaseNode {          //MIPS DONE        
 public:
     TopContainer(BaseList *_topList) : topList(_topList) {}
     ~TopContainer() { delete topList; }
@@ -95,9 +96,9 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.addScope(instructions);
-        instructions.push_back({"j","main","","",0,Instruction::S});
+        context.addScope();
         topList->generateMIPS(context, instructions);
+        context.subScope();
     }
 
 protected:
