@@ -65,7 +65,7 @@ struct CompContext {
 
     struct funcStruct {
         Type retType;
-        std::vector< std::pair<std::string, Type> > params;
+        std::vector< std::pair<std::string, varStruct> > params;
     };
 
     struct stackStruct {
@@ -78,9 +78,6 @@ struct CompContext {
 
         int fpOffset;
         int raOffset;
-
-        //stackStruct(const stackStruct& ss) : varMap(ss.varMap), typeMap(ss.typeMap), fpOffset(ss.fpOffset), raOffset(ss.raOffset) {}
-        //stackStruct() {}
     };
 
     std::map<std::string, funcStruct> funcMap;
@@ -97,6 +94,7 @@ struct CompContext {
     std::map<std::string, varStruct>& varMap() { return stack.back().varMap; }
     std::map<std::string, Type>& typeMap() { return stack.back().typeMap; }
     stackStruct::decFlagStruct& decFlags() { return stack.back().decFlags; }
+    funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 
     int memUsed = 0;

@@ -18,11 +18,21 @@ public:
         os << identifier;
     }
 
+    int offset(CompContext &context) {
+        int offset = 0;
+        if (context.decFlags().functionBody)
+            for (int i = 0; i < (int)context.currentFunc().params.size(); ++i)
+                if (context.currentFunc().params[i].first == identifier)
+                    offset = context.currentFunc().params[i].second.offset;
+        //TODO: check varMap
+        return offset;
+    }
+
 protected:
     std::string identifier;
 };
 
-class PrimaryExprConstant : public BaseExpression {     //MIPS DONE..?
+class PrimaryExprConstant : public BaseExpression {     
 public:
     PrimaryExprConstant(double _constant) : constant(_constant) {}
     ~PrimaryExprConstant() {}
@@ -852,7 +862,7 @@ public:
         os << ")";
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement shORT CIRCUIT
         //evaluate expr1 and 2
         //1 into destreg if both operands are positive?
     }

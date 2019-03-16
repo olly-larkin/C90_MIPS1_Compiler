@@ -37,6 +37,7 @@ protected:
 class BaseExpression : public AST {
 public:
     virtual double eval() { return 0; }
+    virtual int offset(CompContext &context) { return 0; }
 protected:
 };
 

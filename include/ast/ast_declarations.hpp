@@ -193,7 +193,7 @@ public:
         if (absDec != NULL) absDec->generateMIPS(context, instructions);
         decSpec->generateMIPS(context, instructions);
 
-        context.funcMap[context.decFlags().funcName].params.push_back({context.tempDec.identifier, context.tempDec.type});
+        context.funcMap[context.decFlags().funcName].params.push_back({context.tempDec.identifier, {context.tempDec.type, 0}});      //TODO: assign offset
 
         context.decFlags().functionDef = true;
     }
