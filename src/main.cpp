@@ -18,20 +18,28 @@ void printVec(std::ostream &os, const std::vector<Instruction> &instr) {
                 break;
             case Instruction::SS:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << std::endl;
+                if (instr[i].name[0] == 'j')
+                    os << "nop" << std::endl;
                 break;
             case Instruction::S:
                 os << instr[i].name << " " << instr[i].arg1 << std::endl;
+                if (instr[i].name[0] == 'j')
+                    os << "nop" << std::endl;
                 break;
             case Instruction::N:
                 os << instr[i].name << " " << instr[i].number << std::endl;
+                if (instr[i].name[0] == 'j')
+                    os << "nop" << std::endl;
                 break;
             case Instruction::LS:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].number << "(" << instr[i].arg2 << ")" << std::endl;
+                os << "nop" << std::endl;
                 break;
             case Instruction::E:
                 os << instr[i].name << std::endl;
                 break;
             case Instruction::L:
+                os << std::endl;
                 os << instr[i].arg1 << ":" << std::endl;
                 break;
         }

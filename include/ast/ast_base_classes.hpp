@@ -21,7 +21,7 @@ public:
             return 1;
     }
 
-    BaseList* at(int i) {
+    BaseList* at(int i) {       // iterates from the back
         if (i == 0)
             return this;
         else if (list != NULL)

@@ -5,7 +5,7 @@
 //--------------------DECLARATION LIST------------------------
 //************************************************************
 
-class DeclarationList : public BaseList {   //MIPS DONE
+class DeclarationList : public BaseList {           //MIPS DONE
 public:
     DeclarationList(BaseList *_list, BaseNode *_declaration) : BaseList(_list), declaration(_declaration) {}
     ~DeclarationList() {
@@ -33,7 +33,7 @@ protected:
 };
 
 //************************************************************
-//-----------------------INITIALIZER--------------------------  //TODO: initializer lists
+//-----------------------INITIALIZER--------------------------  //TODO: init lists?
 //************************************************************
 
 class InitializerListHolder : public BaseExpression {
@@ -68,7 +68,7 @@ protected:
 };
 
 //************************************************************
-//-------------------ABSTRACT DECLARATION---------------------  //TODO: abstract mips?
+//-------------------ABSTRACT DECLARATION---------------------  //TODO: abstracts?
 //************************************************************
 
 class AbstractArray : public BaseNode {
@@ -164,7 +164,7 @@ protected:
 //-----------------------PARAMETERS---------------------------
 //************************************************************
 
-class ParamDeclaration : public BaseNode {  //MIPS DONE
+class ParamDeclaration : public BaseNode {      //MIPS DONE
 public:
     ParamDeclaration(BaseNode *_decSpec, BaseNode *_dec, BaseNode *_absDec) : decSpec(_decSpec), dec(_dec), absDec(_absDec) {}
     ~ParamDeclaration() {
@@ -185,19 +185,24 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.paramDec() = true;
-        decSpec->generateMIPS(context, instructions);
+        context.decFlags().functionDef = false;
+
+        context.tempDec = {};
+        
         if (dec != NULL) dec->generateMIPS(context, instructions);
-        if (absDec != NULL) dec->generateMIPS(context, instructions);
-        context.paramDec() = false;
-        context.tempDec.type.parameters.push_back({{context.tempParam.type, context.tempParam.offset}, context.tempParam.identifier});
+        if (absDec != NULL) absDec->generateMIPS(context, instructions);
+        decSpec->generateMIPS(context, instructions);
+
+        context.funcMap[context.decFlags().funcName].params.push_back({context.tempDec.identifier, context.tempDec.type});
+
+        context.decFlags().functionDef = true;
     }
 
 protected:
     BaseNode *decSpec, *dec, *absDec;
 };
 
-class ParamList : public BaseList {     //MIPS DONE
+class ParamList : public BaseList {             //MIPS DONE
 public:
     ParamList(BaseList *_list, BaseNode *_param) : BaseList(_list), param(_param) {}
     ~ParamList() {
@@ -219,8 +224,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        param->generateMIPS(context, instructions);
         if (list != NULL) list->generateMIPS(context, instructions);
+        param->generateMIPS(context, instructions);
     }
 
 protected:
@@ -231,7 +236,7 @@ protected:
 //-------------------------POINTER----------------------------
 //************************************************************
 
-class Pointer : public BaseList {       //MIPS DONE
+class Pointer : public BaseList {               //MIPS NOT NEEDED? TODO: check   
 public:
     Pointer(BaseList *_list) : BaseList(_list) {}
     ~Pointer() { if (list != NULL) delete list; }
@@ -239,10 +244,6 @@ public:
     void print(std::ostream &os, int level) {
         if (list != NULL) list->print(os, level);
         os << indent(level) << "*" << std::endl;
-    }
-
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.tempType().type.pointerNum = size();
     }
 
 protected:
@@ -270,28 +271,17 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        if (context.functionDef())
-            instructions.push_back({"label", identifier, "", "", 0, Instruction::L});
-        context.tempType().identifier = identifier;
-        if (context.paramDec()) {
-            if (context.tempDec.type.parameters.size()) {   // num of parameters != 0
-                context.tempParam.offset = context.tempDec.type.parameters.back().first.offset + context.tempDec.type.parameters.back().first.type.length;
-            } else {
-                context.tempParam.offset = 0;
-            }
-        } else if (!context.functionDef()) {        // dont need anything on stack for functions
-            int delta = context.tempDec.type.length * 4;
-            context.tempDec.offset = context.memUsed;
-            context.memUsed += delta;
-            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -delta, Instruction::SSN});
-        }
+        if (context.decFlags().functionDef)
+            context.decFlags().funcName = identifier;
+        else
+            context.tempDec.identifier = identifier;
     }
 
 protected:
     std::string identifier;
 };
 
-class DeclaratorArray : public BaseNode {   // MIPS DONE
+class DeclaratorArray : public BaseNode {       //MIPS DONE
 public:
     DeclaratorArray(BaseNode *_dec, BaseExpression *_expr) : dec(_dec), expr(_expr) {}
     ~DeclaratorArray() {
@@ -309,10 +299,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.tempType().type.length *= expr->eval();
-        context.tempType().type.arraySizes.push_back(expr->eval());
         dec->generateMIPS(context, instructions);
-        //TODO: will not work with empty expr
+        context.tempDec.type.arraySizes.push_back(expr->eval());
     }
 
 protected:
@@ -320,7 +308,7 @@ protected:
     BaseExpression *expr;
 };
 
-class DeclaratorFunc : public BaseNode {    //MIPS DONE
+class DeclaratorFunc : public BaseNode {        //MIPS DONE
 public:
     DeclaratorFunc(BaseNode *_dec, BaseList *_params) : dec(_dec), params(_params) {}
     ~DeclaratorFunc() {
@@ -346,8 +334,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.decFlags().functionDef = true;
         dec->generateMIPS(context, instructions);
-        context.functionDef() = false;
         if (params != NULL) params->generateMIPS(context, instructions);
     }
 
@@ -356,7 +344,7 @@ protected:
     BaseList *params;
 };
 
-class Declarator : public BaseNode {        //MIPS DONE
+class Declarator : public BaseNode {            //MIPS DONE   
 public:
     Declarator(BaseList *_pointer, BaseNode *_dec) : pointer(_pointer), dec(_dec) {}
     ~Declarator() {
@@ -372,9 +360,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        pointer->generateMIPS(context, instructions);
+        context.tempDec.type.pointerNum = pointer->size();
         dec->generateMIPS(context, instructions);
-        context.tempType().type.length = 1;
     }
 
 protected:
@@ -383,7 +370,7 @@ protected:
 };
 
 //************************************************************
-//-----------------------ENUMERATORS--------------------------
+//-----------------------ENUMERATORS--------------------------      //TODO: enums
 //************************************************************
 
 class EnumElement : public BaseNode {
@@ -440,7 +427,7 @@ protected:
 };
 
 //************************************************************
-//-------------------------STRUCTS----------------------------
+//-------------------------STRUCTS----------------------------      //TODO: structs
 //************************************************************
 
 class StructDeclarator : public BaseNode {
@@ -542,7 +529,7 @@ protected:
 //---------------------TYPE SPECIFIERS------------------------
 //************************************************************
 
-class BasicTypeSpec : public BaseNode {     //MIPS DONE
+class BasicTypeSpec : public BaseNode {         //MIPS DONE
 public:
     BasicTypeSpec(typeEnum _type) : type(_type) {}
     ~BasicTypeSpec() {}
@@ -552,18 +539,19 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.tempType().type.typeSpecifiers.push_back({type, typeStrings.at(type)});
-        if (type == DOUBLE_T)       // TODO: may need changing
-            context.tempType().type.length = 2;
-        else
-            context.tempType().type.length = 1;
+        if (context.decFlags().functionDef) {
+            context.funcMap[context.decFlags().funcName].retType.typeSpecifiers.push_back({type, typeStrings.at(type)});
+            context.decFlags().functionDef = false;     // last thing to be defined in function
+        } else {
+            context.tempDec.type.typeSpecifiers.push_back({type, typeStrings.at(type)});
+        }
     }
 
 protected:
     typeEnum type;
 };
 
-class TypeDefTypeSpec : public BaseNode {   //MIPS DONE
+class TypeDefTypeSpec : public BaseNode {       //MIPS DONE
 public:
     TypeDefTypeSpec(const std::string &_type) : type(_type) {}
     ~TypeDefTypeSpec() {}
@@ -573,15 +561,19 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.tempType().type.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
-        context.tempType().type.length = context.typeMap()[type].length;
+        if (context.decFlags().functionDef) {
+            context.funcMap[context.decFlags().funcName].retType.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            context.decFlags().functionDef = false;     // last thing to be defined in function
+        } else {
+            context.tempDec.type.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+        }
     }
 
 protected:
     std::string type;
 };
 
-class TypeSpecList : public BaseList {      //MIPS DONE
+class TypeSpecList : public BaseList {          //MIPS DONE   
 public:
     TypeSpecList(BaseList *_list, BaseNode *_spec) : BaseList(_list), spec(_spec) {}
     ~TypeSpecList() {
@@ -607,7 +599,7 @@ protected:
 //-----------------------DECLARATIONS-------------------------
 //************************************************************
 
-class InitDeclarator : public BaseNode {        //MIPS DONE
+class InitDeclarator : public BaseNode {        //MIPS DONE  
 public:
     InitDeclarator(BaseNode *_dec, BaseExpression *_init) : dec(_dec), init(_init) {}
     ~InitDeclarator() {
@@ -630,13 +622,15 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        dec->generateMIPS(context, instructions);
-        context.addToStack({$8}, instructions);
-        char destination = 8;
-        init->generateMIPS(context, instructions, destination);
-        int offset = context.memUsed - context.tempDec.offset;
-        instructions.push_back({"sw", regMap[$8], regMap[$sp], "", offset, Instruction::LS});
-        context.takeFromStack({$8}, instructions);
+        if (context.decFlags().init) {
+            int destReg = $t0;
+            context.pushToStack({destReg}, instructions);
+            init->generateMIPS(context, instructions, destReg);
+            context.writeStack(destReg, context.varMap()[context.tempDec.identifier].offset, instructions);
+            context.pullFromStack({destReg}, instructions);
+        } else {
+            dec->generateMIPS(context, instructions);
+        }
     }
 
 protected:
@@ -667,7 +661,6 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        if (list != NULL) list->generateMIPS(context, instructions);
         dec->generateMIPS(context, instructions);
     }
 
@@ -686,7 +679,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.tempType().typeDef = true;
+        context.tempDec.typeDef = true;
         if (decSpec != NULL) decSpec->generateMIPS(context, instructions);
     }
 
@@ -716,7 +709,7 @@ protected:
     BaseNode *typeSpec, *decSpec;
 };
 
-class Declaration : public BaseNode {           //MIPS DONE
+class Declaration : public BaseNode {           //MIPS DONE  
 public:
     Declaration(BaseNode *_decSpec, BaseList *_initDecList) : decSpec(_decSpec), initDecList(_initDecList) {}
     ~Declaration() {
@@ -736,14 +729,18 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        for(int i = initDecList->size()-1; i >= 0; --i) {
-            context.tempType() = {};
+        for(int i = initDecList->size() - 1; i >= 0; --i) {
+            context.tempDec = {};
             decSpec->generateMIPS(context, instructions);
             initDecList->at(i)->generateMIPS(context, instructions);
-            if (context.tempType().typeDef)
-                context.typeMap()[context.tempType().identifier] = context.tempType().type;
-            else
-                context.varMap()[context.tempType().identifier] = {context.tempType().type, context.tempType().offset};
+            if (context.tempDec.typeDef)
+                context.typeMap()[context.tempDec.identifier] = context.tempDec.type;
+            else {
+                context.addDeclaration(instructions);
+                context.decFlags().init = true;
+                initDecList->at(i)->generateMIPS(context, instructions);    // runs second time for initialization
+                context.decFlags().init = false;
+            }
         }
     }
 
