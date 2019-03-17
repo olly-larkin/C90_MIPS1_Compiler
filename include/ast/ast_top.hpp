@@ -37,9 +37,11 @@ public:
         dec->generateMIPS(context, instructions);
         decSpec->generateMIPS(context, instructions);
         context.decFlags().functionBody = true;
+        context.statementFlags().indiCompound = false;
         context.addScopeFunc(instructions);
         statement->generateMIPS(context, instructions);     // scope handles here - not in compound statement (cs should only scope if standalone)
         context.subScopeFunc(instructions);
+        context.statementFlags().indiCompound = true;
         context.decFlags().functionBody = false;
     }
 

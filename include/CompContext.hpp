@@ -65,7 +65,7 @@ struct CompContext {
 
     struct funcStruct {
         Type retType;
-        std::vector< std::pair<std::string, varStruct> > params;
+        std::vector< std::pair<std::string, Type> > params;
     };
 
     struct stackStruct {
@@ -75,6 +75,10 @@ struct CompContext {
             bool functionDef, functionBody, init;
             std::string funcName;
         } decFlags;
+        struct statementFlagStruct {
+            bool indiCompound = true;
+            std::string continueFlag, breakFlag;
+        } statementFlags;
     };
 
     std::map<std::string, funcStruct> funcMap;
@@ -91,6 +95,7 @@ struct CompContext {
     std::map<std::string, varStruct>& varMap() { return stack.back().varMap; }
     std::map<std::string, Type>& typeMap() { return stack.back().typeMap; }
     stackStruct::decFlagStruct& decFlags() { return stack.back().decFlags; }
+    stackStruct::statementFlagStruct& statementFlags() { return stack.back().statementFlags; }
     funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 
@@ -161,9 +166,10 @@ struct CompContext {
     void subScopeFunc(std::vector<Instruction> &instructions) {
         instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
 
-        readStack($fp, 8, instructions);
         readStack($ra, 4, instructions);
-        instructions.push_back({"move", regMap[$sp], regMap[$fp], "", 0, Instruction::SS});   // move $sp to $fp
+        readStack($fp, 8, instructions);
+        instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});   // move $sp to $fp
+        instructions.push_back({"jr", regMap[$ra], "", "", 0, Instruction::S}); // jump back to return address
         memUsed = 0;
 
         subScope();

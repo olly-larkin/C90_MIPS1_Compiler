@@ -23,7 +23,7 @@ public:
         if (context.decFlags().functionBody)
             for (int i = 0; i < (int)context.currentFunc().params.size(); ++i)
                 if (context.currentFunc().params[i].first == identifier)
-                    offset = context.currentFunc().params[i].second.offset;
+                    offset = context.memUsed + i*4;     // this gives offset from start of function frame -> offset from stack = memUsed - offset (where offset has just been calced)
         //TODO: check varMap
         return offset;
     }
