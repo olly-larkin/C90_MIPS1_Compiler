@@ -683,6 +683,29 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK THE BIG BRAINS
+        //evaluate expr1 and 2
+        //bne, and if no branch mov 1 into destreg
+        //signed, unsigned comparison?
+        int op1 = $8, op2 = $9;
+        if (expr1 != NULL && expr2 != NULL) {
+            context.pushToStack({op1,op2}, instructions);
+            expr1->generateMIPS(context, instructions, op1);
+            expr2->generateMIPS(context, instructions, op2);
+
+            //sub op2 from op1
+            instructions.push_back({"sub", regMap[op1], regMap[op1], regMap[op2], 0, Instruction::SSS});
+            //skip next instruction if less than zero
+            instructions.push_back({"bltz", regMap[op1], 2, Instruction::SN});
+            //branch delay slot, always happens
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], 0, Instruction::SSN});
+            //gets skipped if branch was true
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], 1, Instruction::SSN});
+
+            context.pullFromStack({op2,op1}, instructions);
+        }
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -691,7 +714,7 @@ protected:
 //-------------------EQUALITY EXPRESSION----------------------
 //************************************************************
 
-class EqualToOp : public BaseExpression {
+class EqualToOp : public BaseExpression {//MIPS DONE
 public:
     EqualToOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~EqualToOp() { 
@@ -713,17 +736,32 @@ public:
         os << ")";
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: check
         //evaluate expr1 and 2
         //bne, and if no branch mov 1 into destreg
         //signed, unsigned comparison?
+        int op1 = $8, op2 = $9;
+        if (expr1 != NULL && expr2 != NULL) {
+            context.pushToStack({op1,op2}, instructions);
+            expr1->generateMIPS(context, instructions, op1);
+            expr2->generateMIPS(context, instructions, op2);
+
+            //skip next instruction if equal
+            instructions.push_back({"bne", regMap[op1], regMap[op2], 2, Instruction::SSN});
+            //branch delay slot, always happens
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], 0, Instruction::SSN});
+            //gets skipped if branch was true
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], 1, Instruction::SSN});
+
+            context.pullFromStack({op2,op1}, instructions);
+        }
     }
 
 protected:
     BaseExpression *expr1, *expr2;
 };
 
-class NotEqualToOp : public BaseExpression {
+class NotEqualToOp : public BaseExpression { //MIPS DONE
 public:
     NotEqualToOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~NotEqualToOp() { 
@@ -745,23 +783,25 @@ public:
         os << ")";
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: Check
         //evaluate expr1 and 2
         //beq, and if no branch mov 1 into destreg
         //signed, unsigned comparison?
         int op1 = $8, op2 = $9;
         if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1}, instructions);
+            context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
-            
-            context.pushToStack({op2}, instructions);
             expr2->generateMIPS(context, instructions, op2);
 
-            //and destreg, op1, op2
-            instructions.push_back({"xor", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
+            
+            //skip next instruction if equal
+            instructions.push_back({"beq", regMap[op1], regMap[op2], 2, Instruction::SSN});
+            //branch delay slot, always happens
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], 0, Instruction::SSN});
+            //gets skipped if branch was true
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], 1, Instruction::SSN});
 
-            context.pullFromStack({op1}, instructions);
-            context.pullFromStack({op2}, instructions);
+            context.pullFromStack({op2,op1}, instructions);
         }
     }
 
@@ -770,10 +810,10 @@ protected:
 };
 
 //************************************************************
-//----------------------AND EXPRESSION------------------------//MIPS DONE
+//----------------------AND EXPRESSION------------------------
 //************************************************************
 
-class BitwiseANDOp : public BaseExpression {
+class BitwiseANDOp : public BaseExpression { //MIPS DONE
 public:
     BitwiseANDOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~BitwiseANDOp() { 
@@ -792,17 +832,14 @@ public:
         //AND into destreg
         int op1 = $8, op2 = $9;
         if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1}, instructions);
+            context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
-            
-            context.pushToStack({op2}, instructions);
             expr2->generateMIPS(context, instructions, op2);
 
             //and destreg, op1, op2
             instructions.push_back({"and", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
 
-            context.pullFromStack({op1}, instructions);
-            context.pullFromStack({op2}, instructions);
+            context.pullFromStack({op2,op1}, instructions);
         }
     }
 
@@ -811,10 +848,10 @@ protected:
 };
 
 //************************************************************
-//-----------------EXCLUSIVE OR EXPRESSION--------------------//MIPS DONE
+//-----------------EXCLUSIVE OR EXPRESSION--------------------
 //************************************************************
 
-class BitwiseExclusiveOROp : public BaseExpression {
+class BitwiseExclusiveOROp : public BaseExpression { //MIPS DONE
 public:
     BitwiseExclusiveOROp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~BitwiseExclusiveOROp() { 
@@ -828,12 +865,12 @@ public:
         expr2->print(os, level+1);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //evaluate expr1 and 2
         //XOR into destreg
         int op1 = $8, op2 = $9;
         if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1}, instructions);
+            context.pushToStack({op1, op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
             
             context.pushToStack({op2}, instructions);
@@ -842,8 +879,7 @@ public:
             //and destreg, op1, op2
             instructions.push_back({"xor", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
 
-            context.pullFromStack({op1}, instructions);
-            context.pullFromStack({op2}, instructions);
+            context.pullFromStack({op2,op1}, instructions);
         }
     }
 
@@ -852,10 +888,10 @@ protected:
 };
 
 //************************************************************
-//-----------------INCLUSIVE OR EXPRESSION--------------------//MIPS DONE
+//-----------------INCLUSIVE OR EXPRESSION--------------------
 //************************************************************
 
-class BitwiseInclusiveOROp : public BaseExpression {
+class BitwiseInclusiveOROp : public BaseExpression { //MIPS DONE
 public:
     BitwiseInclusiveOROp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~BitwiseInclusiveOROp() { 
@@ -869,22 +905,19 @@ public:
         expr2->print(os, level+1);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //evaluate expr1 and 2
         //OR into destreg
         int op1 = $8, op2 = $9;
         if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1}, instructions);
+            context.pushToStack({op1, op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
-            
-            context.pushToStack({op2}, instructions);
             expr2->generateMIPS(context, instructions, op2);
 
             //and destreg, op1, op2
             instructions.push_back({"or", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
 
-            context.pullFromStack({op1}, instructions);
-            context.pullFromStack({op2}, instructions);
+            context.pullFromStack({op2,op1}, instructions);
         }
     }
 
@@ -893,10 +926,10 @@ protected:
 };
 
 //************************************************************
-//------------------LOGICAL AND EXPRESSION--------------------//MIPS DONE
+//------------------LOGICAL AND EXPRESSION--------------------
 //************************************************************
 
-class LogicalANDOp : public BaseExpression {
+class LogicalANDOp : public BaseExpression { //MIPS DONE
 public:
     LogicalANDOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~LogicalANDOp() { 
@@ -918,15 +951,13 @@ public:
         os << ")";
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
         //evaluate expr1 and 2
         //1 into destreg if either operand is positive?
         int op1 = $8, op2 = $9;
         if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1}, instructions);
+            context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
-            
-            context.pushToStack({op2}, instructions);
             expr2->generateMIPS(context, instructions, op2);
 
             //slt op1, $0, op1
@@ -936,8 +967,7 @@ public:
             //and destreg, op1, op2
             instructions.push_back({"and", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
 
-            context.pullFromStack({op1}, instructions);
-            context.pullFromStack({op2}, instructions);
+            context.pullFromStack({op2,op1}, instructions);
         }
     }
 
@@ -946,10 +976,10 @@ protected:
 };
 
 //************************************************************
-//------------------LOGICAL OR EXPRESSION---------------------//MIPS DONE
+//------------------LOGICAL OR EXPRESSION---------------------
 //************************************************************
 
-class LogicalOROp : public BaseExpression {
+class LogicalOROp : public BaseExpression { //MIPS DONE
 public:
     LogicalOROp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~LogicalOROp() { 
@@ -971,24 +1001,23 @@ public:
         os << ")";
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
         //evaluate expr1 and 2
         //1 into destreg if either operand is positive?
         int op1 = $8, op2 = $9;
         if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1}, instructions);
+            context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
-            
-            context.pushToStack({op2}, instructions);
             expr2->generateMIPS(context, instructions, op2);
 
             //slt destReg, $0, op1
-            instructions.push_back({"slt", regMap[destReg], "$0", regMap[op1], 0, Instruction::SSS});
+            instructions.push_back({"slt", regMap[op1], regMap[$0], regMap[op1], 0, Instruction::SSS});
             //slt destReg, $0, op2
-            instructions.push_back({"slt", regMap[destReg], "$0", regMap[op2], 0, Instruction::SSS});
+            instructions.push_back({"slt", regMap[op2], regMap[$0], regMap[op2], 0, Instruction::SSS});
+            //slt destReg, $0, op2
+            instructions.push_back({"or", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
 
-            context.pullFromStack({op1}, instructions);
-            context.pullFromStack({op2}, instructions);
+            context.pullFromStack({op2,op1}, instructions);
         }
     }
 
@@ -1005,7 +1034,7 @@ public:
     ConditionalOp(BaseExpression *_expr1, BaseExpression *_expr2, BaseExpression *_expr3) : expr1(_expr1), expr2(_expr2), expr3(_expr3) {}
     ~ConditionalOp() { 
         delete expr1;
-        delete expr2; 
+        delete expr2;
         delete expr3;
     }
 
@@ -1019,7 +1048,7 @@ public:
         expr3->print(os, level+2);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
         //evaluate ternary condition
         //branch to 1st label if true
         //branch to 2nd if false
