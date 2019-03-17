@@ -159,7 +159,7 @@ protected:
 //-------------------SELECTION STATEMENT----------------------
 //************************************************************
 
-class IfStatement : public BaseNode {
+class IfStatement : public BaseNode {               //MIPS DONE
 public:
     IfStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~IfStatement() {
@@ -187,10 +187,16 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string falseLabel = context.makeALabel("false");
         int reg = $8;
-        //TODO: cmp with 0, branch if true, restore destReg
         context.pushToStack({reg}, instructions);
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
+        context.addScope(instructions);
+        context.statementFlags().indiCompound = false;
+        statement->generateMIPS(context, instructions);
+        context.statementFlags().indiCompound = true;
+        context.subScope(instructions);
+        instructions.push_back({"lebel", falseLabel, "", "", 0, Instruction::L});
+        context.pullFromStack({reg}, instructions);
     }
 
 protected:
@@ -198,7 +204,7 @@ protected:
     BaseNode *statement;
 };
 
-class IfElseStatement : public BaseNode {
+class IfElseStatement : public BaseNode {           //MIPS DONE
 public:
     IfElseStatement(BaseExpression *_expr, BaseNode *_statementTrue, BaseNode *_statementFalse) : expr(_expr), statementTrue(_statementTrue), statementFalse(_statementFalse) {}
     ~IfElseStatement() {
@@ -228,6 +234,31 @@ public:
         context.addScope();
         statementFalse->printPy(os, context);
         context.subScope();
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        std::string trueLabel = context.makeALabel("true");
+        std::string falseLabel = context.makeALabel("false");
+        int reg = $8;
+        context.pushToStack({reg}, instructions);
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
+        context.addScope(instructions);
+        context.statementFlags().indiCompound = false;
+        statementTrue->generateMIPS(context, instructions);
+        context.statementFlags().indiCompound = true;
+        context.subScope(instructions);
+        instructions.push_back({"bne", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
+
+        instructions.push_back({"label", falseLabel, "", "", 0, Instruction::L});
+        context.addScope(instructions);
+        context.statementFlags().indiCompound = false;
+        statementFalse->generateMIPS(context, instructions);
+        context.statementFlags().indiCompound = true;
+        context.subScope(instructions);
+
+        instructions.push_back({"label", trueLabel, "", "", 0, Instruction::L});
+        context.pullFromStack({reg}, instructions);
     }
 
 protected:
@@ -349,11 +380,11 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         bool indiCompound = context.statementFlags().indiCompound;
         if (indiCompound)
-            context.addScope();
+            context.addScope(instructions);
         if (declarationList != NULL) declarationList->generateMIPS(context, instructions);
         if (statementList != NULL) statementList->generateMIPS(context, instructions);
         if (indiCompound)
-            context.subScope();
+            context.subScope(instructions);
     }
 
 protected:

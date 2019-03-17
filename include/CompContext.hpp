@@ -79,6 +79,8 @@ struct CompContext {
             bool indiCompound = true;
             std::string continueFlag, breakFlag;
         } statementFlags;
+
+        int stackOffset;
     };
 
     std::map<std::string, funcStruct> funcMap;
@@ -137,22 +139,37 @@ struct CompContext {
         stack.back().varMap[tempDec.identifier] = {tempDec.type, offset};
     }
 
-    void addScope() {                   // will only effect context
+    void addScopeContext() {
         if (stack.size() > 0) {
-            //stack.push_back(stackStruct(stack.back()));
             stack.push_back(stack.back());
         } else {
             stack.push_back({});
         }
     }
 
-    void subScope() {                   // will only effect context
+    void subScopeContext() {
+        stack.pop_back();
+    }
+
+    void addScope(std::vector<Instruction> &instructions) {
+        if (stack.size() > 0) {
+            stack.push_back(stack.back());
+            stack.back().stackOffset = memUsed;     // record location of the stack
+        } else {
+            stack.push_back({});
+        }
+    }
+
+    void subScope(std::vector<Instruction> &instructions) {
+        int offset = memUsed - stack.back().stackOffset;
+        instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", offset, Instruction::SSN});   // push $sp back to where it was
         stack.pop_back();
     }
 
     void addScopeFunc(std::vector<Instruction> &instructions) {
-        addScope();
+        addScopeContext();
 
+        instructions.push_back({".type", stack.back().decFlags.funcName, "@function", "", 0, Instruction::SS});
         instructions.push_back({"label", stack.back().decFlags.funcName, "", "", 0, Instruction::L});
 
         // store up to 4 function args on the prev stack frame
@@ -172,7 +189,7 @@ struct CompContext {
         instructions.push_back({"jr", regMap[$ra], "", "", 0, Instruction::S}); // jump back to return address
         memUsed = 0;
 
-        subScope();
+        subScopeContext();
     }
 };
 
