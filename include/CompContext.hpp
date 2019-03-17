@@ -169,6 +169,7 @@ struct CompContext {
     void addScopeFunc(std::vector<Instruction> &instructions) {
         addScopeContext();
 
+        instructions.push_back({".global", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
         instructions.push_back({".type", stack.back().decFlags.funcName, "@function", "", 0, Instruction::SS});
         instructions.push_back({"label", stack.back().decFlags.funcName, "", "", 0, Instruction::L});
 
