@@ -45,6 +45,14 @@ public:
         os << (int)constant;
     }
 
+    double eval() {
+        return constant;
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        instructions.push_back({"li", regMap[destReg], "", "", (int)constant, Instruction::SN});
+    }
+
 protected:
     double constant;
 };
@@ -893,6 +901,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int op1 = $8, op2 = $9;
         context.pushToStack({op1,op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
         expr2->generateMIPS(context, instructions, op2);
