@@ -695,10 +695,10 @@ public:
 
             //sub op2 from op1
             instructions.push_back({"sub", regMap[op1], regMap[op1], regMap[op2], 0, Instruction::SSS});
-            //skip next instruction if less than zero
-            instructions.push_back({"bltz", regMap[op1], 2, Instruction::SN});
             //branch delay slot, always happens
             instructions.push_back({"addi", regMap[destReg], regMap[$0], 0, Instruction::SSN});
+            //skip next instruction if less than zero
+            instructions.push_back({"bltz", regMap[op1], "", "", 2, Instruction::SN});
             //gets skipped if branch was true
             instructions.push_back({"addi", regMap[destReg], regMap[$0], 1, Instruction::SSN});
 
