@@ -75,9 +75,6 @@ struct CompContext {
             bool functionDef, functionBody, init;
             std::string funcName;
         } decFlags;
-
-        int fpOffset;
-        int raOffset;
     };
 
     std::map<std::string, funcStruct> funcMap;
@@ -158,18 +155,16 @@ struct CompContext {
             writeStack(reg, memUsed - offset, instructions);
         }
 
-        pushToStack({$ra}, instructions);           // $ra needs saving
-        stack.back().raOffset = memUsed;            // need to remember where it was saved
-        pushToStack({$fp}, instructions);           // $fp needs saving
-        stack.back().fpOffset = memUsed;            // need to remember where it was saved
+        pushToStack({$ra, $fp}, instructions);           // $ra and $fp need saving
     }
 
     void subScopeFunc(std::vector<Instruction> &instructions) {
         instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
 
-        readStack($fp, stack.back().fpOffset, instructions);
-        readStack($ra, stack.back().raOffset, instructions);
+        readStack($fp, 8, instructions);
+        readStack($ra, 4, instructions);
         instructions.push_back({"move", regMap[$sp], regMap[$fp], "", 0, Instruction::SS});   // move $sp to $fp
+        memUsed = 0;
 
         subScope();
     }
