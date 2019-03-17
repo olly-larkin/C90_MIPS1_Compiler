@@ -45,6 +45,10 @@ public:
         os << (int)constant;
     }
 
+    double eval() {
+        return constant;
+    }
+
 protected:
     double constant;
 };

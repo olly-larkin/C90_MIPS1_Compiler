@@ -32,11 +32,12 @@ struct Instruction {
     std::string name;
     std::string arg1, arg2, arg3;
     long int number;
-    enum { SSS, SSN, SN, SS, S, N, LS, E, L } printMethod;  
+    enum { SSS, SSN, SN, SS, S, N, LS, E, L, LIST } printMethod;  
     // LS = load/store
     // E = empty (nop)
     // L = label
     // D = dot (e.g. .text)
+    // LIST = toggle new line
 };
 
 struct CompContext {
@@ -85,6 +86,7 @@ struct CompContext {
     };
 
     std::map<std::string, funcStruct> funcMap;
+    std::map<std::string, Type> globals;
 
     struct {
         bool typeDef;
@@ -131,13 +133,17 @@ struct CompContext {
     }
 
     void addDeclaration(std::vector<Instruction> &instructions) {
-        int length = tempDec.type.length();
-        int offset = memUsed + 4;
-        for (int i = 0; i < length; i += 4) {
-            memUsed += 4;
-            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
+        if (stack.size() != 1) {    // in global scope
+            int length = tempDec.type.length();
+            int offset = memUsed + 4;
+            for (int i = 0; i < length; i += 4) {
+                memUsed += 4;
+                instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
+            }
+            stack.back().varMap[tempDec.identifier] = {tempDec.type, offset};
+        } else {
+            globals[tempDec.identifier] = tempDec.type;
         }
-        stack.back().varMap[tempDec.identifier] = {tempDec.type, offset};
     }
 
     void addScopeContext() {
@@ -163,6 +169,7 @@ struct CompContext {
 
     void subScope(std::vector<Instruction> &instructions) {
         int offset = memUsed - stack.back().stackOffset;
+        instructions.push_back({".text", "", "", "", 0, Instruction::E});
         instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", offset, Instruction::SSN});   // push $sp back to where it was
         stack.pop_back();
     }
