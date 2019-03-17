@@ -5,45 +5,58 @@
 #include "ast.hpp"
 
 void printVec(std::ostream &os, const std::vector<Instruction> &instr) {
+    bool newLines = true;
     for (int i = 0; i < (int)instr.size(); ++i) {
         switch(instr[i].printMethod) {
             case Instruction::SSS:
-                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << ", " << instr[i].arg3 << std::endl;
+                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << ", " << instr[i].arg3;
+                if (newLines) os << std::endl;
                 break;
             case Instruction::SSN:
-                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << ", " << instr[i].number << std::endl;
+                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << ", " << instr[i].number;
+                if (newLines) os << std::endl;
                 break;
             case Instruction::SN:
-                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].number << std::endl;
+                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].number;
+                if (newLines) os << std::endl;
                 break;
             case Instruction::SS:
-                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << std::endl;
+                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2;
+                if (newLines) os << std::endl;
                 if (instr[i].name[0] == 'j')
                     os << "nop" << std::endl;
                 break;
             case Instruction::S:
-                os << instr[i].name << " " << instr[i].arg1 << std::endl;
+                os << instr[i].name << " " << instr[i].arg1;
+                if (newLines) os << std::endl;
                 if (instr[i].name[0] == 'j')
                     os << "nop" << std::endl;
                 break;
             case Instruction::N:
-                os << instr[i].name << " " << instr[i].number << std::endl;
+                os << instr[i].name << " " << instr[i].number;
+                if (newLines) os << std::endl;
                 if (instr[i].name[0] == 'j')
                     os << "nop" << std::endl;
                 break;
             case Instruction::LS:
-                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].number << "(" << instr[i].arg2 << ")" << std::endl;
+                os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].number << "(" << instr[i].arg2 << ")";
+                if (newLines) os << std::endl;
                 os << "nop" << std::endl;
                 break;
             case Instruction::E:
-                os << instr[i].name << std::endl;
+                if (instr[i].name != "nop" && newLines)
+                    os << std::endl;
+                os << instr[i].name;
+                if (newLines) os << std::endl;
                 break;
             case Instruction::L:
                 os << std::endl;
-                os << instr[i].arg1 << ":" << std::endl;
+                os << instr[i].arg1 << ":";
+                if (newLines) os << std::endl;
                 break;
-            case Instruction::D:
-                os << instr[i].name << std::endl;
+            case Instruction::LIST:
+                newLines = !newLines;
+                break;
         }
     }
 }

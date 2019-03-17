@@ -271,10 +271,30 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        if (context.decFlags().functionDef)
+        if (context.decFlags().functionDef) {
             context.decFlags().funcName = identifier;
-        else
+        } else if (context.decFlags().init && context.stack.size() == 1) {      // is it initializing and global
+            // means it missed the initializer
+            instructions.push_back({".data", "", "", "", 0, Instruction::E});
+            instructions.push_back({"list_start","","","",0, Instruction::LIST});
+            instructions.push_back({"label", context.tempDec.identifier, "", "", 0, Instruction::L});
+            int zeroNum = 1;
+            for (int i = 0; i < context.tempDec.type.arraySizes.size(); ++i) {
+                zeroNum *= context.tempDec.type.arraySizes[i];
+            }
+            if (zeroNum == 1) instructions.push_back({"list_end","","","",0, Instruction::LIST});    // new line if not an array
+            instructions.push_back({" .word", "", "", "", 0, Instruction::N});
+            for (int i = 1; i < zeroNum - 1; ++i) {
+                instructions.push_back({",", "", "", "", 0, Instruction::N});
+            }
+            if (zeroNum != 1) {
+                instructions.push_back({"list_end","","","",0, Instruction::LIST}); // last element
+                instructions.push_back({",", "", "", "", 0, Instruction::N});
+            }
+
+        } else {
             context.tempDec.identifier = identifier;
+        }
     }
 
 protected:
@@ -300,7 +320,7 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         dec->generateMIPS(context, instructions);
-        context.tempDec.type.arraySizes.push_back(expr->eval());
+        if (!context.decFlags().init) context.tempDec.type.arraySizes.push_back(expr->eval());
     }
 
 protected:
@@ -360,7 +380,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.tempDec.type.pointerNum = pointer->size();
+        if (!context.decFlags().init) context.tempDec.type.pointerNum = pointer->size();
         dec->generateMIPS(context, instructions);
     }
 
@@ -623,11 +643,21 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         if (context.decFlags().init) {
-            int reg = $t0;
-            context.pushToStack({reg}, instructions);
-            init->generateMIPS(context, instructions, reg);
-            context.writeStack(reg, context.varMap()[context.tempDec.identifier].offset, instructions);
-            context.pullFromStack({reg}, instructions);
+            if (context.stack.size() == 1) {    // global scope
+
+                instructions.push_back({".data", "", "", "", 0, Instruction::E});
+                instructions.push_back({"list_start","","","",0, Instruction::LIST});
+                instructions.push_back({"label", context.tempDec.identifier, "", "", 0, Instruction::L});
+                instructions.push_back({"list_end","","","",0, Instruction::LIST});
+                instructions.push_back({" .word", "", "", "", (int)(init->eval()), Instruction::N});
+
+            } else {                // not global scope
+                int reg = $t0;
+                context.pushToStack({reg}, instructions);
+                init->generateMIPS(context, instructions, reg);
+                context.writeStack(reg, context.varMap()[context.tempDec.identifier].offset, instructions);
+                context.pullFromStack({reg}, instructions);
+            }
         } else {
             dec->generateMIPS(context, instructions);
         }

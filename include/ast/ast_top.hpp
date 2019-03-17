@@ -98,7 +98,6 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        instructions.push_back({".text", "", "", "", 0, Instruction::D});
         context.addScope(instructions);
         topList->generateMIPS(context, instructions);
         context.subScope(instructions);
