@@ -28,23 +28,6 @@ const static std::map<typeEnum, std::string> typeStrings = {   // mainly for pri
     {UNSIGNED_T, "unsigned"}
 };
 
-struct varStruct;
-
-struct Type {
-    int pointerNum;
-    int length;
-    std::vector< std::pair<typeEnum, std::string> > typeSpecifiers;     // this will hold types, string only for typedef types
-    std::vector< int > arraySizes;                              // each element represents a new dimention
-    std::vector< std::pair<varStruct, std::string> > parameters;     // only for function type
-    std::vector< std::pair<Type, std::string> > structBody;     // TODO: need to add bit field to this..?
-    std::vector< std::pair<std::string, int> > enumVals;        // only for enumerated values
-};
-
-struct varStruct {
-    Type type; 
-    int offset;
-};
-
 struct Instruction {
     std::string name;
     std::string arg1, arg2, arg3;
@@ -61,112 +44,129 @@ struct CompContext {
         return "_" + str + "_" + std::to_string(id++);
     }
 
+    struct Type {
+        int pointerNum;
+        std::vector< std::pair<typeEnum, std::string> > typeSpecifiers;     // this will hold types, string only for typedef types
+        std::vector< int > arraySizes;                              // each element represents a new dimention
+
+        int length() {
+            int ret = 1;
+            if (pointerNum == 0)
+                for (int i = 0; i < (int)arraySizes.size(); ++i)
+                    ret *= arraySizes[i];
+            return ret;
+        }
+    };
+    
+    struct varStruct {
+        Type type; 
+        int offset;
+    };
+
+    struct funcStruct {
+        Type retType;
+        std::vector< std::pair<std::string, varStruct> > params;
+    };
+
     struct stackStruct {
         std::map<std::string, varStruct> varMap;
         std::map<std::string, Type> typeMap;
-        bool functionDef = false;
-        bool paramDec = false;
-        bool functionCall = false;
+        struct decFlagStruct {
+            bool functionDef, functionBody, init;
+            std::string funcName;
+        } decFlags;
     };
 
-    std::string currentFunc;
+    std::map<std::string, funcStruct> funcMap;
 
-    struct tempTypeStruct {
+    struct {
         bool typeDef;
-        int offset;
         std::string identifier;
         Type type;
-    } tempDec, tempParam;                     // as declarations happen, info should be pushed into tempType (will be handled after in declaration node)
-
-    tempTypeStruct &tempType() {
-        if (paramDec())
-            return tempParam;
-        else
-            return tempDec;
-    }
+    } tempDec;                     // as declarations happen, info should be pushed into tempType (will be handled after in declaration node)
 
     std::vector<stackStruct> stack;         // to keep track of scopes and context
 
     //******* PASS THROUGHS ************
     std::map<std::string, varStruct>& varMap() { return stack.back().varMap; }
     std::map<std::string, Type>& typeMap() { return stack.back().typeMap; }
-    bool& functionDef() { return stack.back().functionDef; }
-    bool& paramDec() { return stack.back().paramDec; }
-    bool& functionCall() { return stack.back().functionCall; }   
+    stackStruct::decFlagStruct& decFlags() { return stack.back().decFlags; }
+    funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 
     int memUsed = 0;
 
-    //TODO: double check this
-    int addToStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
-        // reg array for when size > 1 multiple registers need to be used or can store multiple registers at the same time
-        // should return offset from start of stack
-        int offset = memUsed;
+    void pushToStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
         for(int i = 0; i < (int)reg.size(); ++i) {
-            memUsed += 4;
+            memUsed += 4;                   // increment then store
+            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
             instructions.push_back({"sw", regMap[reg[i]], regMap[$sp], "", 0, Instruction::LS});
+        }
+    }
+
+    void pullFromStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
+        for(int i = 0; i < (int)reg.size(); ++i) {      
+            instructions.push_back({"lw", regMap[reg[i]], regMap[$sp], "", 0, Instruction::LS});
+            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", 4, Instruction::SSN});
+            memUsed -= 4;           // read then decrement
+        }
+    }
+
+    void writeStack(int reg, int offset, std::vector<Instruction> &instructions) {
+        int spOffset = memUsed - offset;
+        instructions.push_back({"sw", regMap[reg], regMap[$sp], "", spOffset, Instruction::LS});
+    }
+
+    void readStack(int reg, int offset, std::vector<Instruction> &instructions) {
+        int spOffset = memUsed - offset;
+        instructions.push_back({"lw", regMap[reg], regMap[$sp], "", spOffset, Instruction::LS});
+    }
+
+    void addDeclaration(std::vector<Instruction> &instructions) {
+        int length = tempDec.type.length();
+        int offset = memUsed + 4;
+        for (int i = 0; i < length; ++i) {
+            memUsed += 4;
             instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
         }
-        return offset;
+        stack.back().varMap[tempDec.identifier] = {tempDec.type, offset};
     }
 
-    //TODO: double check this
-    void takeFromStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
-        // reg array for when size > 1 multiple registers need to be used or can load multiple registers at the same time
-        for(int i = 0; i < (int)reg.size(); ++i) {
-            memUsed -= 4;
-            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", 4, Instruction::SSN});
-            instructions.push_back({"lw", regMap[reg[i]], regMap[$sp], "", 0, Instruction::LS});
-        }
-    }
-
-    void addScopeContext() {
+    void addScope() {                   // will only effect context
         if (stack.size() > 0) {
+            //stack.push_back(stackStruct(stack.back()));
             stack.push_back(stack.back());
-            functionDef() = false;
-            paramDec() = false;
-            functionCall() = false;
-            //TODO: make sure to set other flags to false
         } else {
             stack.push_back({});
         }
     }
 
-    void subScopeContext() {
+    void subScope() {                   // will only effect context
         stack.pop_back();
     }
 
-    void addScope(std::vector<Instruction> &instructions) {
-        if (stack.size() > 0) {
-            stack.push_back(stack.back());
-            functionDef() = false;
-            paramDec() = false;
-            functionCall() = false;
-            //TODO: make sure to set other flags to false
-            addToStack({$fp}, instructions);
-            instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 4, Instruction::SSN});
-        } else {
-            stack.push_back({});
+    void addScopeFunc(std::vector<Instruction> &instructions) {
+        addScope();
+
+        instructions.push_back({"label", stack.back().decFlags.funcName, "", "", 0, Instruction::L});
+
+        // store up to 4 function args on the prev stack frame
+        for (int reg = $4, offset = 0; offset < (int)funcMap[decFlags().funcName].params.size()*4 && offset < 16; ++reg, offset += 4 ) {
+            writeStack(reg, memUsed - offset, instructions);
         }
+
+        pushToStack({$ra, $fp}, instructions);           // $ra and $fp need saving
     }
 
-    void subScope(std::vector<Instruction> &instructions) {
-        stack.pop_back();
-        // $sp = $fp   ->   $fp = read($fp)
-        instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});
-        instructions.push_back({"lw", regMap[$fp], regMap[$fp], "", 0, Instruction::LS});
-    }
+    void subScopeFunc(std::vector<Instruction> &instructions) {
+        instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
 
-    void funcCallStackPush(std::vector<Instruction> &instructions) {     // called before function call
-        // Items needed on the stack:   (TODO: may need to make this save $s registers to be ISA compliant)
-        //      -> $4 / $a0  (function argument pointer)
-        //      -> $31 / $ra  (return address for function)
-        addToStack({$a0, $ra}, instructions);
-    }
+        readStack($fp, 8, instructions);
+        readStack($ra, 4, instructions);
+        instructions.push_back({"move", regMap[$sp], regMap[$fp], "", 0, Instruction::SS});   // move $sp to $fp
+        memUsed = 0;
 
-    void funcCallStackPull(std::vector<Instruction> &instructions) {    // called after function call
-        // take items off stack
-        takeFromStack({$ra, $a0}, instructions);
+        subScope();
     }
 };
 

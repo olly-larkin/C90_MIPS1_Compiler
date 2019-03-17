@@ -18,20 +18,21 @@ public:
         os << identifier;
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        if (context.functionCall()) {
-            context.currentFunc = identifier;
-            //TODO: may need more
-        } else {
-            //TODO: needs doing
-        }
+    int offset(CompContext &context) {
+        int offset = 0;
+        if (context.decFlags().functionBody)
+            for (int i = 0; i < (int)context.currentFunc().params.size(); ++i)
+                if (context.currentFunc().params[i].first == identifier)
+                    offset = context.currentFunc().params[i].second.offset;
+        //TODO: check varMap
+        return offset;
     }
 
 protected:
     std::string identifier;
 };
 
-class PrimaryExprConstant : public BaseExpression {     //MIPS DONE..?
+class PrimaryExprConstant : public BaseExpression {     
 public:
     PrimaryExprConstant(double _constant) : constant(_constant) {}
     ~PrimaryExprConstant() {}
@@ -42,11 +43,6 @@ public:
 
     void printPy(std::ostream &os, PyContext &context) {
         os << (int)constant;
-    }
-
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        instructions.push_back({"addi", regMap[destReg], regMap[$0], "", (int)constant, Instruction::SSN});
-        //TODO: might need to change int casting or creating new primaries
     }
 
 protected:
@@ -64,6 +60,10 @@ public:
 
     void printPy(std::ostream &os, PyContext &context) {
         os << literal;
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //oh god
     }
 
 protected:
@@ -88,6 +88,11 @@ public:
         postfix->print(os, level+2);
         os << indent(level+1) << "Index: " << std::endl;
         index->print(os, level+2);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //check variable map
+        //return desired value via stack offset into destreg?
     }
 
 protected:
@@ -119,19 +124,6 @@ public:
         os << ")";
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.funcCallStackPush(instructions);
-        context.functionCall() = true;
-        postfix->generateMIPS(context, instructions);   // should set currentFunc
-        // make $a0 current SP (for function args)
-        instructions.push_back({"addi", regMap[$a0], regMap[$sp], "", 0, Instruction::LS});
-        argList->generateMIPS(context, instructions);   // should update reg 4 and 
-        context.functionCall() = false;
-        instructions.push_back({"jal", context.currentFunc, "", "", 0, Instruction::S});
-        context.funcCallStackPull(instructions);
-        // TODO: probs wont work... fix it
-    }
-
 protected:
     BaseExpression *postfix;
     BaseList *argList;
@@ -148,6 +140,9 @@ public:
         os << indent(level+1) << "Identifier: " << identifier << std::endl;
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //jesus fuck
+    }
 protected:
     BaseExpression *postfix;
     std::string identifier;
@@ -164,6 +159,9 @@ public:
         os << indent(level+1) << "Identifier: " << identifier << std::endl;
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //oh help
+    }
 protected:
     BaseExpression *postfix;
     std::string identifier;
@@ -179,6 +177,13 @@ public:
         postfix->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //check variable map
+        //take value into destreg
+        //subtract 1 into tempReg
+        //store tempreg back to location
+    }
+
 protected:
     BaseExpression *postfix;
 };
@@ -191,6 +196,13 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Postfix Incremeent (++):" << std::endl;
         postfix->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //check variable map
+        //take value into destreg
+        //add 1 into tempReg
+        //store tempreg back to location
     }
 
 protected:
@@ -211,6 +223,13 @@ public:
         expr->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //check variable map
+        //take value into destreg
+        //subtract 1
+        //store destreg back to location
+    }
+
 protected:
     BaseExpression *expr;
 };
@@ -223,6 +242,13 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Prefix Increment (++):" << std::endl;
         expr->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //check variable map
+        //take value into destreg
+        //add 1
+        //store destreg back to location
     }
 
 protected:
@@ -253,6 +279,10 @@ public:
         type->print(os, level+1);
     } 
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //fuck if I know
+    }
+
 protected:
     BaseNode *type;
 };
@@ -265,7 +295,11 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Reference Operator (&):" << std::endl;
         expr->print(os, level+1);
-    } 
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //return a logical address: frame pointer + frame offset?
+    }
 
 protected:
     BaseExpression *expr;
@@ -279,7 +313,11 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Dereference Operator (*):" << std::endl;
         expr->print(os, level+1);
-    } 
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //interpret a logical address: frame pointer + frame offset, fetch data?
+    }
 
 protected:
     BaseExpression *expr;
@@ -301,6 +339,11 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //evaluate what's inside
+        //2's complement the destreg
+    }
+
 protected:
     BaseExpression *expr;
 };
@@ -315,6 +358,10 @@ public:
         expr->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //evaluate what's inside
+        //bitwise inversion?
+    }
 protected:
     BaseExpression *expr;
 };
@@ -351,6 +398,11 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //divide into HI and LO
+        //put LO(?) into destreg
+    }
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -367,6 +419,12 @@ public:
         os << indent(level) << "Divide Operator (/):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //divide into HI and LO
+        //put HI(?) into destreg
     }
 
 protected:
@@ -393,6 +451,12 @@ public:
         os << "*";
         expr2->printPy(os, context);
         os << ")";
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //mul into HI and LO
+        //put LO(?) into destreg(s)
     }
 
 protected:
@@ -425,6 +489,12 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //add into destreg
+        //overflow?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -451,6 +521,12 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //sub into destreg
+        //overflow?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -473,6 +549,12 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //lsl into destreg
+        //overflow?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -489,6 +571,12 @@ public:
         os << indent(level) << "Rigth Shift Operator (>>):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //asr into destreg
+        //overflow?
     }
 
 protected:
@@ -521,6 +609,12 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //slt into destreg
+        //signed, unsigned comparison?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -545,6 +639,12 @@ public:
         os << " > ";
         expr2->printPy(os, context);
         os << ")";
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate op1 and 2
+        //slt the other way into destreg
+        //signed, unsigned comparison?
     }
 
 protected:
@@ -613,6 +713,12 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate expr1 and 2
+        //bne, and if no branch mov 1 into destreg
+        //signed, unsigned comparison?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -639,6 +745,12 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate expr1 and 2
+        //beq, and if no branch mov 1 into destreg
+        //signed, unsigned comparison?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -659,6 +771,11 @@ public:
         os << indent(level) << "Bitwise AND Operator (&):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate expr1 and 2
+        //AND into destreg
     }
 
 protected:
@@ -683,6 +800,11 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate expr1 and 2
+        //XOR into destreg
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -703,6 +825,11 @@ public:
         os << indent(level) << "Bitwise Inclusive OR Operator (|):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate expr1 and 2
+        //OR into destreg
     }
 
 protected:
@@ -735,6 +862,11 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement shORT CIRCUIT
+        //evaluate expr1 and 2
+        //1 into destreg if both operands are positive?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -765,6 +897,11 @@ public:
         os << ")";
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate expr1 and 2
+        //1 into destreg if either operand is positive?
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -790,6 +927,14 @@ public:
         expr2->print(os, level+2);
         os << indent(level+1) << "If False:" << std::endl;
         expr3->print(os, level+2);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate ternary condition
+        //branch to 1st label if true
+        //branch to 2nd if false
+        //generate first label and code with a jump to the end label
+        //generate second label and code
     }
 
 protected:
@@ -820,6 +965,13 @@ public:
         expr2->printPy(os, context);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate RHS
+        //check variable map
+        //if present, go to stack offset and change value
+        //else put a new value on the stack offset
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -836,6 +988,11 @@ public:
         os << indent(level) << "Add Assignment (+=):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate OP1,2
+        //add and put into OP1's stack location? (overflow?)
     }
 
 protected:
@@ -856,6 +1013,11 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate OP1,2
+        //sub and put into OP1's stack location? (overflow?)
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -872,6 +1034,11 @@ public:
         os << indent(level) << "Multiply Assignment (*=):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
+        //evaluate OP1,2
+        //mul and put into OP1's stack location? (overflow?)
     }
 
 protected:
@@ -1029,10 +1196,6 @@ public:
             os << ", ";
         }
         expr->printPy(os, context);
-    }
-
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //TODO: add each argument onto stack and context
     }
 
 protected:
