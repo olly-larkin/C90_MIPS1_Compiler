@@ -623,11 +623,11 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         if (context.decFlags().init) {
-            int destReg = $t0;
-            context.pushToStack({destReg}, instructions);
-            init->generateMIPS(context, instructions, destReg);
-            context.writeStack(destReg, context.varMap()[context.tempDec.identifier].offset, instructions);
-            context.pullFromStack({destReg}, instructions);
+            int reg = $t0;
+            context.pushToStack({reg}, instructions);
+            init->generateMIPS(context, instructions, reg);
+            context.writeStack(reg, context.varMap()[context.tempDec.identifier].offset, instructions);
+            context.pullFromStack({reg}, instructions);
         } else {
             dec->generateMIPS(context, instructions);
         }

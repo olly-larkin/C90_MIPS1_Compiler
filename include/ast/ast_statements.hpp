@@ -186,11 +186,11 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string falseLabel = context.makeALabel("false");
-        int destReg = $8;
+        int reg = $8;
         //TODO: cmp with 0, branch if true, restore destReg
-        context.pushToStack({destReg}, instructions);
-        expr->generateMIPS(context, instructions, destReg);
-        instructions.push_back({"beq", regMap[destReg], regMap[$0], falseLabel, 0, Instruction::SSS});
+        context.pushToStack({reg}, instructions);
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
     }
 
 protected:
@@ -280,11 +280,11 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int destReg = $8;
+        int reg = $8;
         if (expr != NULL) {
-            context.pushToStack({destReg}, instructions);
-            expr->generateMIPS(context, instructions, destReg);
-            context.pullFromStack({destReg}, instructions);
+            context.pushToStack({reg}, instructions);
+            expr->generateMIPS(context, instructions, reg);
+            context.pullFromStack({reg}, instructions);
         }
     }
 
