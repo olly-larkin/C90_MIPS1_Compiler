@@ -25,4 +25,5 @@ clean :
 	@rm -rf src/*.output
 	@rm -rf src/*.tab.hpp
 	@rm -rf tmp
+	@rm -rf test_program *.s *.o
 	@echo "\nall clean.\n"
