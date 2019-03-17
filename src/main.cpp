@@ -42,6 +42,8 @@ void printVec(std::ostream &os, const std::vector<Instruction> &instr) {
                 os << std::endl;
                 os << instr[i].arg1 << ":" << std::endl;
                 break;
+            case Instruction::D:
+                os << instr[i].name << std::endl;
         }
     }
 }
