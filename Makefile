@@ -1,4 +1,4 @@
-CPPFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter -Wno-unneeded-internal-declaration -Wno-unused-function
+CPPFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter -Wno-sign-compare -Wno-unused-function
 CPPFLAGS += -I include
 
 all : clean bin/print_tree bin/c_compiler
