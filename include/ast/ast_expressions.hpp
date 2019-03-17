@@ -18,14 +18,16 @@ public:
         os << identifier;
     }
 
-    int offset(CompContext &context) {
-        int offset = 0;
-        if (context.decFlags().functionBody)
-            for (int i = 0; i < (int)context.currentFunc().params.size(); ++i)
-                if (context.currentFunc().params[i].first == identifier)
-                    offset = context.memUsed + i*4;     // this gives offset from start of function frame -> offset from stack = memUsed - offset (where offset has just been calced)
-        //TODO: check varMap
-        return offset;
+    offsetRet offset(CompContext &context) { 
+        if (context.local(identifier)) {
+
+        } else if (context.param(identifier)) {
+
+        } else {        //global variable
+            // li $t0, x            // to retrieve x value
+            // lw $t0, 0($t0)
+            return {0, identifier, true};
+        }
     }
 
 protected:

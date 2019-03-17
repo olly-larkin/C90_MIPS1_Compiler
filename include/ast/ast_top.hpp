@@ -98,9 +98,9 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        context.addScope(instructions);
+        context.addScopeContext();
         topList->generateMIPS(context, instructions);
-        context.subScope(instructions);
+        context.subScopeContext();
     }
 
 protected:

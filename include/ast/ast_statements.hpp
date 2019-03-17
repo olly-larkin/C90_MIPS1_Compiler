@@ -435,7 +435,8 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         bool indiCompound = context.statementFlags().indiCompound;
-        if (indiCompound)
+        context.statementFlags().indiCompound = true;                   // TODO: remove redundant code
+        if (indiCompound)                                         
             context.addScope(instructions);
         if (declarationList != NULL) declarationList->generateMIPS(context, instructions);
         if (statementList != NULL) statementList->generateMIPS(context, instructions);

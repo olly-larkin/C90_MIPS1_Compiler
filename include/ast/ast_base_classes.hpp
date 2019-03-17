@@ -37,6 +37,12 @@ protected:
 class BaseExpression : public AST {
 public:
     virtual double eval() { return 0; }
+    struct offsetRet {
+        int offset;
+        std::string label;
+        bool global;
+    };
+    virtual offsetRet offset(CompContext &context) { return {0, "", false}; }
 protected:
 };
 

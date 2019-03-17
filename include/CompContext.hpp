@@ -106,6 +106,18 @@ struct CompContext {
 
     int memUsed = 0;
 
+    bool local(const std::string &str) {
+        return (varMap().find(str) != varMap().end());
+    }
+
+    bool param(const std::string &str) {
+        for(int i = 0; i < currentFunc().params.size(); ++i) {
+            if (currentFunc().params[i].first == str)
+                return true;
+        }
+        return false;
+    }
+
     void pushToStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
         for(int i = 0; i < (int)reg.size(); ++i) {
             memUsed += 4;                   // increment then store
@@ -169,7 +181,6 @@ struct CompContext {
 
     void subScope(std::vector<Instruction> &instructions) {
         int offset = memUsed - stack.back().stackOffset;
-        instructions.push_back({".text", "", "", "", 0, Instruction::E});
         instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", offset, Instruction::SSN});   // push $sp back to where it was
         stack.pop_back();
     }
