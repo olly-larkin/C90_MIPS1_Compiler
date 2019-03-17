@@ -696,11 +696,11 @@ public:
             //sub op2 from op1
             instructions.push_back({"sub", regMap[op1], regMap[op1], regMap[op2], 0, Instruction::SSS});
             //branch delay slot, always happens
-            instructions.push_back({"addi", regMap[destReg], regMap[$0], 0, Instruction::SSN});
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], "", 0, Instruction::SSN});
             //skip next instruction if less than zero
             instructions.push_back({"bltz", regMap[op1], "", "", 2, Instruction::SN});
             //gets skipped if branch was true
-            instructions.push_back({"addi", regMap[destReg], regMap[$0], 1, Instruction::SSN});
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], "", 1, Instruction::SSN});
 
             context.pullFromStack({op2,op1}, instructions);
         }
@@ -747,11 +747,11 @@ public:
             expr2->generateMIPS(context, instructions, op2);
 
             //skip next instruction if equal
-            instructions.push_back({"bne", regMap[op1], regMap[op2], 2, Instruction::SSN});
+            instructions.push_back({"bne", regMap[op1], regMap[op2], "", 2, Instruction::SSN});
             //branch delay slot, always happens
-            instructions.push_back({"addi", regMap[destReg], regMap[$0], 0, Instruction::SSN});
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], "", 0, Instruction::SSN});
             //gets skipped if branch was true
-            instructions.push_back({"addi", regMap[destReg], regMap[$0], 1, Instruction::SSN});
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], "", 1, Instruction::SSN});
 
             context.pullFromStack({op2,op1}, instructions);
         }
@@ -795,11 +795,11 @@ public:
 
             
             //skip next instruction if equal
-            instructions.push_back({"beq", regMap[op1], regMap[op2], 2, Instruction::SSN});
+            instructions.push_back({"beq", regMap[op1], regMap[op2], "", 2, Instruction::SSN});
             //branch delay slot, always happens
-            instructions.push_back({"addi", regMap[destReg], regMap[$0], 0, Instruction::SSN});
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], "", 0, Instruction::SSN});
             //gets skipped if branch was true
-            instructions.push_back({"addi", regMap[destReg], regMap[$0], 1, Instruction::SSN});
+            instructions.push_back({"addi", regMap[destReg], regMap[$0], "", 1, Instruction::SSN});
 
             context.pullFromStack({op2,op1}, instructions);
         }

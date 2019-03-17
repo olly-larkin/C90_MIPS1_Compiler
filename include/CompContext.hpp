@@ -32,7 +32,7 @@ struct Instruction {
     std::string name;
     std::string arg1, arg2, arg3;
     long int number;
-    enum { SSS, SSN, SN, SS, S, N, LS, E, L, D } printMethod;  
+    enum { SSS, SSN, SN, SS, S, N, LS, E, L } printMethod;  
     // LS = load/store
     // E = empty (nop)
     // L = label
@@ -170,6 +170,7 @@ struct CompContext {
     void addScopeFunc(std::vector<Instruction> &instructions) {
         addScopeContext();
 
+        instructions.push_back({".text", "", "", "", 0, Instruction::E});
         instructions.push_back({".global", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
         instructions.push_back({".type", stack.back().decFlags.funcName, "@function", "", 0, Instruction::SS});
         instructions.push_back({"label", stack.back().decFlags.funcName, "", "", 0, Instruction::L});
