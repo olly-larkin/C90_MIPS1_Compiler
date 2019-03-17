@@ -32,10 +32,11 @@ struct Instruction {
     std::string name;
     std::string arg1, arg2, arg3;
     long int number;
-    enum { SSS, SSN, SN, SS, S, N, LS, E, L } printMethod;  
+    enum { SSS, SSN, SN, SS, S, N, LS, E, L, D } printMethod;  
     // LS = load/store
     // E = empty (nop)
     // L = label
+    // D = dot (e.g. .text)
 };
 
 struct CompContext {

@@ -5,7 +5,7 @@
 //---------------------JUMP STATEMENT-------------------------
 //************************************************************
 
-class Continue : public BaseNode {          //MIPS DONE
+class Continue : public BaseNode {                  //MIPS DONE
 public:
     Continue() {}
     ~Continue() {}
@@ -21,7 +21,7 @@ public:
 protected:
 };
 
-class Break : public BaseNode {             //MIPS DONE
+class Break : public BaseNode {                     //MIPS DONE
 public:
     Break() {}
     ~Break() {}
@@ -37,7 +37,7 @@ public:
 protected:
 };
 
-class Return : public BaseNode {            //MIPS DONE 
+class Return : public BaseNode {                    //MIPS DONE 
 public:
     Return(BaseExpression *_expr) : expr(_expr) {}
     ~Return() { if (expr != NULL) delete expr; }
@@ -71,7 +71,7 @@ protected:
 //-------------------ITERATION STATEMENT----------------------
 //************************************************************
 
-class WhileLoop : public BaseNode {
+class WhileLoop : public BaseNode {                 //MIPS DONE
 public:
     WhileLoop(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~WhileLoop() {
@@ -96,12 +96,28 @@ public:
         context.subScope();
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int reg = $8;
+        context.pushToStack({reg}, instructions);
+        context.addScope(instructions);
+        context.statementFlags().continueFlag = context.makeALabel("continue");
+        context.statementFlags().breakFlag = context.makeALabel("break");
+        instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
+        statement->generateMIPS(context, instructions);
+        instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
+        instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
+        context.subScope(instructions);
+        context.pullFromStack({reg}, instructions);
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
 };
 
-class DoWhileLoop : public BaseNode {
+class DoWhileLoop : public BaseNode {               //MIPS DONE     
 public:
     DoWhileLoop(BaseNode *_statement, BaseExpression *_expr) : statement(_statement), expr(_expr) {}
     ~DoWhileLoop() {
@@ -117,12 +133,30 @@ public:
         expr->print(os, level+2);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int reg = $8;
+        context.pushToStack({reg}, instructions);
+        context.addScope(instructions);
+
+        context.statementFlags().continueFlag = context.makeALabel("continue");
+        context.statementFlags().breakFlag = context.makeALabel("break");
+
+        instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
+        statement->generateMIPS(context, instructions);
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"bne", regMap[reg], regMap[$0], context.statementFlags().continueFlag, 0, Instruction::SSS});
+        instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
+
+        context.subScope(instructions);
+        context.pullFromStack({reg}, instructions);
+    }
+
 protected:
     BaseNode *statement;
     BaseExpression *expr;
 };
 
-class ForLoop : public BaseNode {
+class ForLoop : public BaseNode {                   //MIPS DONE
 public:
     ForLoop(BaseExpression *_expr1, BaseExpression *_expr2, BaseExpression *_expr3, BaseNode *_statement) : expr1(_expr1), expr2(_expr2), expr3(_expr3), statement(_statement)  {}
     ~ForLoop() {
@@ -148,6 +182,28 @@ public:
         }
         os << indent(level+1) << "Body:" << std::endl;
         statement->print(os, level+2);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int reg = $t0;
+        context.pushToStack({reg}, instructions);
+        context.addScope(instructions);
+        context.statementFlags().indiCompound = false;
+        context.statementFlags().continueFlag = context.makeALabel("continue");
+        context.statementFlags().breakFlag = context.makeALabel("break");
+
+        expr1->generateMIPS(context, instructions, reg);
+        instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
+        expr2->generateMIPS(context, instructions, reg);
+        instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
+        statement->generateMIPS(context, instructions);
+        expr3->generateMIPS(context, instructions, reg);
+        instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
+        instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
+
+        context.statementFlags().indiCompound = true;
+        context.subScope(instructions);
+        context.pullFromStack({reg}, instructions);
     }
 
 protected:
