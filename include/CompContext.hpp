@@ -49,8 +49,8 @@ struct CompContext {
         std::vector< std::pair<typeEnum, std::string> > typeSpecifiers;     // this will hold types, string only for typedef types
         std::vector< int > arraySizes;                              // each element represents a new dimention
 
-        int length() {
-            int ret = 1;
+        int length() {                      // as multiple of 4     TODO: when doing chars, may need to change
+            int ret = 4;
             if (pointerNum == 0)
                 for (int i = 0; i < (int)arraySizes.size(); ++i)
                     ret *= arraySizes[i];
@@ -132,7 +132,7 @@ struct CompContext {
     void addDeclaration(std::vector<Instruction> &instructions) {
         int length = tempDec.type.length();
         int offset = memUsed + 4;
-        for (int i = 0; i < length; ++i) {
+        for (int i = 0; i < length; i += 4) {
             memUsed += 4;
             instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
         }
