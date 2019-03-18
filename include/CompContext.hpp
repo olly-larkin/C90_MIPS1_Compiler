@@ -246,7 +246,10 @@ struct CompContext {
         instructions.push_back({".text", "", "", "", 0, Instruction::E});
         instructions.push_back({".global", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
         instructions.push_back({".type", stack.back().decFlags.funcName, "@function", "", 0, Instruction::SS});
-        if (stack.back().decFlags.funcName == "main") instructions.push_back({".ent", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
+        if (stack.back().decFlags.funcName == "main") {
+            instructions.push_back({".ent", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
+            metMain = true;
+        }
         instructions.push_back({"label", stack.back().decFlags.funcName, "", "", 0, Instruction::L});
 
         // store up to 4 function args on the prev stack frame
@@ -266,6 +269,8 @@ struct CompContext {
 
         subScopeContext();
     }
+
+    bool metMain = false;
 };
 
 #endif

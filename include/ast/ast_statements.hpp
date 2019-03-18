@@ -433,7 +433,7 @@ protected:
 //************************************************************
 
 class CompoundStatement : public BaseNode {         //MIPS DONE
-public:
+public: 
     CompoundStatement(BaseList *_dec, BaseList *_state) : declarationList(_dec), statementList(_state) {}
     ~CompoundStatement() {
         if (declarationList != NULL) delete declarationList;

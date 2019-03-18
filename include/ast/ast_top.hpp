@@ -72,6 +72,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         if (list != NULL) list->generateMIPS(context, instructions);
         dec->generateMIPS(context, instructions);
+        instructions.push_back({".end", "", "", "", 0, Instruction::E});
     }
 
 protected:
