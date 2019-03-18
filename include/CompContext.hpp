@@ -114,6 +114,13 @@ struct CompContext {
 
     int memUsed = 0;
 
+    void printRetSequence() {
+        readStack($ra, 4, instructions);
+        readStack($fp, 8, instructions);
+        instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});   // move $sp to $fp
+        instructions.push_back({"jr", regMap[$ra], "", "", 0, Instruction::S}); // jump back to return address
+    }
+
     bool local(const std::string &str) {
         return (varMap().find(str) != varMap().end());
     }
@@ -212,10 +219,7 @@ struct CompContext {
     void subScopeFunc(std::vector<Instruction> &instructions) {
         instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
 
-        readStack($ra, 4, instructions);
-        readStack($fp, 8, instructions);
-        instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});   // move $sp to $fp
-        instructions.push_back({"jr", regMap[$ra], "", "", 0, Instruction::S}); // jump back to return address
+        printRetSequence();
         memUsed = 0;
 
         subScopeContext();

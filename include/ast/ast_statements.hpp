@@ -61,7 +61,7 @@ public:
         } else {
             expr->generateMIPS(context, instructions, $2);
         }
-        instructions.push_back({"j", context.decFlags().funcName + "_end", "", "", 0, Instruction::S});
+        printRetSequence();
     }
     
 protected:
