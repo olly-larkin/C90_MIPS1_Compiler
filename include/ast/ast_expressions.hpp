@@ -229,9 +229,9 @@ public:
         //take value into destreg
         int tempReg = $s0;//add 1 into tempReg
         //store tempreg back to location
-        offsetRet locationData = expr->offset(context);
+        offsetRet locationData = postfix->offset(context);
 
-        expr->generateMIPS(context, instructions, destReg);                                             //get expr into destreg
+        postfix->generateMIPS(context, instructions, destReg);                                             //get expr into destreg
         instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN});  //subtract 1
         if(locationData.global)
             context.writeGlobal(destReg, locationData.label, instructions);
