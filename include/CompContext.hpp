@@ -86,7 +86,7 @@ struct CompContext {
             bool inspecting = false;
             std::string breakFlag;
             std::string defaultFlag;
-            std::vector< std::pair<std::string, BaseExpression*> > caseFlags;
+            std::vector< std::pair<std::string, double> > caseFlags;
         } switchFlags;
         struct enumFlagStruct {
             int scope;
