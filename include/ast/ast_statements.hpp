@@ -322,7 +322,7 @@ protected:
     BaseNode *statementTrue, *statementFalse;
 };
 
-class SwitchStatement : public BaseNode {           //TODO: switch
+class SwitchStatement : public BaseNode {           //MIPS DONE
 public:
     SwitchStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~SwitchStatement() {
@@ -346,7 +346,6 @@ public:
         context.switchFlags().inspecting = true;
         statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
         context.switchFlags().inspecting = false;
-        //TODO: need to evaluate expr and then compare to every example in the switch and jump if matching
         // use $s0 and $s1
         int expReg = $s0, caseReg = $s1;
         context.pushToStack({expReg, caseReg}, instructions);
@@ -481,10 +480,10 @@ protected:
 };
 
 //************************************************************
-//--------------------LABLED STATEMENT------------------------      //TODO: case for switch
+//--------------------LABLED STATEMENT------------------------
 //************************************************************
 
-class CaseBlock : public BaseNode {
+class CaseBlock : public BaseNode {                 //MIPS DONE
 public:
     CaseBlock(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~CaseBlock() {
@@ -505,7 +504,6 @@ public:
             std::string label = context.makeALabel("case");
             context.switchFlags().caseFlags.push_back({label, expr});
         } else {
-            //TODO: actually process including printing labels
             //vec elements will be deleted so just work with element 0
             instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
             context.switchFlags().caseFlags.erase(context.switchFlags().caseFlags.begin());
@@ -519,7 +517,7 @@ protected:
     BaseNode *statement;
 };
 
-class DefaultCaseBlock : public BaseNode {
+class DefaultCaseBlock : public BaseNode {          //MIPS DONE
 public:
     DefaultCaseBlock(BaseNode *_statement) : statement(_statement) {}
     ~DefaultCaseBlock() { delete statement; }
@@ -533,7 +531,6 @@ public:
         if (context.switchFlags().inspecting) {
             context.switchFlags().defaultFlag = context.makeALabel("default");
         } else {
-            //TODO: actually process including printing labels
             instructions.push_back({"label", context.switchFlags().defaultFlag, "", "", 0, Instruction::L});
             context.statementFlags().indiCompound = true;
             statement->generateMIPS(context, instructions);
