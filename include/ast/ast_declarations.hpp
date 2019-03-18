@@ -393,7 +393,7 @@ protected:
 //-----------------------ENUMERATORS--------------------------      //TODO: enums
 //************************************************************
 
-class EnumElement : public BaseNode {
+class EnumElement : public BaseNode {               //MIPS DONE
 public:
     EnumElement(const std::string &_iden, BaseExpression *_expr) : identifier(_iden), expr(_expr) {}
     ~EnumElement() { if (expr != NULL) delete expr; }
@@ -412,9 +412,9 @@ public:
             instructions.push_back({"list_start", "", "", "", 0, Instruction::LIST});
             instructions.push_back({"label", identifier, "", "", 0, Instruction::L});
             instructions.push_back({"list_end", "", "", "", 0, Instruction::LIST});
-            instructions.push_back({" .word", "", "", "", 0, Instruction::N});
+            instructions.push_back({" .word", "", "", "", val, Instruction::N});
         } else {
-            int reg = $s0;
+            int reg = context.chooseReg();
             context.pushToStack({reg}, instructions);
             instructions.push_back({"li", regMap[reg], "", "", val, Instruction::SN});
             context.writeStack(reg, context.varMap()[identifier].offset, instructions);
@@ -467,9 +467,9 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         context.tempDec.type.typeSpecifiers.push_back({INT_T, "int"});
         if (elemList != NULL) {
-            instructions.push_back({".data", "", "", "", 0, Instruction::E});
+            if (context.stack.size() == 1) instructions.push_back({".data", "", "", "", 0, Instruction::E});
             elemList->generateMIPS(context, instructions);
-            if (context.stack.size() != 1) instructions.push_back({".text", "", "", "", 0, Instruction::E});       // need to specify the rest is text (funcs will do it themselves)
+            if (context.stack.size() == 1) instructions.push_back({".text", "", "", "", 0, Instruction::E});       // need to specify the rest is text (funcs will do it themselves)
         }
     }
 
@@ -684,7 +684,7 @@ public:
                 instructions.push_back({" .word", "", "", "", (int)(init->eval()), Instruction::N});
 
             } else {                // not global scope
-                int reg = $t0;
+                int reg = context.chooseReg();
                 context.pushToStack({reg}, instructions);
                 init->generateMIPS(context, instructions, reg);
                 context.writeStack(reg, context.varMap()[context.tempDec.identifier].offset, instructions);

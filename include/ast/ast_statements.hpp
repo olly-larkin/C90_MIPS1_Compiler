@@ -98,7 +98,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = $s0;
+        int reg = context.chooseReg();
         context.pushToStack({reg}, instructions);
         context.addScopeContext();
         context.statementFlags().continueFlag = context.makeALabel("continue");
@@ -135,7 +135,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = $8;
+        int reg = context.chooseReg();
         context.pushToStack({reg}, instructions);
         context.addScopeContext();
 
@@ -186,7 +186,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = $t0;
+        int reg = context.chooseReg();
         context.pushToStack({reg}, instructions);
         context.addScopeContext();
         context.statementFlags().continueFlag = context.makeALabel("continue");
@@ -241,7 +241,7 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string falseLabel = context.makeALabel("false");
-        int reg = $s0;
+        int reg = context.chooseReg();
         context.pushToStack({reg}, instructions);
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
@@ -290,7 +290,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string trueLabel = context.makeALabel("true");
         std::string falseLabel = context.makeALabel("false");
-        int reg = $8;
+        int reg = context.chooseReg();
         context.pushToStack({reg}, instructions);
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
@@ -332,8 +332,8 @@ public:
         statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
         context.switchFlags().inspecting = false;
         context.statementFlags().indiCompound = true;
-        // use $s0 and $s1
-        int expReg = $s0, caseReg = $s1;
+
+        int expReg = context.chooseReg(), caseReg = context.chooseReg({expReg});
         context.pushToStack({expReg, caseReg}, instructions);
         expr->generateMIPS(context, instructions, expReg);
 
@@ -384,7 +384,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = $8;
+        int reg = context.chooseReg();
         if (expr != NULL) {
             context.pushToStack({reg}, instructions);
             expr->generateMIPS(context, instructions, reg);
