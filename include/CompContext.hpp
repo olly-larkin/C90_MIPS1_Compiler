@@ -212,9 +212,8 @@ struct CompContext {
     void subScopeFunc(std::vector<Instruction> &instructions) {
         instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
 
-        //readStack($ra, 4, instructions);
-        //readStack($fp, 8, instructions);
-        instructions.push_back({"addi", regMap[$ra], regMap[$fp], "", -4, Instruction::SSN});   // $fp MUST ALLWAYS BE RETURNED AFTER FUNCTION CALL
+        readStack($ra, 4, instructions);
+        readStack($fp, 8, instructions);
         instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});   // move $sp to $fp
         instructions.push_back({"jr", regMap[$ra], "", "", 0, Instruction::S}); // jump back to return address
         memUsed = 0;

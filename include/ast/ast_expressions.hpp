@@ -109,7 +109,7 @@ protected:
     BaseExpression *postfix, *index;
 };
 
-class PostfixFuncCall : public BaseExpression {         // $fp MUST ALWAYS BE RETURNED TO ORIGINAL POS AFTER FUCNTION CALL
+class PostfixFuncCall : public BaseExpression {
 public:
     PostfixFuncCall(BaseExpression *_postfix, BaseList *_argList) : postfix(_postfix), argList(_argList) {}
     ~PostfixFuncCall() {
