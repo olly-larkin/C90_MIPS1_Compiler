@@ -18,14 +18,30 @@ public:
         os << identifier;
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        
+        if (offset(context).global) {
+            context.readGlobal(destReg, identifier, instructions);
+        }
+        else 
+            context.readStack(destReg, context.varMap()[identifier].offset, instructions); 
+    }
+
     offsetRet offset(CompContext &context) { 
         if (context.local(identifier)) {
-
-        } else if (context.param(identifier)) {
-
-        } else {        //global variable
-            // li $t0, x            // to retrieve x value
-            // lw $t0, 0($t0)
+            return {context.varMap()[identifier].offset, identifier, false};
+        } 
+        
+        else if (context.param(identifier)) {
+            int location;
+            for(int i=0; i<context.currentFunc().params.size(); i++){
+                if (context.currentFunc().params[i].first == identifier)
+                    location = i*-4;
+            }
+            return {location, identifier, false};
+        } 
+        
+        else {
             return {0, identifier, true};
         }
     }
@@ -211,8 +227,16 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //check variable map
         //take value into destreg
-        //add 1 into tempReg
+        int tempReg = $s0;//add 1 into tempReg
         //store tempreg back to location
+        offsetRet locationData = expr->offset(context);
+
+        expr->generateMIPS(context, instructions, destReg);                                             //get expr into destreg
+        instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN});  //subtract 1
+        if(locationData.global)
+            context.writeGlobal(destReg, locationData.label, instructions);
+        else    
+            context.writeStack(destReg, locationData.offset, instructions);                             //store destReg to location
     }
 
 protected:
@@ -234,10 +258,14 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //check variable map
-        //take value into destreg
-        //subtract 1
-        //store destreg back to location
+        offsetRet locationData = expr->offset(context);
+
+        expr->generateMIPS(context, instructions, destReg);                                             //get expr into destreg
+        instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN});  //subtract 1
+        if(locationData.global)
+            context.writeGlobal(destReg, locationData.label, instructions);
+        else    
+            context.writeStack(destReg, locationData.offset, instructions);                             //store destReg to location
     }
 
 protected:
@@ -255,10 +283,14 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //check variable map
-        //take value into destreg
-        //add 1
-        //store destreg back to location
+        offsetRet locationData = expr->offset(context);
+
+        expr->generateMIPS(context, instructions, destReg);                                            //get expr into destreg
+        instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});  //add 1
+        if(locationData.global)
+            context.writeGlobal(destReg, locationData.label, instructions);
+        else    
+            context.writeStack(destReg, locationData.offset, instructions);                             //store destReg to location
     }
 
 protected:
