@@ -88,6 +88,10 @@ struct CompContext {
             std::string defaultFlag;
             std::vector< std::pair<std::string, BaseExpression*> > caseFlags;
         } switchFlags;
+        struct enumFlagStruct {
+            int scope;
+            int lastVal = -1;
+        } enumFlags;
 
         int stackOffset;
     };
