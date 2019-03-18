@@ -353,8 +353,8 @@ public:
         expr->generateMIPS(context, instructions, expReg);
 
         for (int i = 0; i < (int)context.switchFlags().caseFlags.size(); ++i) {
-            context.switchFlags().caseFlags[i].second->generateMIPS(context, instructions, caseReg);
-            instructions.push_back({"beq", regMap[expReg], regMap[caseReg], context.switchFlags().caseFlags[i].first, 0, Instruction::SSS});
+            instructions.push_back({"addi", regMap[caseReg], regMap[expReg], "", -(int)context.switchFlags().caseFlags[i].second, Instruction::SSN});   // for now only int
+            instructions.push_back({"beq", regMap[caseReg], regMap[$zero], context.switchFlags().caseFlags[i].first, 0, Instruction::SSS});
         }
 
         if (context.switchFlags().defaultFlag != "") {          // only branch to default if there is one
@@ -503,7 +503,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         if (context.switchFlags().inspecting) {
             std::string label = context.makeALabel("case");
-            context.switchFlags().caseFlags.push_back({label, expr});
+            context.switchFlags().caseFlags.push_back({label, expr->eval()});
         } else {
             //vec elements will be deleted so just work with element 0
             instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
