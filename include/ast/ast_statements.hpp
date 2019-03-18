@@ -453,10 +453,10 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         bool indi = context.statementFlags().indiCompound;
         context.statementFlags().indiCompound = true;
-        if (!indi) context.addScope(instructions);
+        if (indi) context.addScope(instructions);
         if (declarationList != NULL) declarationList->generateMIPS(context, instructions);
         if (statementList != NULL) statementList->generateMIPS(context, instructions);
-        if (!indi) context.subScope(instructions);
+        if (indi) context.subScope(instructions);
     }
 
 protected:
@@ -491,7 +491,10 @@ public:
             //vec elements will be deleted so just work with element 0
             instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
             context.switchFlags().caseFlags.erase(context.switchFlags().caseFlags.begin());
+            bool indi = context.statementFlags().indiCompound;
+            context.statementFlags().indiCompound = true;
             statement->generateMIPS(context, instructions);
+            context.statementFlags().indiCompound = indi;
         }
     }
 
@@ -515,7 +518,10 @@ public:
             context.switchFlags().defaultFlag = context.makeALabel("default");
         } else {
             instructions.push_back({"label", context.switchFlags().defaultFlag, "", "", 0, Instruction::L});
+            bool indi = context.statementFlags().indiCompound;
+            context.statementFlags().indiCompound = true;
             statement->generateMIPS(context, instructions);
+            context.statementFlags().indiCompound = indi;
         }
     }
 
