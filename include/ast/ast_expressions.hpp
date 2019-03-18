@@ -227,7 +227,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //check variable map
         //take value into destreg
-        int tempReg = $s0;//add 1 into tempReg
+        int tempReg = context.chooseReg({destReg});//add 1 into tempReg
         //store tempreg back to location
         offsetRet locationData = expr->offset(context);
 
@@ -441,7 +441,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         
         context.pushToStack({op1, op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
@@ -470,7 +471,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         
         context.pushToStack({op1, op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
@@ -508,7 +510,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         
         context.pushToStack({op1, op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
@@ -550,7 +553,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         
         context.pushToStack({op1, op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
@@ -587,7 +591,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         
         context.pushToStack({op1, op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
@@ -620,7 +625,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         
         context.pushToStack({op1, op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
@@ -649,7 +655,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         
         context.pushToStack({op1, op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
@@ -690,7 +697,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         context.pushToStack({op1,op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
         expr2->generateMIPS(context, instructions, op2);
@@ -733,7 +741,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         context.pushToStack({op1,op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
         expr2->generateMIPS(context, instructions, op2);
@@ -768,7 +777,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         context.pushToStack({op1,op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
         expr2->generateMIPS(context, instructions, op2);
@@ -802,7 +812,8 @@ public:
         expr2->print(os, level+1);
     }
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         context.pushToStack({op1,op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
         expr2->generateMIPS(context, instructions, op2);
@@ -849,7 +860,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         if (expr1 != NULL && expr2 != NULL) {
             context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
@@ -895,7 +907,8 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: Check
 
         //signed, unsigned comparison?
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         if (expr1 != NULL && expr2 != NULL) {
             context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
@@ -935,7 +948,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         context.pushToStack({op1,op2}, instructions);
         expr1->generateMIPS(context, instructions, op1);
         expr2->generateMIPS(context, instructions, op2);
@@ -967,7 +981,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         if (expr1 != NULL && expr2 != NULL) {
             context.pushToStack({op1, op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
@@ -1005,7 +1020,8 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //evaluate expr1 and 2
         //OR into destreg
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         if (expr1 != NULL && expr2 != NULL) {
             context.pushToStack({op1, op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
@@ -1050,7 +1066,8 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
         //evaluate expr1 and 2
         //1 into destreg if either operand is positive?
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});
+        int op2 = context.chooseReg({destReg, op1});
         if (expr1 != NULL && expr2 != NULL) {
             context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
@@ -1100,7 +1117,8 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: SHORT CIRCUITING
         //evaluate expr1 and 2
         //1 into destreg if either operand is positive?
-        int op1 = $8, op2 = $9;
+        int op1 = context.chooseReg({destReg});         
+        int op2 = context.chooseReg({destReg, op1});
         if (expr1 != NULL && expr2 != NULL) {
             context.pushToStack({op1,op2}, instructions);
             expr1->generateMIPS(context, instructions, op1);
