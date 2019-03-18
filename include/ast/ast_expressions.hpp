@@ -46,6 +46,35 @@ public:
         }
     }
 
+    void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
+        if (context.local(identifier)) {
+            int spOffset = context.memUsed - context.varMap()[identifier].offset;
+            instructions.push_back({"addi", regMap[destReg], regMap[$sp], "", spOffset, Instruction::SSN});     //local
+        } else if (context.param(identifier)) {
+            int offset;
+            for(int i=0; i<context.currentFunc().params.size(); i++){
+                if (context.currentFunc().params[i].first == identifier)
+                    offset = i*-4;
+            }
+            int spOffset = context.memUsed - offset;
+            instructions.push_back({"addi", regMap[destReg], regMap[$sp], "", spOffset, Instruction::SSN});     //param
+        } else {
+            instructions.push_back({"li", regMap[destReg], identifier, "", 0, Instruction::SS});                //global
+        }
+    }
+
+    bool isPointer(CompContext &context) { 
+        if (context.local(identifier)) 
+            return (context.varMap()[identifier].type.pointerNum > 0);
+        if (context.param(identifier)) {
+            for (int i = 0; i < context.currentFunc().params.size(); ++i) {
+                if (context.currentFunc().params[i].first == identifier)
+                    return (context.currentFunc().params[i].second.pointerNum > 0);
+            }
+        }
+        return (context.globals[identifier].pointerNum > 0);
+    }
+
 protected:
     std::string identifier;
 };
@@ -119,6 +148,16 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //check variable map
         //return desired value via stack offset into destreg?
+    }
+
+    void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {       // will only work with single dimention arrays
+        int reg = context.chooseReg({destReg});
+        context.pushToStack({reg}, instructions);
+        index->generateMIPS(context, instructions, reg);
+        instructions.push_back({"sll", regMap[reg], regMap[reg], "", 2, Instruction::SSN});         // will only work with int (or size 4 things)
+        postfix->address(destReg, context, instructions);
+        instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
+        context.pullFromStack({reg}, instructions);
     }
 
 protected:
@@ -361,6 +400,12 @@ public:
         //interpret a logical address: frame pointer + frame offset, fetch data?
     }
 
+    void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
+        context.expressionFlags().pointerMath = true;                                               // should be pointer arithmatic
+        expr->generateMIPS(context, instructions, destReg);
+        context.expressionFlags().pointerMath = false;
+    }
+
 protected:
     BaseExpression *expr;
 };
@@ -564,6 +609,10 @@ public:
         context.pullFromStack({op2,op1}, instructions);
     }
 
+    bool isPointer(CompContext &context) { 
+        return expr1->isPointer(context) || expr2->isPointer(context);
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -600,6 +649,10 @@ public:
 
         instructions.push_back({"sub", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
         context.pullFromStack({op2,op1}, instructions);
+    }
+
+    bool isPointer(CompContext &context) { 
+        return expr1->isPointer(context) || expr2->isPointer(context);
     }
 
 protected:
