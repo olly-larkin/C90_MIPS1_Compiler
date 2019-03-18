@@ -52,7 +52,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        instructions.push_back({"li", regMap[destReg], "", "", (int)constant, Instruction::SN});
+        instructions.push_back({"addi", regMap[destReg], regMap[$0], "", (int)constant, Instruction::SSN});
     }
 
 protected:
