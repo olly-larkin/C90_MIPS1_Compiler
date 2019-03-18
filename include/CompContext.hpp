@@ -1,7 +1,8 @@
 #ifndef COMPCONTEXT_HPP
 #define COMPCONTEXT_HPP
 
-class BaseNode;         // forward declaration for context
+class BaseNode;         // forward declarations for context
+class BaseExpression;
 
 enum typeEnum {
     VOID_T,
@@ -81,6 +82,12 @@ struct CompContext {
             bool indiCompound = true;
             std::string continueFlag, breakFlag;
         } statementFlags;
+        struct switchFlagStruct {
+            bool inspecting = false;
+            std::string breakFlag;
+            std::string defaultFlag;
+            std::vector< std::pair<std::string, BaseExpression*> > caseFlags;
+        } switchFlags;
 
         int stackOffset;
     };
@@ -101,6 +108,7 @@ struct CompContext {
     std::map<std::string, Type>& typeMap() { return stack.back().typeMap; }
     stackStruct::decFlagStruct& decFlags() { return stack.back().decFlags; }
     stackStruct::statementFlagStruct& statementFlags() { return stack.back().statementFlags; }
+    stackStruct::switchFlagStruct& switchFlags() { return stack.back().switchFlags; }
     funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 

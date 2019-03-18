@@ -338,6 +338,38 @@ public:
         statement->print(os, level+2);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.switchFlags() = {};
+        context.switchFlags().breakFlag = context.makeALabel("break");
+        context.addScope(instructions);
+        context.statementFlags().indiCompound = false;
+        context.switchFlags().inspecting = true;
+        statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
+        context.switchFlags().inspecting = false;
+        //TODO: need to evaluate expr and then compare to every example in the switch and jump if matching
+        // use $s0 and $s1
+        int expReg = $s0, caseReg = $s1;
+        context.pushToStack({expReg, caseReg}, instructions);
+        expr->generateMIPS(context, instructions, expReg);
+
+        for (int i = 0; i < (int)context.switchFlags().caseFlags.size(); ++i) {
+            context.switchFlags().caseFlags[i].second->generateMIPS(context, instructions, caseReg);
+            instructions.push_back({"beq", regMap[expReg], regMap[caseReg], context.switchFlags().caseFlags[i].first, 0, Instruction::SSS});
+        }
+
+        if (context.switchFlags().defaultFlag != "") {          // only branch to default if there is one
+            instructions.push_back({"j", context.switchFlags().defaultFlag, "", "", 0, Instruction::S});
+        }
+
+        context.switchFlags().inspecting = false;
+        statement->generateMIPS(context, instructions);         // should now print instructions
+
+        instructions.push_back({"label", context.switchFlags().breakFlag, "", "", 0, Instruction::L});
+
+        context.pullFromStack({caseReg, expReg}, instructions);
+        context.subScope(instructions);
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
@@ -468,6 +500,20 @@ public:
         statement->print(os, level+2);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (context.switchFlags().inspecting) {
+            std::string label = context.makeALabel("case");
+            context.switchFlags().caseFlags.push_back({label, expr});
+        } else {
+            //TODO: actually process including printing labels
+            //vec elements will be deleted so just work with element 0
+            instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
+            context.switchFlags().caseFlags.erase(context.switchFlags().caseFlags.begin());
+            context.statementFlags().indiCompound = true;
+            statement->generateMIPS(context, instructions);
+        }
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
@@ -481,6 +527,17 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Default Case Block:" << std::endl;
         statement->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (context.switchFlags().inspecting) {
+            context.switchFlags().defaultFlag = context.makeALabel("default");
+        } else {
+            //TODO: actually process including printing labels
+            instructions.push_back({"label", context.switchFlags().defaultFlag, "", "", 0, Instruction::L});
+            context.statementFlags().indiCompound = true;
+            statement->generateMIPS(context, instructions);
+        }
     }
 
 protected:
