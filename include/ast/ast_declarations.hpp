@@ -404,12 +404,30 @@ public:
             expr->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int val = expr == NULL ? context.enumFlags().lastVal + 1 : expr->eval();
+        context.enumFlags().lastVal = val;
+        context.addCustomDec(identifier, {0,{{INT_T, "int"}},{}}, instructions);
+        if (context.stack.size() == 1) {
+            instructions.push_back({"list_start", "", "", "", 0, Instruction::LIST});
+            instructions.push_back({"label", identifier, "", "", 0, Instruction::L});
+            instructions.push_back({"list_end", "", "", "", 0, Instruction::LIST});
+            instructions.push_back({" .word", "", "", "", 0, Instruction::N});
+        } else {
+            int reg = $s0;
+            context.pushToStack({reg}, instructions);
+            instructions.push_back({"li", regMap[reg], "", "", val, Instruction::SN});
+            context.writeStack(reg, context.varMap()[identifier].offset, instructions);
+            context.pullFromStack({reg}, instructions);
+        }
+    }
+
 protected:
     std::string identifier;
     BaseExpression *expr;
 };
 
-class EnumElemList : public BaseList {
+class EnumElemList : public BaseList {              //MIPS DONE
 public:
     EnumElemList(BaseList *_list, BaseNode *_enumElem) : BaseList(_list), enumElem(_enumElem) {}
     ~EnumElemList() {
@@ -422,11 +440,16 @@ public:
         enumElem->print(os, level);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (list != NULL) list->generateMIPS(context, instructions);
+        enumElem->generateMIPS(context, instructions);
+    }
+
 protected:
     BaseNode *enumElem;
 };
 
-class EnumSpecifier : public BaseNode {
+class EnumSpecifier : public BaseNode {             //MIPS DONE
 public:
     EnumSpecifier(const std::string &_iden, BaseList *_elemList) : identifier(_iden), elemList(_elemList) {}
     EnumSpecifier(BaseList *_elemList) : elemList(_elemList) {}
@@ -441,13 +464,22 @@ public:
         }
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.tempDec.type.typeSpecifiers.push_back({INT_T, "int"});
+        if (elemList != NULL) {
+            instructions.push_back({".data", "", "", "", 0, Instruction::E});
+            elemList->generateMIPS(context, instructions);
+            if (context.stack.size() != 1) instructions.push_back({".text", "", "", "", 0, Instruction::E});       // need to specify the rest is text (funcs will do it themselves)
+        }
+    }
+
 protected:
     std::string identifier = ""; 
     BaseList *elemList;
 };
 
 //************************************************************
-//-------------------------STRUCTS----------------------------      //TODO: structs
+//-------------------------STRUCTS----------------------------      //TODO: structs (probs wont do)
 //************************************************************
 
 class StructDeclarator : public BaseNode {

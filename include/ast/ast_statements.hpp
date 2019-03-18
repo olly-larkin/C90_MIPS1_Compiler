@@ -98,9 +98,9 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = $8;
+        int reg = $s0;
         context.pushToStack({reg}, instructions);
-        context.addScope(instructions);
+        context.addScopeContext();
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
         instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
@@ -109,7 +109,7 @@ public:
         statement->generateMIPS(context, instructions);
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
-        context.subScope(instructions);
+        context.subScopeContext();
         context.pullFromStack({reg}, instructions);
     }
 
@@ -137,7 +137,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int reg = $8;
         context.pushToStack({reg}, instructions);
-        context.addScope(instructions);
+        context.addScopeContext();
 
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
@@ -148,7 +148,7 @@ public:
         instructions.push_back({"bne", regMap[reg], regMap[$0], context.statementFlags().continueFlag, 0, Instruction::SSS});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
 
-        context.subScope(instructions);
+        context.subScopeContext();
         context.pullFromStack({reg}, instructions);
     }
 
@@ -188,8 +188,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int reg = $t0;
         context.pushToStack({reg}, instructions);
-        context.addScope(instructions);
-        context.statementFlags().indiCompound = false;
+        context.addScopeContext();
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
 
@@ -202,8 +201,7 @@ public:
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
 
-        context.statementFlags().indiCompound = true;
-        context.subScope(instructions);
+        context.subScopeContext();
         context.pullFromStack({reg}, instructions);
     }
 
@@ -243,15 +241,11 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string falseLabel = context.makeALabel("false");
-        int reg = $8;
+        int reg = $s0;
         context.pushToStack({reg}, instructions);
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
-        context.addScope(instructions);
-        context.statementFlags().indiCompound = false;
         statement->generateMIPS(context, instructions);
-        context.statementFlags().indiCompound = true;
-        context.subScope(instructions);
         instructions.push_back({"lebel", falseLabel, "", "", 0, Instruction::L});
         context.pullFromStack({reg}, instructions);
     }
@@ -300,20 +294,10 @@ public:
         context.pushToStack({reg}, instructions);
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
-        context.addScope(instructions);
-        context.statementFlags().indiCompound = false;
         statementTrue->generateMIPS(context, instructions);
-        context.statementFlags().indiCompound = true;
-        context.subScope(instructions);
         instructions.push_back({"bne", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
-
         instructions.push_back({"label", falseLabel, "", "", 0, Instruction::L});
-        context.addScope(instructions);
-        context.statementFlags().indiCompound = false;
         statementFalse->generateMIPS(context, instructions);
-        context.statementFlags().indiCompound = true;
-        context.subScope(instructions);
-
         instructions.push_back({"label", trueLabel, "", "", 0, Instruction::L});
         context.pullFromStack({reg}, instructions);
     }
@@ -347,6 +331,7 @@ public:
         context.switchFlags().inspecting = true;
         statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
         context.switchFlags().inspecting = false;
+        context.statementFlags().indiCompound = true;
         // use $s0 and $s1
         int expReg = $s0, caseReg = $s1;
         context.pushToStack({expReg, caseReg}, instructions);
@@ -466,14 +451,12 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        bool indiCompound = context.statementFlags().indiCompound;
-        context.statementFlags().indiCompound = true;                   // TODO: remove redundant code
-        if (indiCompound)                                         
-            context.addScope(instructions);
+        bool indi = context.statementFlags().indiCompound;
+        context.statementFlags().indiCompound = true;
+        if (!indi) context.addScope(instructions);
         if (declarationList != NULL) declarationList->generateMIPS(context, instructions);
         if (statementList != NULL) statementList->generateMIPS(context, instructions);
-        if (indiCompound)
-            context.subScope(instructions);
+        if (!indi) context.subScope(instructions);
     }
 
 protected:
@@ -508,7 +491,6 @@ public:
             //vec elements will be deleted so just work with element 0
             instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
             context.switchFlags().caseFlags.erase(context.switchFlags().caseFlags.begin());
-            context.statementFlags().indiCompound = true;
             statement->generateMIPS(context, instructions);
         }
     }
@@ -533,7 +515,6 @@ public:
             context.switchFlags().defaultFlag = context.makeALabel("default");
         } else {
             instructions.push_back({"label", context.switchFlags().defaultFlag, "", "", 0, Instruction::L});
-            context.statementFlags().indiCompound = true;
             statement->generateMIPS(context, instructions);
         }
     }
