@@ -89,7 +89,6 @@ struct CompContext {
             std::vector< std::pair<std::string, double> > caseFlags;
         } switchFlags;
         struct enumFlagStruct {
-            int scope;
             int lastVal = -1;
         } enumFlags;
 
@@ -113,10 +112,19 @@ struct CompContext {
     stackStruct::decFlagStruct& decFlags() { return stack.back().decFlags; }
     stackStruct::statementFlagStruct& statementFlags() { return stack.back().statementFlags; }
     stackStruct::switchFlagStruct& switchFlags() { return stack.back().switchFlags; }
+    stackStruct::enumFlagStruct& enumFlags() { return stack.back().enumFlags; }
     funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 
     int memUsed = 0;
+
+    int chooseReg(const std::vector<int> &regs) {
+        for (int i = $s0; ; ++i) {
+            for(int j = 0; j < regs.size(); ++j)
+                if (regs[j] == i) continue;
+            return i;
+        }
+    }
 
     void printRetSequence(std::vector<Instruction> &instructions) {
         readStack($ra, 4, instructions);
@@ -174,6 +182,20 @@ struct CompContext {
             stack.back().varMap[tempDec.identifier] = {tempDec.type, offset};
         } else {
             globals[tempDec.identifier] = tempDec.type;
+        }
+    }
+
+    void addCustomDec(const std::string &iden, Type type, std::vector<Instruction> &instructions) {
+        if (stack.size() != 1) {    // in global scope
+            int length = type.length();
+            int offset = memUsed + 4;
+            for (int i = 0; i < length; i += 4) {
+                memUsed += 4;
+                instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
+            }
+            stack.back().varMap[iden] = {type, offset};
+        } else {
+            globals[iden] = type;
         }
     }
 
