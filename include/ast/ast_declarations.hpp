@@ -291,7 +291,6 @@ public:
                 instructions.push_back({"list_end","","","",0, Instruction::LIST}); // last element
                 instructions.push_back({",", "", "", "", 0, Instruction::N});
             }
-
         } else {
             context.tempDec.identifier = identifier;
         }
@@ -356,7 +355,11 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         context.decFlags().functionDef = true;
         dec->generateMIPS(context, instructions);
-        if (params != NULL) params->generateMIPS(context, instructions);
+        if (params != NULL) {
+            context.addScopeContext();
+            params->generateMIPS(context, instructions);
+            context.subScopeContext();
+        }
     }
 
 protected:
