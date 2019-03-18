@@ -1,6 +1,8 @@
-void func(int x);
+
+
+int func(int x);
+
 
 int main() {
-	func(1);
-	return 1;
+	return func(1);
 }
