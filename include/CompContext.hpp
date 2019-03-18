@@ -161,6 +161,21 @@ struct CompContext {
         }
     }
 
+
+    void writeGlobal(int reg, std::string label, std::vector<Instruction> &instructions, int offset = 0){
+        int tempReg = $s0;
+        pushToStack({tempReg}, instructions);
+        instructions.push_back({"li", regMap[tempReg], label, "", 0, Instruction::SS});
+        instructions.push_back({"sw", regMap[reg], regMap[tempReg], "", offset, Instruction::LS});
+        pullFromStack({tempReg}, instructions);
+    }
+
+    void readGlobal(int reg, std::string label, std::vector<Instruction> &instructions, int offset = 0){
+        instructions.push_back({"li", regMap[reg], label, "", 0, Instruction::SS});
+        instructions.push_back({"lw", regMap[reg], regMap[reg], "", offset, Instruction::LS});
+    }
+
+
     void writeStack(int reg, int offset, std::vector<Instruction> &instructions) {
         int spOffset = memUsed - offset;
         instructions.push_back({"sw", regMap[reg], regMap[$sp], "", spOffset, Instruction::LS});
