@@ -414,7 +414,7 @@ public:
             instructions.push_back({"list_end", "", "", "", 0, Instruction::LIST});
             instructions.push_back({" .word", "", "", "", val, Instruction::N});
         } else {
-            int reg = $s0;
+            int reg = context.chooseReg();
             context.pushToStack({reg}, instructions);
             instructions.push_back({"li", regMap[reg], "", "", val, Instruction::SN});
             context.writeStack(reg, context.varMap()[identifier].offset, instructions);
@@ -684,7 +684,7 @@ public:
                 instructions.push_back({" .word", "", "", "", (int)(init->eval()), Instruction::N});
 
             } else {                // not global scope
-                int reg = $t0;
+                int reg = context.chooseReg();
                 context.pushToStack({reg}, instructions);
                 init->generateMIPS(context, instructions, reg);
                 context.writeStack(reg, context.varMap()[context.tempDec.identifier].offset, instructions);

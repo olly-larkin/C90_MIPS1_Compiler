@@ -118,7 +118,7 @@ struct CompContext {
 
     int memUsed = 0;
 
-    int chooseReg(const std::vector<int> &regs) {
+    int chooseReg(const std::vector<int> &regs = {}) {
         for (int i = $s0; ; ++i) {
             for(int j = 0; j < regs.size(); ++j)
                 if (regs[j] == i) continue;
@@ -161,9 +161,8 @@ struct CompContext {
         }
     }
 
-
     void writeGlobal(int reg, std::string label, std::vector<Instruction> &instructions, int offset = 0){
-        int tempReg = $s0;
+        int tempReg = chooseReg({reg});
         pushToStack({tempReg}, instructions);
         instructions.push_back({"li", regMap[tempReg], label, "", 0, Instruction::SS});
         instructions.push_back({"sw", regMap[reg], regMap[tempReg], "", offset, Instruction::LS});
