@@ -114,7 +114,7 @@ struct CompContext {
 
     int memUsed = 0;
 
-    void printRetSequence() {
+    void printRetSequence(std::vector<Instruction> &instructions) {
         readStack($ra, 4, instructions);
         readStack($fp, 8, instructions);
         instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});   // move $sp to $fp
@@ -220,7 +220,7 @@ struct CompContext {
         //instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
 
         instructions.push_back({"addi", regMap[$2], regMap[$0], "", 0, Instruction::SSN});
-        printRetSequence();
+        printRetSequence(instructions);
         memUsed = 0;
 
         subScopeContext();

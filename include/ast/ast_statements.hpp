@@ -61,7 +61,7 @@ public:
         } else {
             expr->generateMIPS(context, instructions, $2);
         }
-        context.printRetSequence();
+        context.printRetSequence(instructions);
     }
     
 protected:
