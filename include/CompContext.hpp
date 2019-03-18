@@ -217,8 +217,9 @@ struct CompContext {
     }
 
     void subScopeFunc(std::vector<Instruction> &instructions) {
-        instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
+        //instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
 
+        instructions.push_back({"addi", regMap[$2], regMap[$0], "", 0, Instruction::SSN});
         printRetSequence();
         memUsed = 0;
 
