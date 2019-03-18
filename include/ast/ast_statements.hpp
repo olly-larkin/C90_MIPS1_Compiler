@@ -355,7 +355,7 @@ public:
         for (int i = 0; i < (int)context.switchFlags().caseFlags.size(); ++i) {
             //context.switchFlags().caseFlags[i].second->generateMIPS(context, instructions, caseReg);
             //instructions.push_back({"beq", regMap[expReg], regMap[caseReg], context.switchFlags().caseFlags[i].first, 0, Instruction::SSS});
-            instructions.push_back({"addi", regMap[caseReg], regMap[expReg], "", -context.switchFlags().caseFlags[i].second, Instruction::SSN});
+            instructions.push_back({"addi", regMap[caseReg], regMap[expReg], "", -(int)context.switchFlags().caseFlags[i].second, Instruction::SSN});   // for now only int
             instructions.push_back({"beq", regMap[expReg], regMap[$zero], context.switchFlags().caseFlags[i].first, 0, Instruction::SSS});
         }
 
