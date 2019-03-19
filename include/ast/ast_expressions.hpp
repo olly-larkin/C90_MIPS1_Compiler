@@ -5,11 +5,7 @@
 //----------------------PRIMARY-------------------------------
 //************************************************************
 
-<<<<<<< HEAD
 class PrimaryExprIdentifier : public BaseExpression {   //MIPS DONE
-=======
-class PrimaryExprIdentifier : public BaseExpression { //MIPS DONE
->>>>>>> aacb912a75be4c2aed4800c696e994938f46d075
 public:
     PrimaryExprIdentifier(const std::string &_identifier) : identifier(_identifier) {}
     ~PrimaryExprIdentifier() {}
@@ -127,17 +123,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-<<<<<<< HEAD
         address(destReg, context, instructions);
         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
-=======
-        //wip
-        if (offset(context).global) {
-            context.readGlobal(destReg, identifier, instructions);
-        }
-        else 
-            context.readStack(destReg, context.varMap()[identifier].offset, instructions); 
->>>>>>> aacb912a75be4c2aed4800c696e994938f46d075
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {       // will only work with single dimention arrays
