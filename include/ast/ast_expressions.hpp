@@ -225,15 +225,22 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
-        int tempReg = context.chooseReg({destReg});
-        offsetRet locationData = expr->offset(context);
+        context.expressionFlags().pointerMath = postfix->isPointer(context);
+        int addrReg = context.chooseReg({destReg});
+        int resultReg = context.chooseReg({destReg, resultReg});
+        context.pushToStack({addrReg, resultReg}, instructions);
+        address(addrReg, context, instructions);
+        instructions.push_back({"lw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
+        if (context.expressionFlags().pointerMath)
+            instructions.push_back({"addi", regMap[resultReg], regMap[destReg], "", 4, Instruction::SSN});
+        else
+            instructions.push_back({"addi", regMap[resultReg], regMap[destReg], "", 1, Instruction::SSN});
+        instructions.push_back({"sw", regMap[resultReg], regMap[addrReg], "", 0, Instruction::LS});
+        context.pullFromStack({resultReg, addrReg}, instructions);
+    }
 
-        expr->generateMIPS(context, instructions, destReg);                                            //get expr into destreg
-        instructions.push_back({"addiu", regMap[tempReg], regMap[destReg], "", -1, Instruction::SSN});  //add 1
-        if(locationData.global)
-            context.writeGlobal(tempReg, locationData.label, instructions);
-        else    
-            context.writeStack(tempReg, locationData.offset, instructions);                            //store destReg to location
+    bool isPointer(CompContext &context) { 
+        return postfix->isPointer(context); 
     }
 
 protected:
