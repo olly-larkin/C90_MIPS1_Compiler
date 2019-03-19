@@ -21,10 +21,10 @@ tests_run=0
 for f in ${working_dec}/*; do  # will specify to look at folder - folder name should be same as test program (with .c obvs)
     basename=${f##*/}
     echo "Testing ${basename}..."
-    ${compiler} -S ${f}/${basename}.c -o ${f}/${basename}.s
-    mips-linux-gnu-gcc -mfp32 -o ${f}/${basename}.o -c ${f}/${basename}.s
-    mips-linux-gnu-gcc -mfp32 -static -o ${f}/${basename} ${f}/${basename}.o ${f}/${basename}_driver.c
-    qemu-mips ${f}/${basename}
+    ${compiler} -S ${f}/${basename}.c -o ${f}/${basename}.s &>/dev/null
+    mips-linux-gnu-gcc -mfp32 -o ${f}/${basename}.o -c ${f}/${basename}.s &>/dev/null
+    mips-linux-gnu-gcc -mfp32 -static -o ${f}/${basename} ${f}/${basename}.o ${f}/${basename}_driver.c &>/dev/null
+    qemu-mips ${f}/${basename} &>/dev/null
     result=$?
     rm -rf ${f}/${basename}.s ${f}/${basename}.o ${f}/${basename}
     tests_run=$((tests_run+1))
