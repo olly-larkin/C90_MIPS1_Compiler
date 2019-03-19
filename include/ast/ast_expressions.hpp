@@ -133,7 +133,7 @@ public:
         index->generateMIPS(context, instructions, reg);
         instructions.push_back({"sll", regMap[reg], regMap[reg], "", 2, Instruction::SSN});         // will only work with int (or size 4 things)
         postfix->address(destReg, context, instructions);
-        instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
+        instructions.push_back({"sub", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
         context.pullFromStack({reg}, instructions);
     }
 
