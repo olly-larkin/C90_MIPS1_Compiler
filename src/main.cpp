@@ -4,7 +4,7 @@
 
 #include "ast.hpp"
 
-void printVec(std::ostream &os, const std::vector<Instruction> &instr) {
+void printVec(std::ostream &os, const std::vector<Instruction> &instr) {            //TODO: nops need to be inserted correctly
     bool newLines = true;
     for (int i = 0; i < (int)instr.size(); ++i) {
         switch(instr[i].printMethod) {

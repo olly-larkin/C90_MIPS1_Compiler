@@ -43,6 +43,8 @@ public:
         bool global;
     };
     virtual offsetRet offset(CompContext &context) { return {0, "", false}; }
+    virtual void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {}
+    virtual bool isPointer(CompContext &context) { return false; }
 protected:
 };
 

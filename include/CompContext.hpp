@@ -91,6 +91,9 @@ struct CompContext {
         struct enumFlagStruct {
             int lastVal = -1;
         } enumFlags;
+        struct expressionFlagStruct {
+            bool pointerMath = false;
+        } expressionFlags;
 
         int stackOffset;
     };
@@ -113,6 +116,7 @@ struct CompContext {
     stackStruct::statementFlagStruct& statementFlags() { return stack.back().statementFlags; }
     stackStruct::switchFlagStruct& switchFlags() { return stack.back().switchFlags; }
     stackStruct::enumFlagStruct& enumFlags() { return stack.back().enumFlags; }
+    stackStruct::expressionFlagStruct& expressionFlags() { return stack.back().expressionFlags; }
     funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 
@@ -173,7 +177,6 @@ struct CompContext {
         instructions.push_back({"li", regMap[reg], label, "", 0, Instruction::SS});
         instructions.push_back({"lw", regMap[reg], regMap[reg], "", offset, Instruction::LS});
     }
-
 
     void writeStack(int reg, int offset, std::vector<Instruction> &instructions) {
         int spOffset = memUsed - offset;
@@ -245,6 +248,7 @@ struct CompContext {
 
         instructions.push_back({".text", "", "", "", 0, Instruction::E});
         instructions.push_back({".global", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
+        instructions.push_back({".ent", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
         instructions.push_back({".type", stack.back().decFlags.funcName, "@function", "", 0, Instruction::SS});
         instructions.push_back({"label", stack.back().decFlags.funcName, "", "", 0, Instruction::L});
 
@@ -257,14 +261,14 @@ struct CompContext {
     }
 
     void subScopeFunc(std::vector<Instruction> &instructions) {
-        //instructions.push_back({"label", stack.back().decFlags.funcName + "_end", "", "", 0, Instruction::L});
-
         instructions.push_back({"addi", regMap[$2], regMap[$0], "", 0, Instruction::SSN});
         printRetSequence(instructions);
+        instructions.push_back({".end", stack.back().decFlags.funcName, "", "", 0, Instruction::S});
         memUsed = 0;
-
         subScopeContext();
     }
+
+    bool metMain = false;
 };
 
 #endif
