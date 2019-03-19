@@ -806,7 +806,7 @@ public:
     }
 
     double eval() {
-        return expr1->eval() << expr2->eval();
+        return (int)expr1->eval() << (int)expr2->eval();
     }
 
 protected:
@@ -840,7 +840,7 @@ public:
     }
 
     double eval() {
-        return expr1->eval() >> expr2->eval();
+        return (int)expr1->eval() >> (int)expr2->eval();
     }
 
 protected:
