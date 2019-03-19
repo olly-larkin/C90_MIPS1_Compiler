@@ -302,9 +302,9 @@ public:
         expr->address(addrReg, context, instructions);
         instructions.push_back({"lw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
         if (pointerMath)
-            instructions.push_back({"addi", regMap[destReg], regMap[destReg], "", -4, Instruction::SSN});
+            instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", -4, Instruction::SSN});
         else
-            instructions.push_back({"addi", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN});
+            instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN});
         instructions.push_back({"sw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
 
         context.pullFromStack({addrReg}, instructions);
