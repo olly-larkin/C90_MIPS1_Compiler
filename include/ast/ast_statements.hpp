@@ -244,12 +244,14 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string falseLabel = context.makeALabel("false");
         int reg = context.chooseReg();
+        context.addComment(instructions, "If statement: temp reg = " + regMap[reg]);
         context.pushToStack({reg}, instructions);
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
         statement->generateMIPS(context, instructions);
         instructions.push_back({"lebel", falseLabel, "", "", 0, Instruction::L});
         context.pullFromStack({reg}, instructions);
+        context.addComment(instructions, "Exiting if statement...");
     }
 
 protected:
