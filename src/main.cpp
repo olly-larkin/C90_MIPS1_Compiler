@@ -33,7 +33,7 @@ void printVec(std::ostream &os, const std::vector<Instruction> &instr) {        
         switch(instr[i].printMethod) {
             case Instruction::SSS:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << ", " << instr[i].arg3;
-                if (newLines) {os << std::endl;
+                if (newLines) os << std::endl;
                 if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::SSN:
