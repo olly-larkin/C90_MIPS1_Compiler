@@ -1,7 +1,7 @@
 
 int func();
-int func2();
+//int func2();
 
 int main() {
-    return func() + func2();
+    return func();// + func2();
 }

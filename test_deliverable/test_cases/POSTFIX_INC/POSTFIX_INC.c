@@ -5,7 +5,7 @@ int func() {
     return x;
 }
 
-int func2() {
-    int x = 0;
-    return x++;
-}
+// int func2() {
+//     int x = 0;
+//     return x++;
+// }
