@@ -495,6 +495,10 @@ public:
         instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
     }
 
+    double eval() {
+        return -1 * expr->eval();
+    }
+
 protected:
     BaseExpression *expr;
 };
@@ -512,6 +516,10 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         expr->generateMIPS(context, instructions, destReg);
         instructions.push_back({"not", regMap[destReg], regMap[destReg], "", 0, Instruction::SS});
+    }
+
+    double eval() {
+        return ~(int)expr->eval();
     }
 
 protected:
@@ -533,6 +541,10 @@ public:
         expr->generateMIPS(context, instructions, destReg);
         instructions.push_back({"slti", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});
         //andi char casting?
+    }
+
+    double eval() {
+        return !expr->eval();
     }
 
 protected:
@@ -569,6 +581,11 @@ public:
         instructions.push_back({"mfhi", regMap[destReg], "", "", 0, Instruction::S});
         context.pullFromStack({op2,op1}, instructions);
     }
+
+    double eval() {
+        return (int)expr1->eval() % (int)expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -598,6 +615,10 @@ public:
         instructions.push_back({"div", regMap[op1], regMap[op2], "", 0, Instruction::SS});
         instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
         context.pullFromStack({op2,op1}, instructions);
+    }
+
+    double eval() {
+        return expr1->eval() / expr2->eval();
     }
 
 protected:
@@ -637,6 +658,10 @@ public:
         instructions.push_back({"mult", regMap[op1], regMap[op2], "", 0, Instruction::SS});
         instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
         context.pullFromStack({op2,op1}, instructions);
+    }
+
+    double eval() {
+        return expr1->eval() * expr2->eval();
     }
 
 protected:
@@ -691,6 +716,10 @@ public:
         return expr1->isPointer(context) || expr2->isPointer(context);
     }
 
+    double eval() {
+        return expr1->eval() + expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -738,6 +767,10 @@ public:
         return expr1->isPointer(context) || expr2->isPointer(context);
     }
 
+    double eval() {
+        return expr1->eval() - expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -772,6 +805,10 @@ public:
         context.pullFromStack({op2,op1}, instructions);
     }
 
+    double eval() {
+        return expr1->eval() << expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -800,6 +837,10 @@ public:
         //TODO: SRA, or SRL?
         instructions.push_back({"srav", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
         context.pullFromStack({op2,op1}, instructions);
+    }
+
+    double eval() {
+        return expr1->eval() >> expr2->eval();
     }
 
 protected:
@@ -850,6 +891,10 @@ public:
         context.pullFromStack({op2,op1}, instructions);
     }
 
+    double eval() {
+        return expr1->eval() < expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -894,6 +939,10 @@ public:
         context.pullFromStack({op2,op1}, instructions);
     }
 
+    double eval() {
+        return expr1->eval() > expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -930,6 +979,10 @@ public:
         context.pullFromStack({op2,op1}, instructions);
     }
 
+    double eval() {
+        return expr1->eval() <= expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -947,6 +1000,7 @@ public:
         expr1->print(os, level+1);
         expr2->print(os, level+1);
     }
+
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int op1 = context.chooseReg({destReg});
         int op2 = context.chooseReg({destReg, op1});
@@ -963,6 +1017,10 @@ public:
         instructions.push_back({"irrelevant", skipper, "", "", 0, Instruction::L});
 
         context.pullFromStack({op2,op1}, instructions);
+    }
+
+    double eval() {
+        return expr1->eval() >= expr2->eval();
     }
 
 protected:
@@ -1003,6 +1061,10 @@ public:
         instructions.push_back({"sub", regMap[destReg], regMap[destReg], regMap[tempReg], 0, Instruction::SSS});
         instructions.push_back({"sltiu", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
         context.pullFromStack({tempReg}, instructions);
+    }
+
+    double eval() {
+        return expr1->eval() == expr2->eval();
     }
 
 protected:
@@ -1052,6 +1114,10 @@ public:
         }
     }
 
+    double eval() {
+        return expr1->eval() != expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1083,6 +1149,10 @@ public:
         //and destreg, op1, op2
         instructions.push_back({"and", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
         context.pullFromStack({op2,op1}, instructions);
+    }
+
+    double eval() {
+        return (int)expr1->eval() & (int)expr2->eval();
     }
 
 protected:
@@ -1122,6 +1192,10 @@ public:
         }
     }
 
+    double eval() {
+        return (int)expr1->eval() ^ (int)expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1158,6 +1232,10 @@ public:
             instructions.push_back({"or", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
             context.pullFromStack({op2,op1}, instructions);
         }
+    }
+
+    double eval() {
+        return (int)expr1->eval() | (int)expr2->eval();
     }
 
 protected:
@@ -1211,6 +1289,10 @@ public:
         }
     }
 
+    double eval() {
+        return expr1->eval() && expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1262,6 +1344,10 @@ public:
         }
     }
 
+    double eval() {
+        return expr1->eval() || expr2->eval();
+    }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1295,6 +1381,10 @@ public:
         //branch to 2nd if false
         //generate first label and code with a jump to the end label
         //generate second label and code
+    }
+
+    double eval() {
+        return expr1->eval() ?  expr2->eval() : expr3->eval();
     }
 
 protected:
