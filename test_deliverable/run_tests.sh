@@ -6,6 +6,8 @@ else
     compiler="bin/c_compiler"
 fi
 
+echo
+
 if [[ ! -f bin/c_compiler ]] ; then
     >&2 echo "Cannot find compiler at path ${compiler}. Terminating."
     exit
