@@ -193,7 +193,7 @@ public:
             context.pushToStack({$2, $fp}, instructions);
         context.addScope(instructions);
         instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4 * argNum, Instruction::SSN});
-        argList->generateMIPS(context, instructions);
+        if (argList != NULL) argList->generateMIPS(context, instructions);
         instructions.push_back({"sw", regMap[$4], regMap[$sp], "", 0, Instruction::LS});
         instructions.push_back({"sw", regMap[$5], regMap[$sp], "", 4, Instruction::LS});
         instructions.push_back({"sw", regMap[$6], regMap[$sp], "", 8, Instruction::LS});
