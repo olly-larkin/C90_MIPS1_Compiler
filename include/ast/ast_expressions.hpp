@@ -203,7 +203,8 @@ public:
         context.subScope(instructions);
         context.pullFromStack({$fp}, instructions);
         instructions.push_back({"addi", regMap[destReg], regMap[$2], "", 0, Instruction::SSN});
-        if (destReg != $2) context.pullFromStack({$2}, instructions);
+        if (destReg != $2) 
+            context.pullFromStack({$2}, instructions);
     }
 
     bool isPointer(CompContext &context) {
