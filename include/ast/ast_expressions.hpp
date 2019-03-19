@@ -1699,9 +1699,10 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int tempReg = context.chooseReg({destReg});
+        if (list != NULL) list->generateMIPS(context, instructions);
+        int tempReg = context.chooseReg();
         context.pushToStack({tempReg}, instructions);
-        int offset = context.funcCallFlags().argNum * 4;
+        int offset = context.funcCallFlags().argNum * 4 + 4;    // plus 4 because of the tempReg being used
         context.funcCallFlags().argNum++;
         expr->generateMIPS(context, instructions, tempReg);
         instructions.push_back({"sw", regMap[tempReg], regMap[$sp], "", offset, Instruction::LS});
