@@ -443,8 +443,6 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         expr->generateMIPS(context, instructions, destReg);
-        //instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN}); //TODO: use nor?
-        //instructions.push_back({"addi", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
         instructions.push_back({"not", regMap[destReg], regMap[destReg], "", 0, Instruction::SS});
         instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
     }
@@ -465,8 +463,9 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         expr->generateMIPS(context, instructions, destReg);
-        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN}); //TODO: use nor?
+        instructions.push_back({"not", regMap[destReg], regMap[destReg], "", 0, Instruction::SS});
     }
+
 protected:
     BaseExpression *expr;
 };
