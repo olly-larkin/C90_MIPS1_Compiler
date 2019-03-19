@@ -196,9 +196,9 @@ public:
         else
             context.pushToStack({$2, $fp}, instructions);
         context.addScope(instructions);
-        int allocate = (argNum < 4) ? -16 : -4 * argNum;
-        context.memUsed -= allocate;
-        instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", allocate, Instruction::SSN});
+        // int allocate = (argNum < 4) ? -16 : -4 * argNum;
+        // context.memUsed -= allocate;
+        // instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", allocate, Instruction::SSN});
         // if (argList != NULL) argList->generateMIPS(context, instructions);
         // instructions.push_back({"sw", regMap[$4], regMap[$sp], "", 0, Instruction::LS});
         // instructions.push_back({"sw", regMap[$5], regMap[$sp], "", 4, Instruction::LS});
