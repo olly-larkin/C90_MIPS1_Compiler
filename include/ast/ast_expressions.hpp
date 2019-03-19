@@ -1597,11 +1597,12 @@ public:
         expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
-        instructions.push_back({"div", regMap[destReg], regMap[RHS], "", 0, Instruction::SSS});
+        instructions.push_back({"div", regMap[destReg], regMap[RHS], "", 0, Instruction::SS});
         instructions.push_back({"mfhi", regMap[destReg], "", "", 0, Instruction::S});
         instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
         context.pullFromStack({RHS, addrHolder}, instructions);
     }
+
 protected:
     BaseExpression *expr1, *expr2;
 };
