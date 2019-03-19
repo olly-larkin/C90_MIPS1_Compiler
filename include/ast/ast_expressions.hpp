@@ -106,7 +106,7 @@ protected:
 //----------------------POSTFIX-------------------------------
 //************************************************************
 
-class PostfixArrIndex : public BaseExpression {         //MIPS DONE
+class PostfixArrIndex : public BaseExpression {
 public:
     PostfixArrIndex(BaseExpression *_postfix, BaseExpression *_index) : postfix(_postfix), index(_index) {}
     ~PostfixArrIndex() {
@@ -1319,7 +1319,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         if(expr1->isPointer(context) && !expr2->isPointer(context)){
@@ -1358,7 +1358,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         if(expr1->isPointer(context) && !expr2->isPointer(context)){
@@ -1397,7 +1397,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"mul", regMap[destReg], regMap[RHS], "", 0, Instruction::SSS});
@@ -1430,7 +1430,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"div", regMap[destReg], regMap[RHS], "", 0, Instruction::SSS});
@@ -1462,7 +1462,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"div", regMap[destReg], regMap[RHS], "", 0, Instruction::SSS});
@@ -1494,7 +1494,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"sllv", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
@@ -1525,7 +1525,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"srav", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
@@ -1556,7 +1556,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"and", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
@@ -1587,7 +1587,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"or", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
@@ -1618,7 +1618,7 @@ public:
 
         context.pushToStack({addrHolder, RHS}, instructions);
         expr1->address(addrHolder, context, instructions);
-        expr1->generateMIPS(context, instructions, destReg)
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
         instructions.push_back({"xor", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
