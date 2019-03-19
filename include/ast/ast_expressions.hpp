@@ -5,7 +5,7 @@
 //----------------------PRIMARY-------------------------------
 //************************************************************
 
-class PrimaryExprIdentifier : public BaseExpression {
+class PrimaryExprIdentifier : public BaseExpression {   //MIPS DONE
 public:
     PrimaryExprIdentifier(const std::string &_identifier) : identifier(_identifier) {}
     ~PrimaryExprIdentifier() {}
@@ -56,7 +56,7 @@ protected:
     std::string identifier;
 };
 
-class PrimaryExprConstant : public BaseExpression {     
+class PrimaryExprConstant : public BaseExpression {     //MIPS DONE
 public:
     PrimaryExprConstant(double _constant) : constant(_constant) {}
     ~PrimaryExprConstant() {}
@@ -106,7 +106,7 @@ protected:
 //----------------------POSTFIX-------------------------------
 //************************************************************
 
-class PostfixArrIndex : public BaseExpression {
+class PostfixArrIndex : public BaseExpression {         //MIPS DONE
 public:
     PostfixArrIndex(BaseExpression *_postfix, BaseExpression *_index) : postfix(_postfix), index(_index) {}
     ~PostfixArrIndex() {
@@ -123,8 +123,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //check variable map
-        //return desired value via stack offset into destreg?
+        address(destReg, context, instructions);
+        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {       // will only work with single dimention arrays
@@ -171,7 +171,7 @@ protected:
     BaseList *argList;
 };
 
-class PostfixDotOp : public BaseExpression {
+class PostfixDotOp : public BaseExpression {        //TODO: implement after structs
 public:
     PostfixDotOp(BaseExpression *_postfix, const std::string &_identifier) : postfix(_postfix), identifier(_identifier) {}
     ~PostfixDotOp() { delete postfix; }
@@ -190,7 +190,7 @@ protected:
     std::string identifier;
 };
 
-class PostfixArrowOp : public BaseExpression {
+class PostfixArrowOp : public BaseExpression {      //TODO: implement after structs
 public:
     PostfixArrowOp(BaseExpression *_postfix, const std::string &_identifier) : postfix(_postfix), identifier(_identifier) {}
     ~PostfixArrowOp() { delete postfix; }
