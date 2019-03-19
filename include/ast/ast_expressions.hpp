@@ -996,18 +996,6 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        // int op1 = context.chooseReg({destReg});
-        // int op2 = context.chooseReg({destReg, op1});
-        // context.pushToStack({op1,op2}, instructions);
-        // expr1->generateMIPS(context, instructions, op1);
-        // expr2->generateMIPS(context, instructions, op2);
-        // std::string skipper = context.makeALabel("skip");
-        // instructions.push_back({"addi", regMap[destReg], regMap[$0], "", 0, Instruction::SSN});     //0 into destreg by default
-        // instructions.push_back({"bne", regMap[op1], regMap[op2], skipper, 0, Instruction::SSS});    //if not equal, we shouldn't set to 1
-        // //branch delay slot nop
-        // instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 1, Instruction::SSN});      //gets skipped if branch was true
-        // instructions.push_back({"label", skipper, "", "", 0, Instruction::L});                 //skips to this label
-        // context.pullFromStack({op2,op1}, instructions);
         int tempReg = context.chooseReg({destReg});
         context.pushToStack({tempReg}, instructions);
         expr1->generateMIPS(context, instructions, destReg);
