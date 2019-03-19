@@ -33,7 +33,7 @@ struct Instruction {
     std::string name;
     std::string arg1, arg2, arg3;
     long int number;
-    enum { SSS, SSN, SN, SS, S, N, LS, E, L, LIST } printMethod;  
+    enum { SSS, SSN, SN, SS, S, N, LS, E, L, LIST, COMMENT } printMethod;  
     // LS = load/store
     // E = empty (nop)
     // L = label
@@ -45,6 +45,10 @@ struct CompContext {
     std::string makeALabel(const std::string &str) {
         static int id = 0;
         return "_" + str + "_" + std::to_string(id++);
+    }
+
+    void addComment(std::vector<Instruction> &instr, const std::string &msg) {
+        instr.push_back({msg, "", "", "", 0, Instruction::COMMENT});
     }
 
     struct Type {

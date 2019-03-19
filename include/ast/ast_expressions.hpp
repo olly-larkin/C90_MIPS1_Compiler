@@ -187,12 +187,16 @@ public:
 
         std::string funcName = postfix->getIdentifier();
         int argNum = (argList != NULL) ? argList->size() : 0;
+        context.addComment(instructions, "Start of function call...");
+        context.addComment(instructions, "Function name: " + funcName);
+        context.addComment(instructions, "Destination reg: " + std::to_string(destReg));
+        context.addComment(instructions, "Argument number: " + std::to_string(argNum));
         if (destReg == $2)
             context.pushToStack({$fp}, instructions);
         else
             context.pushToStack({$2, $fp}, instructions);
         context.addScope(instructions);
-        instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4 * argNum, Instruction::SSN});
+        instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", (argNum < 4) ? -16 : -4 * argNum, Instruction::SSN});
         if (argList != NULL) argList->generateMIPS(context, instructions);
         instructions.push_back({"sw", regMap[$4], regMap[$sp], "", 0, Instruction::LS});
         instructions.push_back({"sw", regMap[$5], regMap[$sp], "", 4, Instruction::LS});
@@ -206,6 +210,7 @@ public:
             instructions.push_back({"addi", regMap[destReg], regMap[$2], "", 0, Instruction::SSN});
             context.pullFromStack({$2}, instructions);
         }
+        context.addComment(instructions, "End of function call...");
     }
 
     bool isPointer(CompContext &context) {
