@@ -1,10 +1,10 @@
 
 int func2() {
-    return 0;
+    return 1;
 }
 
 int func() {
     int result = 5;
-    result = func2();
+    result = 1 - func2();
     return result;
 }
