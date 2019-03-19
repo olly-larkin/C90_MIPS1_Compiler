@@ -199,13 +199,13 @@ public:
         int allocate = (argNum < 4) ? -16 : -4 * argNum;
         context.memUsed -= allocate;
         instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", allocate, Instruction::SSN});
-        // if (argList != NULL) argList->generateMIPS(context, instructions);
-        // instructions.push_back({"sw", regMap[$4], regMap[$sp], "", 0, Instruction::LS});
-        // instructions.push_back({"sw", regMap[$5], regMap[$sp], "", 4, Instruction::LS});
-        // instructions.push_back({"sw", regMap[$6], regMap[$sp], "", 8, Instruction::LS});
-        // instructions.push_back({"sw", regMap[$7], regMap[$sp], "", 12, Instruction::LS});
-        // instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 0, Instruction::SSN});
-        // instructions.push_back({"jal", funcName, "", "", 0, Instruction::S});
+        if (argList != NULL) argList->generateMIPS(context, instructions);
+        instructions.push_back({"sw", regMap[$4], regMap[$sp], "", 0, Instruction::LS});
+        instructions.push_back({"sw", regMap[$5], regMap[$sp], "", 4, Instruction::LS});
+        instructions.push_back({"sw", regMap[$6], regMap[$sp], "", 8, Instruction::LS});
+        instructions.push_back({"sw", regMap[$7], regMap[$sp], "", 12, Instruction::LS});
+        instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 0, Instruction::SSN});
+        instructions.push_back({"jal", funcName, "", "", 0, Instruction::S});
         context.subScope(instructions);
         context.pullFromStack({$fp}, instructions);
         if (destReg != $2) {
