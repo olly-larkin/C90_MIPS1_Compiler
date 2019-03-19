@@ -192,12 +192,14 @@ public:
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
 
-        expr1->generateMIPS(context, instructions, reg);
+        if (expr1 != NULL) expr1->generateMIPS(context, instructions, reg);
         instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
-        expr2->generateMIPS(context, instructions, reg);
-        instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
+        if (expr2 != NULL) {
+            expr2->generateMIPS(context, instructions, reg);
+            instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
+        }
         statement->generateMIPS(context, instructions);
-        expr3->generateMIPS(context, instructions, reg);
+        if (expr3 != NULL) expr3->generateMIPS(context, instructions, reg);
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
 
