@@ -1,6 +1,6 @@
 int func(){ //OR
-    int x = 0xA;
-    x |= 0x5;
+    int x = 0x8;
+    x |= 0xC;
     return x;
 }
 
