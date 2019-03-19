@@ -352,7 +352,7 @@ protected:
     BaseExpression *expr;
 };
 
-class SizeOfExpr : public BaseExpression {
+class SizeOfExpr : public BaseExpression {      //TODO: sizeof
 public:
     SizeOfExpr(BaseExpression *_expr) : expr(_expr) {}
     ~SizeOfExpr() { delete expr; }
@@ -366,7 +366,7 @@ protected:
     BaseExpression *expr;
 };
 
-class SizeOfType : public BaseExpression {
+class SizeOfType : public BaseExpression {      //TODO: sizeof
 public:
     SizeOfType(BaseNode *_type) : type(_type) {}
     ~SizeOfType() { delete type; }
