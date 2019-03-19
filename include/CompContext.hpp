@@ -91,9 +91,6 @@ struct CompContext {
         struct enumFlagStruct {
             int lastVal = -1;
         } enumFlags;
-        struct expressionFlagStruct {
-            bool pointerMath = false;
-        } expressionFlags;
 
         int stackOffset;
     };
@@ -116,7 +113,6 @@ struct CompContext {
     stackStruct::statementFlagStruct& statementFlags() { return stack.back().statementFlags; }
     stackStruct::switchFlagStruct& switchFlags() { return stack.back().switchFlags; }
     stackStruct::enumFlagStruct& enumFlags() { return stack.back().enumFlags; }
-    stackStruct::expressionFlagStruct& expressionFlags() { return stack.back().expressionFlags; }
     funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 
