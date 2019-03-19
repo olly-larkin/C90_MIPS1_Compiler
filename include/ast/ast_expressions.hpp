@@ -187,7 +187,10 @@ public:
 
         std::string funcName = postfix->getIdentifier();
         int argNum = (argList != NULL) ? argList->size() : 0;
-        context.pushToStack({$2, $fp}, instructions);
+        if (destReg == $2)
+            context.pushToStack({$fp}, instructions);
+        else
+            context.pushToStack({$2, $fp}, instructions);
         context.addScope(instructions);
         instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4 * argNum, Instruction::SSN});
         argList->generateMIPS(context, instructions);
@@ -200,7 +203,7 @@ public:
         context.subScope(instructions);
         context.pullFromStack({$fp}, instructions);
         instructions.push_back({"addi", regMap[destReg], regMap[$2], "", 0, Instruction::SSN});
-        context.pullFromStack({$2}, instructions);
+        if (destReg != $2) context.pullFromStack({$2}, instructions);
     }
 
     bool isPointer(CompContext &context) {
