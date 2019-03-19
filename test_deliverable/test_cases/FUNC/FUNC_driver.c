@@ -1,6 +1,6 @@
 
-int func();
+int func(int num);
 
 int main() {
-    return func();
+    return func(1);
 }
