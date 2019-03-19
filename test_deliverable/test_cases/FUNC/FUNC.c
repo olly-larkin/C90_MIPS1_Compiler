@@ -5,6 +5,6 @@ int func2() {
 
 int func() {
     int result = 5;
-    result = func();
+    result = func2();
     return result;
 }
