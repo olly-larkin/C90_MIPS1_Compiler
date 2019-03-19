@@ -19,31 +19,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        
-        if (offset(context).global) {
-            context.readGlobal(destReg, identifier, instructions);
-        }
-        else 
-            context.readStack(destReg, context.varMap()[identifier].offset, instructions); 
-    }
-
-    offsetRet offset(CompContext &context) { 
-        if (context.local(identifier)) {
-            return {context.varMap()[identifier].offset, identifier, false};
-        } 
-        
-        else if (context.param(identifier)) {
-            int location;
-            for(int i=0; i<context.currentFunc().params.size(); i++){
-                if (context.currentFunc().params[i].first == identifier)
-                    location = i*-4;
-            }
-            return {location, identifier, false};
-        } 
-        
-        else {
-            return {0, identifier, true};
-        }
+        address(destReg, context, instructions);
+        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
@@ -104,7 +81,7 @@ protected:
     double constant;
 };
 
-class PrimaryExprStrLiteral : public BaseExpression {
+class PrimaryExprStrLiteral : public BaseExpression {       //TODO: come back after char support
 public:
     PrimaryExprStrLiteral(const std::string &_literal) : literal(_literal) {}
     ~PrimaryExprStrLiteral() {}
