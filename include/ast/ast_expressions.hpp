@@ -367,12 +367,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        
-        if (offset(context).global) {
-            context.readGlobal(destReg, identifier, instructions);
-        }
-        else 
-            context.readStack(destReg, context.varMap()[identifier].offset, instructions); 
+       expr->address(destReg, context, instructions);
     }
 
 protected:
