@@ -244,6 +244,7 @@ struct CompContext {
 
     void subScope(std::vector<Instruction> &instructions) {
         int offset = memUsed - stack.back().stackOffset;
+        memUsed = stack.back().stackOffset;
         instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", offset, Instruction::SSN});   // push $sp back to where it was
         stack.pop_back();
     }
