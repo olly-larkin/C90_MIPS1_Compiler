@@ -120,9 +120,10 @@ struct CompContext {
 
     int chooseReg(const std::vector<int> &regs = {}) {
         for (int i = $s0; ; ++i) {
+            bool yes = true;
             for(int j = 0; j < regs.size(); ++j)
-                if (regs[j] == i) continue;
-            return i;
+                if (regs[j] == i) yes = false;
+            if (yes) return i;
         }
     }
 
