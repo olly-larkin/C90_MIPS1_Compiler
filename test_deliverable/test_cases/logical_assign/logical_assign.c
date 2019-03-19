@@ -1,5 +1,5 @@
 int func(){ //OR
-    int x = 0x8;
+    int x = 0x7;
     x |= 0xC;
     return x;
 }
