@@ -5,7 +5,11 @@
 //----------------------PRIMARY-------------------------------
 //************************************************************
 
+<<<<<<< HEAD
 class PrimaryExprIdentifier : public BaseExpression {   //MIPS DONE
+=======
+class PrimaryExprIdentifier : public BaseExpression { //MIPS DONE
+>>>>>>> aacb912a75be4c2aed4800c696e994938f46d075
 public:
     PrimaryExprIdentifier(const std::string &_identifier) : identifier(_identifier) {}
     ~PrimaryExprIdentifier() {}
@@ -123,8 +127,17 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+<<<<<<< HEAD
         address(destReg, context, instructions);
         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+=======
+        //wip
+        if (offset(context).global) {
+            context.readGlobal(destReg, identifier, instructions);
+        }
+        else 
+            context.readStack(destReg, context.varMap()[identifier].offset, instructions); 
+>>>>>>> aacb912a75be4c2aed4800c696e994938f46d075
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {       // will only work with single dimention arrays
@@ -164,6 +177,11 @@ public:
         if (argList != NULL)
             argList->printPy(os, context);
         os << ")";
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //check variable map
+        //return desired value via stack offset into destreg?
     }
 
 protected:
@@ -209,7 +227,7 @@ protected:
     std::string identifier;
 };
 
-class PostfixDecOp : public BaseExpression {
+class PostfixDecOp : public BaseExpression { //MIPS DONE
 public:
     PostfixDecOp(BaseExpression *_postfix) : postfix(_postfix) {}
     ~PostfixDecOp() { delete postfix; }
@@ -219,51 +237,53 @@ public:
         postfix->print(os, level+1);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //check variable map
-        //take value into destreg
-        //subtract 1 into tempReg
-        //store tempreg back to location
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
+        int tempReg = context.chooseReg({destReg});
+        offsetRet locationData = expr->offset(context);
+
+        expr->generateMIPS(context, instructions, destReg);                                            //get expr into destreg
+        instructions.push_back({"addiu", regMap[tempReg], regMap[destReg], "", -1, Instruction::SSN});  //add 1
+        if(locationData.global)
+            context.writeGlobal(tempReg, locationData.label, instructions);
+        else    
+            context.writeStack(tempReg, locationData.offset, instructions);                            //store destReg to location
     }
 
 protected:
     BaseExpression *postfix;
 };
 
-class PostfixIncOp : public BaseExpression {
+class PostfixIncOp : public BaseExpression { //MIPS DONE
 public:
-    PostfixIncOp(BaseExpression *_postfix) : postfix(_postfix) {}
-    ~PostfixIncOp() { delete postfix; }
+    PostfixIncOp(BaseExpression *_postfix) : expr(_postfix) {}
+    ~PostfixIncOp() { delete expr; }
 
     void print(std::ostream &os, int level) {
-        os << indent(level) << "Postfix Incremeent (++):" << std::endl;
-        postfix->print(os, level+1);
+        os << indent(level) << "Postfix Increment (++):" << std::endl;
+        expr->print(os, level+1);
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //check variable map
-        //take value into destreg
-        int tempReg = context.chooseReg({destReg});//add 1 into tempReg
-        //store tempreg back to location
-        offsetRet locationData = postfix->offset(context);
+        int tempReg = context.chooseReg({destReg});
+        offsetRet locationData = expr->offset(context);
 
-        postfix->generateMIPS(context, instructions, destReg);                                             //get expr into destreg
-        instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN});  //subtract 1
+        expr->generateMIPS(context, instructions, destReg);                                            //get expr into destreg
+        instructions.push_back({"addiu", regMap[tempReg], regMap[destReg], "", 1, Instruction::SSN});  //add 1
         if(locationData.global)
-            context.writeGlobal(destReg, locationData.label, instructions);
+            context.writeGlobal(tempReg, locationData.label, instructions);
         else    
-            context.writeStack(destReg, locationData.offset, instructions);                             //store destReg to location
+            context.writeStack(tempReg, locationData.offset, instructions);                            //store destReg to location
     }
 
 protected:
-    BaseExpression *postfix;
+    BaseExpression *expr;
 };
 
 //************************************************************
 //-----------------------UNARY--------------------------------
 //************************************************************
 
-class PrefixDecOp : public BaseExpression {
+class PrefixDecOp : public BaseExpression { //MIPS DONE
 public:
     PrefixDecOp(BaseExpression *_expr) : expr(_expr) {}
     ~PrefixDecOp() { delete expr; }
@@ -288,7 +308,7 @@ protected:
     BaseExpression *expr;
 };
 
-class PrefixIncOp : public BaseExpression {
+class PrefixIncOp : public BaseExpression { //MIPS DONE
 public:
     PrefixIncOp(BaseExpression *_expr) : expr(_expr) {}
     ~PrefixIncOp() { delete expr; }
@@ -356,7 +376,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //return a logical address: frame pointer + frame offset?
+       expr->address(destReg, context, instructions);
     }
 
 protected:
@@ -387,7 +407,7 @@ protected:
     BaseExpression *expr;
 };
 
-class NegationOp : public BaseExpression {
+class NegationOp : public BaseExpression { //MIPS DONE
 public:
     NegationOp(BaseExpression *_expr) : expr(_expr) {}
     ~NegationOp() { delete expr; }
@@ -404,15 +424,16 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //evaluate what's inside
-        //2's complement the destreg
+        expr->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN}); //TODO: use nor?
+        instructions.push_back({"addi", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
     }
 
 protected:
     BaseExpression *expr;
 };
 
-class InvertOp : public BaseExpression {
+class InvertOp : public BaseExpression { //MIPS DONE
 public:
     InvertOp(BaseExpression *_expr) : expr(_expr) {}
     ~InvertOp() { delete expr; }
@@ -423,14 +444,14 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //evaluate what's inside
-        //bitwise inversion?
+        expr->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", -1, Instruction::SSN}); //TODO: use nor?
     }
 protected:
     BaseExpression *expr;
 };
 
-class NotOp : public BaseExpression {
+class NotOp : public BaseExpression { //MIPS DONE
 public:
     NotOp(BaseExpression *_expr) : expr(_expr) {}
     ~NotOp() { delete expr; }
@@ -438,6 +459,13 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Unary Not Operator (!):" << std::endl;
         expr->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        //TODO: signed/unsigned slt
+        expr->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"slti", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});
+        //andi char casting?
     }
 
 protected:
@@ -1228,11 +1256,13 @@ public:
         expr2->printPy(os, context);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
-        //evaluate RHS
-        //check variable map
-        //if present, go to stack offset and change value
-        //else put a new value on the stack offset
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        
+        if (offset(context).global) {
+            context.readGlobal(destReg, identifier, instructions);
+        }
+        else 
+            context.readStack(destReg, context.varMap()[identifier].offset, instructions); 
     }
 
 protected:
