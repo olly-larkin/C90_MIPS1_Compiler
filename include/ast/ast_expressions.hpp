@@ -1269,24 +1269,23 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
-        //evaluate expr1 and 2
-        //1 into destreg if either operand is positive?
+        std::string skipper = context.makeALabel("skip");
+        std::string endLabel = context.makeALabel("end");
         int op1 = context.chooseReg({destReg});
         int op2 = context.chooseReg({destReg, op1});
-        if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1,op2}, instructions);
-            expr1->generateMIPS(context, instructions, op1);
-            expr2->generateMIPS(context, instructions, op2);
+        context.pushToStack({op1, op2}, instructions);
 
-            //slt op1, $0, op1
-            instructions.push_back({"slt", regMap[op1], "$0", regMap[op1], 0, Instruction::SSS});
-            //slt op2, $0, op2
-            instructions.push_back({"slt", regMap[op2], "$0", regMap[op2], 0, Instruction::SSS});
-            //and destreg, op1, op2
-            instructions.push_back({"and", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
-
-            context.pullFromStack({op2,op1}, instructions);
-        }
+        expr1->generateMIPS(context, instructions, op1);
+        instructions.push_back({"beq", regMap[op1], regMap[$0], skipper, 0, Instruction::SSS});     //if 0, short circuit
+        expr2->generateMIPS(context, instructions, op2);
+        instructions.push_back({"beq", regMap[op2], regMap[$0], skipper, 0, Instruction::SSS});     //if 0, set destreg 0
+        instructions.push_back({"addiu", regMap[destReg], regMap[$0], "", 1, Instruction::SSN});    //set destreg 1 if we've failed both branches
+        instructions.push_back({"j", endLabel, "", "", 0, Instruction::S});                         //skip the 0 short circuit
+        instructions.push_back({"SHORT CIRCUIT", skipper, "", "", 0, Instruction::L});
+        instructions.push_back({"addiu", regMap[destReg], regMap[$0], "", 0, Instruction::SSN});
+        instructions.push_back({"both false", endLabel, "", "", 0, Instruction::L});
+        
+        context.pullFromStack({op2,op1}, instructions);
     }
 
     double eval() {
@@ -1323,25 +1322,24 @@ public:
         os << ")";
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: SHORT CIRCUITING
-        //evaluate expr1 and 2
-        //1 into destreg if either operand is positive?
-        int op1 = context.chooseReg({destReg});         
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        std::string skipper = context.makeALabel("skip");
+        std::string endLabel = context.makeALabel("end");
+        int op1 = context.chooseReg({destReg});
         int op2 = context.chooseReg({destReg, op1});
-        if (expr1 != NULL && expr2 != NULL) {
-            context.pushToStack({op1,op2}, instructions);
-            expr1->generateMIPS(context, instructions, op1);
-            expr2->generateMIPS(context, instructions, op2);
-
-            //slt destReg, $0, op1
-            instructions.push_back({"slt", regMap[op1], regMap[$0], regMap[op1], 0, Instruction::SSS});
-            //slt destReg, $0, op2
-            instructions.push_back({"slt", regMap[op2], regMap[$0], regMap[op2], 0, Instruction::SSS});
-            //slt destReg, $0, op2
-            instructions.push_back({"or", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
-
-            context.pullFromStack({op2,op1}, instructions);
-        }
+        context.pushToStack({op1, op2}, instructions);
+        
+        expr1->generateMIPS(context, instructions, op1);
+        instructions.push_back({"bne", regMap[op1], regMap[$0], skipper, 0, Instruction::SSS});     //if 0, short circuit
+        expr2->generateMIPS(context, instructions, op2);
+        instructions.push_back({"bne", regMap[op2], regMap[$0], skipper, 0, Instruction::SSS});     //if 0, set destreg 0
+        instructions.push_back({"addiu", regMap[destReg], regMap[$0], "", 0, Instruction::SSN});    //set destreg 0 if we've failed both branches
+        instructions.push_back({"j", endLabel, "", "", 0, Instruction::S});                         //skip the 1 short circuit
+        instructions.push_back({"SHORT CIRCUIT", skipper, "", "", 0, Instruction::L});
+        instructions.push_back({"addiu", regMap[destReg], regMap[$0], "", 1, Instruction::SSN});
+        instructions.push_back({"both false", endLabel, "", "", 0, Instruction::L});
+        
+        context.pullFromStack({op2,op1}, instructions);
     }
 
     double eval() {
@@ -1375,12 +1373,18 @@ public:
         expr3->print(os, level+2);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
-        //evaluate ternary condition
-        //branch to 1st label if true
-        //branch to 2nd if false
-        //generate first label and code with a jump to the end label
-        //generate second label and code
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: check
+        std::string skipper = context.makeALabel("skip");
+        std::string endLabel = context.makeALabel("end");
+        expr1->generateMIPS(context, instructions, destReg);
+
+        instructions.push_back({"beq", regMap[destReg], regMap[$0], skipper, 0, Instruction::SSN});     //branch to 2nd if false
+        expr2->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"j", endLabel, "", "", 0, Instruction::S});                             //check instruction type
+        
+        instructions.push_back({"second expr", skipper, "", "", 0, Instruction::L});
+        expr3->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"end", endLabel, "", "", 0, Instruction::L});
     }
 
     double eval() {
