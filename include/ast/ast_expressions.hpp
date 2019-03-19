@@ -655,7 +655,7 @@ public:
         expr1->generateMIPS(context, instructions, op1);
         expr2->generateMIPS(context, instructions, op2);
 
-        instructions.push_back({"mul", regMap[op1], regMap[op2], "", 0, Instruction::SS});
+        instructions.push_back({"mult", regMap[op1], regMap[op2], "", 0, Instruction::SS});
         instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
         context.pullFromStack({op2,op1}, instructions);
     }
@@ -1531,7 +1531,7 @@ public:
         expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, RHS);
 
-        instructions.push_back({"mul", regMap[destReg], regMap[RHS], "", 0, Instruction::SS});
+        instructions.push_back({"mult", regMap[destReg], regMap[RHS], "", 0, Instruction::SS});
         instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
         instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
         context.pullFromStack({RHS, addrHolder}, instructions);
