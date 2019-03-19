@@ -6,7 +6,7 @@ int func(){ //OR
 
 int funk(){ //AND
     int x = 0xF0;
-    x &= 0xF0;
+    x &= 0xFF;
     return x;
 }
 
