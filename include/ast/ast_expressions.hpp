@@ -265,9 +265,9 @@ public:
         expr->address(addrReg, context, instructions);
         instructions.push_back({"lw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
         if (pointerMath)
-            instructions.push_back({"addi", regMap[resultReg], regMap[destReg], "", -4, Instruction::SSN});
+            instructions.push_back({"addiu", regMap[resultReg], regMap[destReg], "", -4, Instruction::SSN});
         else
-            instructions.push_back({"addi", regMap[resultReg], regMap[destReg], "", -1, Instruction::SSN});
+            instructions.push_back({"addiu", regMap[resultReg], regMap[destReg], "", -1, Instruction::SSN});
         instructions.push_back({"sw", regMap[resultReg], regMap[addrReg], "", 0, Instruction::LS});
         context.pullFromStack({resultReg, addrReg}, instructions);
     }
@@ -336,9 +336,9 @@ public:
         expr->address(addrReg, context, instructions);
         instructions.push_back({"lw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
         if (pointerMath)
-            instructions.push_back({"addi", regMap[destReg], regMap[destReg], "", 4, Instruction::SSN});
+            instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", 4, Instruction::SSN});
         else
-            instructions.push_back({"addi", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
+            instructions.push_back({"addiu", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
         instructions.push_back({"sw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
 
         context.pullFromStack({addrReg}, instructions);
@@ -622,15 +622,20 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = context.chooseReg({destReg});
-        int op2 = context.chooseReg({destReg, op1});
+        int op = context.chooseReg({destReg});
         
-        context.pushToStack({op1, op2}, instructions);
-        expr1->generateMIPS(context, instructions, op1);
-        expr2->generateMIPS(context, instructions, op2);
+        context.pushToStack({op}, instructions);
+        expr1->generateMIPS(context, instructions, destReg);
+        expr2->generateMIPS(context, instructions, op);
 
-        instructions.push_back({"add", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
-        context.pullFromStack({op2,op1}, instructions);
+        if (expr1->isPointer(context) && !expr2->isPointer(context)) {
+            instructions.push_back({"sll", regMap[op], regMap[op], "", 2, Instruction::SSN});
+        } else if (!expr1->isPointer(context) && expr2->isPointer(context)) {
+            instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", 2, Instruction::SSN});
+        }
+
+        instructions.push_back({"addu", regMap[destReg], regMap[destReg], regMap[op], 0, Instruction::SSS});
+        context.pullFromStack({op}, instructions);
     }
 
     bool isPointer(CompContext &context) { 
@@ -664,15 +669,20 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = context.chooseReg({destReg});
-        int op2 = context.chooseReg({destReg, op1});
+        int op = context.chooseReg({destReg});
         
-        context.pushToStack({op1, op2}, instructions);
-        expr1->generateMIPS(context, instructions, op1);
-        expr2->generateMIPS(context, instructions, op2);
+        context.pushToStack({op}, instructions);
+        expr1->generateMIPS(context, instructions, destReg);
+        expr2->generateMIPS(context, instructions, op);
 
-        instructions.push_back({"sub", regMap[destReg], regMap[op1], regMap[op2], 0, Instruction::SSS});
-        context.pullFromStack({op2,op1}, instructions);
+        if (expr1->isPointer(context) && !expr2->isPointer(context)) {
+            instructions.push_back({"sll", regMap[op], regMap[op], "", 2, Instruction::SSN});
+        } else if (!expr1->isPointer(context) && expr2->isPointer(context)) {
+            instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", 2, Instruction::SSN});
+        }
+
+        instructions.push_back({"sub", regMap[destReg], regMap[destReg], regMap[op], 0, Instruction::SSS});
+        context.pullFromStack({op}, instructions);
     }
 
     bool isPointer(CompContext &context) { 
