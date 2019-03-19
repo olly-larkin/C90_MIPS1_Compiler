@@ -91,6 +91,9 @@ struct CompContext {
         struct enumFlagStruct {
             int lastVal = -1;
         } enumFlags;
+        struct funcCallFlagStruct {
+            int argNum = 0;
+        } funcCallFlags;
 
         int stackOffset;
     };
@@ -113,6 +116,7 @@ struct CompContext {
     stackStruct::statementFlagStruct& statementFlags() { return stack.back().statementFlags; }
     stackStruct::switchFlagStruct& switchFlags() { return stack.back().switchFlags; }
     stackStruct::enumFlagStruct& enumFlags() { return stack.back().enumFlags; }
+    stackStruct::funcCallFlagStruct &funcCallFlags() { return stack.back().funcCallFlags; }
     funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 

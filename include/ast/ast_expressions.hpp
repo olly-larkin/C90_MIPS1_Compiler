@@ -52,6 +52,10 @@ public:
         return (context.globals[identifier].pointerNum > 0);
     }
 
+    std::string getIdentifier() { 
+        return identifier; 
+    }
+
 protected:
     std::string identifier;
 };
@@ -167,8 +171,40 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //check variable map
-        //return desired value via stack offset into destreg?
+        // TODO:
+        // 1) get function name     //
+        // 2) get function arg number (list size)   //
+        // 3) store $fp to stack    //
+        // 4) increase scope    //
+        // 5) allocate space for arguments  //
+        // 6) call arument list     //
+        // 7) push into $4 - $7     //
+        // 8) move $fp to $sp       //
+        // 9) jal to label          //
+        // 10) decrease the stack   //
+        // 11) pull $fp from stack  //
+        // 12) move $2 to destReg
+
+        std::string funcName = postfix->getIdentifier();
+        int argNum = (argList != NULL) ? argList->size() : 0;
+        context.pushToStack({$2, $fp}, instructions);
+        context.addScope(instructions);
+        instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4 * argNum, Instruction::SSN});
+        argList->generateMIPS(context, instructions);
+        instructions.push_back({"sw", regMap[$4], regMap[$sp], "", 0, Instruction::LS});
+        instructions.push_back({"sw", regMap[$5], regMap[$sp], "", 4, Instruction::LS});
+        instructions.push_back({"sw", regMap[$6], regMap[$sp], "", 8, Instruction::LS});
+        instructions.push_back({"sw", regMap[$7], regMap[$sp], "", 12, Instruction::LS});
+        instructions.push_back({"addi", regMap[$fp], regMap[$sp], "", 0, Instruction::SSN});
+        instructions.push_back({"jal", funcName, "", "", 0, Instruction::S});
+        context.subScope(instructions);
+        context.pullFromStack({$fp}, instructions);
+        instructions.push_back({"addi", regMap[destReg], regMap[$2], "", 0, Instruction::SSN});
+        context.pullFromStack({$2}, instructions);
+    }
+
+    bool isPointer(CompContext &context) {
+        return context.currentFunc().retType.pointerNum > 0;
     }
 
 protected:
@@ -1656,6 +1692,16 @@ public:
             os << ", ";
         }
         expr->printPy(os, context);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int tempReg = context.chooseReg({destReg});
+        context.pushToStack({tempReg}, instructions);
+        int offset = context.funcCallFlags().argNum * 4;
+        context.funcCallFlags().argNum++;
+        expr->generateMIPS(context, instructions, tempReg);
+        instructions.push_back({"sw", regMap[tempReg], regMap[$sp], "", offset, Instruction::LS});
+        context.pullFromStack({tempReg}, instructions);
     }
 
 protected:
