@@ -227,7 +227,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
         bool pointerMath = postfix->isPointer(context);
         int addrReg = context.chooseReg({destReg});
-        int resultReg = context.chooseReg({destReg, resultReg});
+        int resultReg = context.chooseReg({destReg, addrReg});
         context.pushToStack({addrReg, resultReg}, instructions);
         postfix->address(addrReg, context, instructions);
         instructions.push_back({"lw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
@@ -260,7 +260,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         bool pointerMath = expr->isPointer(context);
         int addrReg = context.chooseReg({destReg});
-        int resultReg = context.chooseReg({destReg, resultReg});
+        int resultReg = context.chooseReg({destReg, addrReg});
         context.pushToStack({addrReg, resultReg}, instructions);
         expr->address(addrReg, context, instructions);
         instructions.push_back({"lw", regMap[destReg], regMap[addrReg], "", 0, Instruction::LS});
