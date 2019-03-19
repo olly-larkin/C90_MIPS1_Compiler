@@ -5,7 +5,7 @@
 //----------------------PRIMARY-------------------------------
 //************************************************************
 
-class PrimaryExprIdentifier : public BaseExpression { //MIPS DONE
+class PrimaryExprIdentifier : public BaseExpression { 
 public:
     PrimaryExprIdentifier(const std::string &_identifier) : identifier(_identifier) {}
     ~PrimaryExprIdentifier() {}
@@ -56,7 +56,7 @@ protected:
     std::string identifier;
 };
 
-class PrimaryExprConstant : public BaseExpression { //MIPS DONE
+class PrimaryExprConstant : public BaseExpression { 
 public:
     PrimaryExprConstant(double _constant) : constant(_constant) {}
     ~PrimaryExprConstant() {}
@@ -218,7 +218,7 @@ protected:
     std::string identifier;
 };
 
-class PostfixDecOp : public BaseExpression { //MIPS DONE
+class PostfixDecOp : public BaseExpression { 
 public:
     PostfixDecOp(BaseExpression *_postfix) : postfix(_postfix) {}
     ~PostfixDecOp() { delete postfix; }
@@ -244,7 +244,7 @@ protected:
     BaseExpression *postfix;
 };
 
-class PostfixIncOp : public BaseExpression { //MIPS DONE
+class PostfixIncOp : public BaseExpression { 
 public:
     PostfixIncOp(BaseExpression *_postfix) : expr(_postfix) {}
     ~PostfixIncOp() { delete expr; }
@@ -274,7 +274,7 @@ protected:
 //-----------------------UNARY--------------------------------
 //************************************************************
 
-class PrefixDecOp : public BaseExpression { //MIPS DONE
+class PrefixDecOp : public BaseExpression { 
 public:
     PrefixDecOp(BaseExpression *_expr) : expr(_expr) {}
     ~PrefixDecOp() { delete expr; }
@@ -299,7 +299,7 @@ protected:
     BaseExpression *expr;
 };
 
-class PrefixIncOp : public BaseExpression { //MIPS DONE
+class PrefixIncOp : public BaseExpression { 
 public:
     PrefixIncOp(BaseExpression *_expr) : expr(_expr) {}
     ~PrefixIncOp() { delete expr; }
@@ -356,7 +356,7 @@ protected:
     BaseNode *type;
 };
 
-class ReferenceOp : public BaseExpression {
+class ReferenceOp : public BaseExpression { 
 public:
     ReferenceOp(BaseExpression *_expr) : expr(_expr) {}
     ~ReferenceOp() { delete expr; }
@@ -385,20 +385,19 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //interpret a logical address: frame pointer + frame offset, fetch data?
+        expr->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::SSN});
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
-        context.expressionFlags().pointerMath = true;                                               // should be pointer arithmatic
         expr->generateMIPS(context, instructions, destReg);
-        context.expressionFlags().pointerMath = false;
     }
 
 protected:
     BaseExpression *expr;
 };
 
-class NegationOp : public BaseExpression { //MIPS DONE
+class NegationOp : public BaseExpression { 
 public:
     NegationOp(BaseExpression *_expr) : expr(_expr) {}
     ~NegationOp() { delete expr; }
@@ -424,7 +423,7 @@ protected:
     BaseExpression *expr;
 };
 
-class InvertOp : public BaseExpression { //MIPS DONE
+class InvertOp : public BaseExpression { 
 public:
     InvertOp(BaseExpression *_expr) : expr(_expr) {}
     ~InvertOp() { delete expr; }
@@ -442,7 +441,7 @@ protected:
     BaseExpression *expr;
 };
 
-class NotOp : public BaseExpression { //MIPS DONE
+class NotOp : public BaseExpression { 
 public:
     NotOp(BaseExpression *_expr) : expr(_expr) {}
     ~NotOp() { delete expr; }
@@ -467,7 +466,7 @@ protected:
 //---------------MULTIPLICATIVE EXPRESSION--------------------
 //************************************************************
 
-class ModOp : public BaseExpression { //MIPS DONE
+class ModOp : public BaseExpression { 
 public:
     ModOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~ModOp() { 
@@ -497,7 +496,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class DivideOp : public BaseExpression { //MIPS DONE
+class DivideOp : public BaseExpression { 
 public:
     DivideOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~DivideOp() { 
@@ -528,7 +527,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class MultiplyOp : public BaseExpression { //MIPS DONE
+class MultiplyOp : public BaseExpression { 
 public:
     MultiplyOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~MultiplyOp() { 
@@ -571,7 +570,7 @@ protected:
 //------------------ADDITIVE EXPRESSION-----------------------
 //************************************************************
 
-class AddOp : public BaseExpression { //MIPS DONE
+class AddOp : public BaseExpression { 
 public:
     AddOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~AddOp() { 
@@ -613,7 +612,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class SubOp : public BaseExpression { //MIPS DONE
+class SubOp : public BaseExpression { 
 public:
     SubOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~SubOp() { 
@@ -659,7 +658,7 @@ protected:
 //--------------------SHIFT EXPRESSION------------------------
 //************************************************************
 
-class LeftShiftOp : public BaseExpression { //MIPS DONE
+class LeftShiftOp : public BaseExpression { 
 public:
     LeftShiftOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~LeftShiftOp() { 
@@ -689,7 +688,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class RightShiftOp : public BaseExpression { //TODO: WIP
+class RightShiftOp : public BaseExpression {
 public:
     RightShiftOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~RightShiftOp() { 
@@ -723,7 +722,7 @@ protected:
 //------------------RELATIONAL EXPRESSION---------------------
 //************************************************************
 
-class LessThanOp : public BaseExpression { //MIPS DONE
+class LessThanOp : public BaseExpression { 
 public:
     LessThanOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~LessThanOp() { 
@@ -767,7 +766,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class MoreThanOp : public BaseExpression { //MIPS DONE
+class MoreThanOp : public BaseExpression { 
 public:
     MoreThanOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~MoreThanOp() { 
@@ -811,7 +810,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class LessThanEqualToOp : public BaseExpression { //MIPS DONE
+class LessThanEqualToOp : public BaseExpression { 
 public:
     LessThanEqualToOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~LessThanEqualToOp() { 
@@ -847,7 +846,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class MoreThanEqualToOp : public BaseExpression { //MIPS DONE
+class MoreThanEqualToOp : public BaseExpression { 
 public:
     MoreThanEqualToOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~MoreThanEqualToOp() { 
@@ -886,7 +885,7 @@ protected:
 //-------------------EQUALITY EXPRESSION----------------------
 //************************************************************
 
-class EqualToOp : public BaseExpression {//MIPS DONE
+class EqualToOp : public BaseExpression {
 public:
     EqualToOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~EqualToOp() { 
@@ -931,7 +930,7 @@ protected:
     BaseExpression *expr1, *expr2;
 };
 
-class NotEqualToOp : public BaseExpression { //MIPS DONE
+class NotEqualToOp : public BaseExpression { 
 public:
     NotEqualToOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~NotEqualToOp() { 
@@ -982,7 +981,7 @@ protected:
 //----------------------AND EXPRESSION------------------------
 //************************************************************
 
-class BitwiseANDOp : public BaseExpression { //MIPS DONE
+class BitwiseANDOp : public BaseExpression { 
 public:
     BitwiseANDOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~BitwiseANDOp() { 
@@ -1015,7 +1014,7 @@ protected:
 //-----------------EXCLUSIVE OR EXPRESSION--------------------
 //************************************************************
 
-class BitwiseExclusiveOROp : public BaseExpression { //MIPS DONE
+class BitwiseExclusiveOROp : public BaseExpression { 
 public:
     BitwiseExclusiveOROp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~BitwiseExclusiveOROp() { 
@@ -1052,7 +1051,7 @@ protected:
 //-----------------INCLUSIVE OR EXPRESSION--------------------
 //************************************************************
 
-class BitwiseInclusiveOROp : public BaseExpression { //MIPS DONE
+class BitwiseInclusiveOROp : public BaseExpression { 
 public:
     BitwiseInclusiveOROp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~BitwiseInclusiveOROp() { 
@@ -1090,7 +1089,7 @@ protected:
 //------------------LOGICAL AND EXPRESSION--------------------
 //************************************************************
 
-class LogicalANDOp : public BaseExpression { //MIPS DONE
+class LogicalANDOp : public BaseExpression { 
 public:
     LogicalANDOp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~LogicalANDOp() { 
@@ -1141,7 +1140,7 @@ protected:
 //------------------LOGICAL OR EXPRESSION---------------------
 //************************************************************
 
-class LogicalOROp : public BaseExpression { //MIPS DONE
+class LogicalOROp : public BaseExpression { 
 public:
     LogicalOROp(BaseExpression *_expr1, BaseExpression *_expr2) : expr1(_expr1), expr2(_expr2) {}
     ~LogicalOROp() { 
@@ -1248,12 +1247,14 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        
-        if (offset(context).global) {
-            context.readGlobal(destReg, identifier, instructions);
-        }
-        else 
-            context.readStack(destReg, context.varMap()[identifier].offset, instructions); 
+        int addrHolder = context.chooseReg({destReg});
+        context.pushToStack({addrHolder}, instructions);
+
+        expr1->address(addrHolder, context, instructions);
+        expr2->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+
+        context.pullFromStack({addrHolder}, instructions);
     }
 
 protected:
@@ -1274,9 +1275,25 @@ public:
         expr2->print(os, level+1);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
-        //evaluate OP1,2
-        //add and put into OP1's stack location? (overflow?)
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        if(expr1->isPointer(context) && !expr2->isPointer(context)){
+            instructions.push_back({"sll", regMap[RHS], regMap[RHS], "", 4, Instruction::SSN});
+        }
+        instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
+
+    bool isPointer(CompContext &context){
+        return expr1->isPointer(context) || expr2->isPointer(context);
     }
 
 protected:
@@ -1297,9 +1314,25 @@ public:
         expr2->print(os, level+1);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
-        //evaluate OP1,2
-        //sub and put into OP1's stack location? (overflow?)
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        if(expr1->isPointer(context) && !expr2->isPointer(context)){
+            instructions.push_back({"sll", regMap[RHS], regMap[RHS], "", 4, Instruction::SSN});
+        }
+        instructions.push_back({"sub", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
+
+    bool isPointer(CompContext &context){
+        return expr1->isPointer(context) || expr2->isPointer(context);
     }
 
 protected:
@@ -1320,9 +1353,19 @@ public:
         expr2->print(os, level+1);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: implement
-        //evaluate OP1,2
-        //mul and put into OP1's stack location? (overflow?)
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"mul", regMap[destReg], regMap[RHS], "", 0, Instruction::SSS});
+        instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
     }
 
 protected:
@@ -1343,6 +1386,20 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"div", regMap[destReg], regMap[RHS], "", 0, Instruction::SSS});
+        instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1361,6 +1418,20 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"div", regMap[destReg], regMap[RHS], "", 0, Instruction::SSS});
+        instructions.push_back({"mfhi", regMap[destReg], "", "", 0, Instruction::S});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1379,6 +1450,19 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"sllv", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1397,6 +1481,19 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"srav", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1415,6 +1512,19 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"and", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1433,6 +1543,19 @@ public:
         expr2->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"or", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
+    }
 protected:
     BaseExpression *expr1, *expr2;
 };
@@ -1449,6 +1572,20 @@ public:
         os << indent(level) << "Bitwise XOR Assignment (^=):" << std::endl;
         expr1->print(os, level+1);
         expr2->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0){
+        int addrHolder = context.chooseReg({destReg});              //hold address of LHS
+        int RHS = context.chooseReg({destReg, addrHolder});         //holds value of RHS
+
+        context.pushToStack({addrHolder, RHS}, instructions);
+        expr1->address(addrHolder, context, instructions);
+        expr1->generateMIPS(context, instructions, destReg)
+        expr2->generateMIPS(context, instructions, RHS);
+
+        instructions.push_back({"xor", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
+        instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
+        context.pullFromStack({RHS, addrHolder}, instructions);
     }
 
 protected:
