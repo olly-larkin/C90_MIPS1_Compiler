@@ -1,6 +1,6 @@
 int func(){
     int x = 1;
-    return x *= 5;
+    return x = x * 5;
 }
 
 int funk(){
