@@ -1708,13 +1708,13 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int tempReg = context.chooseReg({destReg});
-        context.pushToStack({tempReg}, instructions);
-        int offset = context.funcCallFlags().argNum * 4;
-        context.funcCallFlags().argNum++;
-        expr->generateMIPS(context, instructions, tempReg);
-        instructions.push_back({"sw", regMap[tempReg], regMap[$sp], "", offset, Instruction::LS});
-        context.pullFromStack({tempReg}, instructions);
+        // int tempReg = context.chooseReg({destReg});
+        // context.pushToStack({tempReg}, instructions);
+        // int offset = context.funcCallFlags().argNum * 4;
+        // context.funcCallFlags().argNum++;
+        // expr->generateMIPS(context, instructions, tempReg);
+        // instructions.push_back({"sw", regMap[tempReg], regMap[$sp], "", offset, Instruction::LS});
+        // context.pullFromStack({tempReg}, instructions);
     }
 
 protected:
