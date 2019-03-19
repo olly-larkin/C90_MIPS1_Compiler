@@ -202,9 +202,10 @@ public:
         instructions.push_back({"jal", funcName, "", "", 0, Instruction::S});
         context.subScope(instructions);
         context.pullFromStack({$fp}, instructions);
-        instructions.push_back({"addi", regMap[destReg], regMap[$2], "", 0, Instruction::SSN});
-        if (destReg != $2) 
+        if (destReg != $2) {
+            instructions.push_back({"addi", regMap[destReg], regMap[$2], "", 0, Instruction::SSN});
             context.pullFromStack({$2}, instructions);
+        }
     }
 
     bool isPointer(CompContext &context) {
@@ -669,6 +670,7 @@ public:
         expr2->generateMIPS(context, instructions, op);
 
         if (expr1->isPointer(context) && !expr2->isPointer(context)) {
+
             instructions.push_back({"sll", regMap[op], regMap[op], "", 2, Instruction::SSN});
         } else if (!expr1->isPointer(context) && expr2->isPointer(context)) {
             instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", 2, Instruction::SSN});
