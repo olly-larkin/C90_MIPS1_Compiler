@@ -33,7 +33,7 @@ struct Instruction {
     std::string name;
     std::string arg1, arg2, arg3;
     long int number;
-    enum { SSS, SSN, SN, SS, S, N, LS, E, L, LIST } printMethod;  
+    enum { SSS, SSN, SN, SS, S, N, LS, E, L, LIST, COMMENT } printMethod;  
     // LS = load/store
     // E = empty (nop)
     // L = label
@@ -45,6 +45,10 @@ struct CompContext {
     std::string makeALabel(const std::string &str) {
         static int id = 0;
         return "_" + str + "_" + std::to_string(id++);
+    }
+
+    void addComment(std::vector<Instruction> &instr, const std::string &msg) {
+        instr.push_back({msg, "", "", "", 0, Instruction::COMMENT});
     }
 
     struct Type {
@@ -91,6 +95,9 @@ struct CompContext {
         struct enumFlagStruct {
             int lastVal = -1;
         } enumFlags;
+        struct funcCallFlagStruct {
+            int argNum = 0;
+        } funcCallFlags;
 
         int stackOffset;
     };
@@ -113,6 +120,7 @@ struct CompContext {
     stackStruct::statementFlagStruct& statementFlags() { return stack.back().statementFlags; }
     stackStruct::switchFlagStruct& switchFlags() { return stack.back().switchFlags; }
     stackStruct::enumFlagStruct& enumFlags() { return stack.back().enumFlags; }
+    stackStruct::funcCallFlagStruct &funcCallFlags() { return stack.back().funcCallFlags; }
     funcStruct& currentFunc() { return funcMap[decFlags().funcName]; }
     //**********************************
 

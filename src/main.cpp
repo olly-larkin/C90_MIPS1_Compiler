@@ -57,6 +57,9 @@ void printVec(std::ostream &os, const std::vector<Instruction> &instr) {        
             case Instruction::LIST:
                 newLines = !newLines;
                 break;
+            case Instruction::COMMENT:
+                os << "# " << instr[i].name << std::endl;
+                break;
         }
     }
 }
