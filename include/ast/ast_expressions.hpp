@@ -31,6 +31,8 @@ public:
                         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
                     else
                         std::cout << "fuck up" << std::endl;
+                } else {
+                    std::cout << "later fuck up" << std::endl;
                 }
             }
         } else if (context.globals[identifier].arraySizes.size() == 0)
