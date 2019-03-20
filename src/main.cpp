@@ -4,6 +4,29 @@
 
 #include "ast.hpp"
 
+bool needsNop(const std::string &name) {
+    std::vector<std::string> things = {
+        "beq",
+        "bne",
+        "bltz",
+        "bltzal",
+        "bgez",
+        "bgezal",
+        "bgtz",
+        "blez",
+        "j",
+        "jal",
+        "jr",
+        "jalr",
+        "lw",
+        "lb",
+        "lh"
+    };
+    for (int i = 0; i < things.size(); ++i)
+        if (things[i] == name) return true;
+    return false;
+}
+
 void printVec(std::ostream &os, const std::vector<Instruction> &instr) {            //TODO: nops need to be inserted correctly
     bool newLines = true;
     for (int i = 0; i < (int)instr.size(); ++i) {
@@ -11,48 +34,50 @@ void printVec(std::ostream &os, const std::vector<Instruction> &instr) {        
             case Instruction::SSS:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << ", " << instr[i].arg3;
                 if (newLines) os << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::SSN:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2 << ", " << instr[i].number;
                 if (newLines) os << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::SN:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].number;
                 if (newLines) os << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::SS:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].arg2;
                 if (newLines) os << std::endl;
-                if (instr[i].name[0] == 'j')
-                    os << "nop" << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::S:
                 os << instr[i].name << " " << instr[i].arg1;
                 if (newLines) os << std::endl;
-                if (instr[i].name[0] == 'j')
-                    os << "nop" << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::N:
                 os << instr[i].name << " " << instr[i].number;
                 if (newLines) os << std::endl;
-                if (instr[i].name[0] == 'j')
-                    os << "nop" << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::LS:
                 os << instr[i].name << " " << instr[i].arg1 << ", " << instr[i].number << "(" << instr[i].arg2 << ")";
                 if (newLines) os << std::endl;
-                os << "nop" << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::E:
                 if (instr[i].name != "nop" && newLines)
                     os << std::endl;
                 os << instr[i].name;
                 if (newLines) os << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::L:
                 os << std::endl;
                 os << instr[i].arg1 << ":";
                 if (newLines) os << std::endl;
+                if (needsNop(instr[i].name)) os << "nop" << std::endl;
                 break;
             case Instruction::LIST:
                 newLines = !newLines;

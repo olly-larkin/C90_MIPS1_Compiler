@@ -184,7 +184,7 @@ public:
         // 10) decrease the stack   //
         // 11) pull $fp from stack  //
         // 12) move $2 to destReg
-
+        
         std::string funcName = postfix->getIdentifier();
         int argNum = (argList != NULL) ? argList->size() : 0;
         context.addComment(instructions, "Start of function call...");
@@ -196,6 +196,7 @@ public:
         else
             context.pushToStack({$2, $fp}, instructions);
         context.addScope(instructions);
+        context.funcCallFlags() = {};
         int allocate = (argNum < 4) ? -16 : -4 * argNum;
         context.memUsed -= allocate;
         instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", allocate, Instruction::SSN});
@@ -697,12 +698,11 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int op = context.chooseReg({destReg});
         
-        context.pushToStack({op}, instructions);
         expr1->generateMIPS(context, instructions, destReg);
+        context.pushToStack({op}, instructions);
         expr2->generateMIPS(context, instructions, op);
 
         if (expr1->isPointer(context) && !expr2->isPointer(context)) {
-
             instructions.push_back({"sll", regMap[op], regMap[op], "", 2, Instruction::SSN});
         } else if (!expr1->isPointer(context) && expr2->isPointer(context)) {
             instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", 2, Instruction::SSN});
@@ -749,8 +749,8 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int op = context.chooseReg({destReg});
         
-        context.pushToStack({op}, instructions);
         expr1->generateMIPS(context, instructions, destReg);
+        context.pushToStack({op}, instructions);
         expr2->generateMIPS(context, instructions, op);
 
         if (expr1->isPointer(context) && !expr2->isPointer(context)) {
@@ -1373,7 +1373,7 @@ public:
         expr3->print(os, level+2);
     }
 
-    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: check
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { 
         std::string skipper = context.makeALabel("skip");
         std::string endLabel = context.makeALabel("end");
         expr1->generateMIPS(context, instructions, destReg);
