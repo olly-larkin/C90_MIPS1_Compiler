@@ -10,8 +10,11 @@ Multiplicative Operators, Expressions, Y, nil
 Pointer Arithmetic Checks, Expressions, N, nil
 Relational Operators, Expressions, Y, nil
 Shift Operators, Expressions, Y, arithmetic shift testing?
-Unary Operators, Expressions, N, Might have to further categorise
-Postfix Expressions, Expressions, N, Might have to further categorise
+Unary Operators, Expressions, Y, SizeOf
+Postfix Expressions, Expressions, Y, nil
+
+
+
 While Loop, Statements, Y, nil
 While Loop Continue/Break, Statements, Y, nil
 Do While Loop, Statements, N, nil
