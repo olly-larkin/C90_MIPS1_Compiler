@@ -98,8 +98,9 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = context.chooseReg();
-        context.pushToStack({reg}, instructions);
+        // int reg = context.chooseReg();
+        // context.pushToStack({reg}, instructions);
+        int reg = $2;
         context.addScopeContext();
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
@@ -110,7 +111,7 @@ public:
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
         context.subScopeContext();
-        context.pullFromStack({reg}, instructions);
+        // context.pullFromStack({reg}, instructions);
     }
 
 protected:
