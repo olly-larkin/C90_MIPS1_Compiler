@@ -1,7 +1,7 @@
 CPPFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter -Wno-sign-compare -Wno-unused-function
 CPPFLAGS += -I include
 
-all : clean bin/print_tree bin/c_compiler
+all : clean bin/c_compiler
 
 src/compiler_bison.tab.cpp src/compiler_bison.tab.hpp : src/compiler_bison.y
 	bison -v -d src/compiler_bison.y -o src/compiler_bison.tab.cpp
