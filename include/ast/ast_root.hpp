@@ -1,10 +1,6 @@
 #ifndef AST_NODE_HPP
 #define AST_NODE_HPP
 
-#include <iostream>
-
-#include "../PyContext.hpp"
-
 class AST {
 public:
 
@@ -18,7 +14,7 @@ public:
     virtual ~AST() {}
     virtual void print(std::ostream& os, int level) {}
     virtual void printPy(std::ostream &os, PyContext &context) {}
-    virtual void generateMIPS() {}  //TODO: code gen
+    virtual void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {}
 protected:
 };
 

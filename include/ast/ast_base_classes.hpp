@@ -1,10 +1,6 @@
 #ifndef AST_BASE_CLASSES_HPP
 #define AST_BASE_CLASSES_HPP
 
-#include <iostream>
-
-#include "ast_root.hpp"
-
 class BaseNode : public AST {
 public:
 protected:
@@ -17,12 +13,33 @@ public:
         if (list != NULL)
             delete list;
     }
+
+    int size() {
+        if (list != NULL)
+            return 1 + list->size();
+        else 
+            return 1;
+    }
+
+    BaseList* at(int i) {       // iterates from the back
+        if (i == 0)
+            return this;
+        else if (list != NULL)
+            return list->at(i-1);
+        else
+            return NULL;
+    }
+
 protected:
     BaseList *list;
 };
 
 class BaseExpression : public AST {
 public:
+    virtual double eval() { return 0; }
+    virtual void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {}
+    virtual bool isPointer(CompContext &context) { return false; }
+    virtual std::string getIdentifier() { return ""; }
 protected:
 };
 
@@ -33,6 +50,25 @@ public:
         if (list != NULL)
             delete list;
     }
+
+    int size() {
+        if (list != NULL)
+            return 1 + list->size();
+        else 
+            return 1;
+    }
+
+    BaseExpressionList* at(int i) {
+        if (i == 0)
+            return this;
+        else if (list != NULL)
+            return list->at(i-1);
+        else
+            return NULL;
+    }
+
+    virtual double eval() { return 0; }
+
 protected:
     BaseExpressionList *list;
 };

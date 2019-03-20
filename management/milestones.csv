@@ -5,9 +5,9 @@ MilestoneID, Name, Dependencies, EstimatedEffort, Lead, Completed, Description
 4, Declaration Parsing, 1, 4, dl5215, 916faa0d8247ef3b35220f7bfb1113d4050a0c47, Complete implementation of parse nodes
 5, C -> Python (Expressions), 2+3+4, 4, dl5215, f162d469d3d1195e2aa5d78f741991b6a5fad1ca, Translation of Expression Constructs as in the spec
 6, C -> Python (Statements), 5, 2, dl5215, f162d469d3d1195e2aa5d78f741991b6a5fad1ca, Translation of Expression Constructs as in the spec
-7, C -> Python Debugging, 6, 3, dl5215, , debug and finalise python translator
-8, Debug Python Translation, 9, 3, oll16, , Create test cases and finalise python translator
-9, Basic Codegen, 12, 5, oll16, , Basic code generation using infinite registers
+7, Codegen Brainstorming, 6, 3, both, -, Offline codegen brainstorming
+8, Debug Python Translation, 9, 3, dl5215, 4b728738dddae5315e8613628bd16a55d25ac3f1, Create advanced test cases and finalise python translator
+9, Codegen, 12, 5, oll16, , Basic code generation using store and pull model
 10, Testing Intermediate, 10, 4, dl5215, , Debug & test by hand that latest additions are Functional
 11, Register/Memory Management, 11, 5, oll16, , Devise prototype algorithm to optimise register use and manage Memory
 12, Write basic testbench, 11, 2, dl5215, , Ensure that executable instructions are generated and workable

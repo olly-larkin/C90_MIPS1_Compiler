@@ -1,2 +1,11 @@
 .DS_Store
 *.txt
+*.s
+bin/*
+src/*.output
+src/*.tab.cpp
+src/*.tab.hpp
+src/*.tab.o
+src/*.yy.cpp
+src/*.yy.o
+src/*.o

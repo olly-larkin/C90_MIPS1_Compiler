@@ -1,13 +1,11 @@
 #ifndef AST_STATEMENTS_HPP
 #define AST_STATEMENTS_HPP
 
-#include "ast_base_classes.hpp"
-
 //************************************************************
 //---------------------JUMP STATEMENT-------------------------
 //************************************************************
 
-class Continue : public BaseNode {
+class Continue : public BaseNode {                  
 public:
     Continue() {}
     ~Continue() {}
@@ -16,10 +14,14 @@ public:
         os << indent(level) << "Continue" << std::endl;
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
+    }
+
 protected:
 };
 
-class Break : public BaseNode {
+class Break : public BaseNode {                     
 public:
     Break() {}
     ~Break() {}
@@ -27,11 +29,15 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Break" << std::endl;
     }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        instructions.push_back({"j", context.statementFlags().breakFlag, "", "", 0, Instruction::S});
+    }
     
 protected:
 };
 
-class Return : public BaseNode {
+class Return : public BaseNode {                     
 public:
     Return(BaseExpression *_expr) : expr(_expr) {}
     ~Return() { if (expr != NULL) delete expr; }
@@ -48,6 +54,15 @@ public:
             expr->printPy(os, context);
         os << std::endl;
     }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (expr == NULL) {
+            instructions.push_back({"addi", regMap[$2], regMap[$0], "", 0, Instruction::SSN});
+        } else {
+            expr->generateMIPS(context, instructions, $2);
+        }
+        context.printRetSequence(instructions);
+    }
     
 protected:
     BaseExpression *expr;
@@ -57,7 +72,7 @@ protected:
 //-------------------ITERATION STATEMENT----------------------
 //************************************************************
 
-class WhileLoop : public BaseNode {
+class WhileLoop : public BaseNode {                 
 public:
     WhileLoop(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~WhileLoop() {
@@ -82,12 +97,26 @@ public:
         context.subScope();
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int reg = $2;
+        context.addScopeContext();
+        context.statementFlags().continueFlag = context.makeALabel("continue");
+        context.statementFlags().breakFlag = context.makeALabel("break");
+        instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
+        statement->generateMIPS(context, instructions);
+        instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
+        instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
+        context.subScopeContext();
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
 };
 
-class DoWhileLoop : public BaseNode {
+class DoWhileLoop : public BaseNode {                    
 public:
     DoWhileLoop(BaseNode *_statement, BaseExpression *_expr) : statement(_statement), expr(_expr) {}
     ~DoWhileLoop() {
@@ -103,12 +132,28 @@ public:
         expr->print(os, level+2);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int reg = $2;
+        context.addScopeContext();
+
+        context.statementFlags().continueFlag = context.makeALabel("continue");
+        context.statementFlags().breakFlag = context.makeALabel("break");
+
+        instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
+        statement->generateMIPS(context, instructions);
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"bne", regMap[reg], regMap[$0], context.statementFlags().continueFlag, 0, Instruction::SSS});
+        instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
+
+        context.subScopeContext();
+    }
+
 protected:
     BaseNode *statement;
     BaseExpression *expr;
 };
 
-class ForLoop : public BaseNode {
+class ForLoop : public BaseNode {                   
 public:
     ForLoop(BaseExpression *_expr1, BaseExpression *_expr2, BaseExpression *_expr3, BaseNode *_statement) : expr1(_expr1), expr2(_expr2), expr3(_expr3), statement(_statement)  {}
     ~ForLoop() {
@@ -136,6 +181,26 @@ public:
         statement->print(os, level+2);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int reg = $2;
+        context.addScopeContext();
+        context.statementFlags().continueFlag = context.makeALabel("continue");
+        context.statementFlags().breakFlag = context.makeALabel("break");
+
+        if (expr1 != NULL) expr1->generateMIPS(context, instructions, reg);
+        instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
+        if (expr2 != NULL) {
+            expr2->generateMIPS(context, instructions, reg);
+            instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
+        }
+        statement->generateMIPS(context, instructions);
+        if (expr3 != NULL) expr3->generateMIPS(context, instructions, reg);
+        instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
+        instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
+
+        context.subScopeContext();
+    }
+
 protected:
     BaseExpression *expr1, *expr2, *expr3;
     BaseNode *statement;
@@ -145,7 +210,7 @@ protected:
 //-------------------SELECTION STATEMENT----------------------
 //************************************************************
 
-class IfStatement : public BaseNode {
+class IfStatement : public BaseNode {               
 public:
     IfStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~IfStatement() {
@@ -170,12 +235,23 @@ public:
         context.subScope();
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        std::string falseLabel = context.makeALabel("false");
+        int reg = $2;
+        context.addComment(instructions, "If statement: temp reg = " + regMap[reg]);
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
+        statement->generateMIPS(context, instructions);
+        instructions.push_back({"lebel", falseLabel, "", "", 0, Instruction::L});
+        context.addComment(instructions, "Exiting if statement...");
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
 };
 
-class IfElseStatement : public BaseNode {
+class IfElseStatement : public BaseNode {           
 public:
     IfElseStatement(BaseExpression *_expr, BaseNode *_statementTrue, BaseNode *_statementFalse) : expr(_expr), statementTrue(_statementTrue), statementFalse(_statementFalse) {}
     ~IfElseStatement() {
@@ -207,12 +283,25 @@ public:
         context.subScope();
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        std::string trueLabel = context.makeALabel("true");
+        std::string falseLabel = context.makeALabel("false");
+        int reg = $2;
+        expr->generateMIPS(context, instructions, reg);
+        instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
+        statementTrue->generateMIPS(context, instructions);
+        instructions.push_back({"j", trueLabel, "", "", 0, Instruction::S});
+        instructions.push_back({"label", falseLabel, "", "", 0, Instruction::L});
+        statementFalse->generateMIPS(context, instructions);
+        instructions.push_back({"label", trueLabel, "", "", 0, Instruction::L});
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statementTrue, *statementFalse;
 };
 
-class SwitchStatement : public BaseNode {
+class SwitchStatement : public BaseNode {           
 public:
     SwitchStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~SwitchStatement() {
@@ -228,6 +317,36 @@ public:
         statement->print(os, level+2);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.switchFlags() = {};
+        context.switchFlags().breakFlag = context.makeALabel("break");
+        context.addScope(instructions);
+        context.statementFlags().indiCompound = false;
+        context.switchFlags().inspecting = true;
+        statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
+        context.switchFlags().inspecting = false;
+        context.statementFlags().indiCompound = true;
+
+        int expReg = $2, caseReg = $3;
+        expr->generateMIPS(context, instructions, expReg);
+
+        for (int i = 0; i < (int)context.switchFlags().caseFlags.size(); ++i) {
+            instructions.push_back({"addi", regMap[caseReg], regMap[expReg], "", -(int)context.switchFlags().caseFlags[i].second, Instruction::SSN});   // for now only int
+            instructions.push_back({"beq", regMap[caseReg], regMap[$zero], context.switchFlags().caseFlags[i].first, 0, Instruction::SSS});
+        }
+
+        if (context.switchFlags().defaultFlag != "") {          // only branch to default if there is one
+            instructions.push_back({"j", context.switchFlags().defaultFlag, "", "", 0, Instruction::S});
+        }
+
+        context.switchFlags().inspecting = false;
+        statement->generateMIPS(context, instructions);         // should now print instructions
+
+        instructions.push_back({"label", context.switchFlags().breakFlag, "", "", 0, Instruction::L});
+
+        context.subScope(instructions);
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
@@ -237,7 +356,7 @@ protected:
 //------------------EXPRESSION STATEMENT----------------------
 //************************************************************
 
-class ExpressionStatement : public BaseNode {
+class ExpressionStatement : public BaseNode {       
 public:
     ExpressionStatement(BaseExpression *_expr) : expr(_expr) {}
     ~ExpressionStatement() { if (expr != NULL) delete expr; }
@@ -256,6 +375,11 @@ public:
         }
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int reg = $2;
+        if (expr != NULL)  expr->generateMIPS(context, instructions, reg);
+    }
+
 protected:
     BaseExpression *expr;
 };
@@ -264,7 +388,7 @@ protected:
 //---------------------STATEMENT LIST-------------------------
 //************************************************************
 
-class StatementList : public BaseList {
+class StatementList : public BaseList {             
 public:
     StatementList(BaseList *_list, BaseNode *_statement) : BaseList(_list), statement(_statement) {}
     ~StatementList() {
@@ -283,6 +407,11 @@ public:
         statement->printPy(os, context);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (list != NULL) list->generateMIPS(context, instructions);
+        statement->generateMIPS(context, instructions);
+    }
+
 protected:
     BaseNode *statement;
 };
@@ -291,8 +420,8 @@ protected:
 //-------------------COMPOUND STATEMENT-----------------------
 //************************************************************
 
-class CompoundStatement : public BaseNode {
-public:
+class CompoundStatement : public BaseNode {         
+public: 
     CompoundStatement(BaseList *_dec, BaseList *_state) : declarationList(_dec), statementList(_state) {}
     ~CompoundStatement() {
         if (declarationList != NULL) delete declarationList;
@@ -309,6 +438,15 @@ public:
         if (statementList != NULL) statementList->printPy(os, context);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        bool indi = context.statementFlags().indiCompound;
+        context.statementFlags().indiCompound = true;
+        if (indi) context.addScope(instructions);
+        if (declarationList != NULL) declarationList->generateMIPS(context, instructions);
+        if (statementList != NULL) statementList->generateMIPS(context, instructions);
+        if (indi) context.subScope(instructions);
+    }
+
 protected:
     BaseList *declarationList, *statementList;
 };
@@ -317,7 +455,7 @@ protected:
 //--------------------LABLED STATEMENT------------------------
 //************************************************************
 
-class CaseBlock : public BaseNode {
+class CaseBlock : public BaseNode {                 
 public:
     CaseBlock(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~CaseBlock() {
@@ -333,12 +471,27 @@ public:
         statement->print(os, level+2);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (context.switchFlags().inspecting) {
+            std::string label = context.makeALabel("case");
+            context.switchFlags().caseFlags.push_back({label, expr->eval()});
+        } else {
+            //vec elements will be deleted so just work with element 0
+            instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
+            context.switchFlags().caseFlags.erase(context.switchFlags().caseFlags.begin());
+            bool indi = context.statementFlags().indiCompound;
+            context.statementFlags().indiCompound = true;
+            statement->generateMIPS(context, instructions);
+            context.statementFlags().indiCompound = indi;
+        }
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
 };
 
-class DefaultCaseBlock : public BaseNode {
+class DefaultCaseBlock : public BaseNode {          
 public:
     DefaultCaseBlock(BaseNode *_statement) : statement(_statement) {}
     ~DefaultCaseBlock() { delete statement; }
@@ -346,6 +499,18 @@ public:
     void print(std::ostream &os, int level) {
         os << indent(level) << "Default Case Block:" << std::endl;
         statement->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (context.switchFlags().inspecting) {
+            context.switchFlags().defaultFlag = context.makeALabel("default");
+        } else {
+            instructions.push_back({"label", context.switchFlags().defaultFlag, "", "", 0, Instruction::L});
+            bool indi = context.statementFlags().indiCompound;
+            context.statementFlags().indiCompound = true;
+            statement->generateMIPS(context, instructions);
+            context.statementFlags().indiCompound = indi;
+        }
     }
 
 protected:
