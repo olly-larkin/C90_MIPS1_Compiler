@@ -7,7 +7,7 @@ Conditional Operator, Expressions, Y, nil
 Equality Operators, Expressions, Y, nil
 Logical Operators, Expressions, Y, Short-circuiting with pointers
 Multiplicative Operators, Expressions, Y, nil
-Pointer Arithmetic Checks, Expressions, N, nil
+Pointer Arithmetic Checks, Expressions, Y, for add/subAssign as well
 Relational Operators, Expressions, Y, nil
 Shift Operators, Expressions, Y, arithmetic shift testing?
 Unary Operators, Expressions, Y, SizeOf
