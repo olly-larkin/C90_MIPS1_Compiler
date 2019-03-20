@@ -26,11 +26,12 @@ public:
                 instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
         } else if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
-                if (context.currentFunc().params[i].first == identifier)
+                if (context.currentFunc().params[i].first == identifier) {
                     if (context.currentFunc().params[i].second.arraySizes.size() == 0) 
                         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
                     else
                         std::cout << "fuck up" << std::endl;
+                }
             }
         } else if (context.globals[identifier].arraySizes.size() == 0)
             instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
