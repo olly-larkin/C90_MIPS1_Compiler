@@ -24,7 +24,6 @@ public:
         if (context.local(identifier)) {
             if (context.varMap()[identifier].type.arraySizes.size() == 0)
                 instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
-            std::cout << "# local: " << identifier << std::endl;
         } else if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
                 if (context.currentFunc().params[i].first == identifier) {
@@ -33,10 +32,8 @@ public:
                     break;
                 }
             }
-            std::cout << "# Parameter: " << identifier << " " << "\tFunc: " << context.decFlags().funcName << " \targ num: " << context.currentFunc().params.size() << std::endl;
         } else if (context.globals[identifier].arraySizes.size() == 0) {
             instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
-            std::cout << "# global: " << identifier << std::endl;
         }
     }
 
