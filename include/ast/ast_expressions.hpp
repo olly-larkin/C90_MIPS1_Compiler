@@ -30,6 +30,7 @@ public:
                 if (context.currentFunc().params[i].first == identifier) {
                     if (context.currentFunc().params[i].second.arraySizes.size() == 0) 
                         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+                    break;
                 }
             }
             std::cout << "# Parameter: " << identifier << " " << "\tFunc: " << context.decFlags().funcName << " \targ num: " << context.currentFunc().params.size() << std::endl;

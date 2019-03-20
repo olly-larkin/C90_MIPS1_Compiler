@@ -224,6 +224,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        static int x = 0;
+        std::cout << x++ << std::endl;
         if (list != NULL) list->generateMIPS(context, instructions);
         param->generateMIPS(context, instructions);
     }
