@@ -1,0 +1,13 @@
+Construct, Category, Done, To-do
+Pointer Arithmetic Checks, Expressions, N, nil
+Short-Circuit Test Cases, Expressions, N, nil
+Assignments, Expressions, Y, nil
+Conditional Operator, Expressions, N, nil
+Logical Operators, Expressions, N, Short-circuiting with pointers
+Bitwise Logic Operators, Expressions, N, nil
+Equality Operators, Expressions, N, nil
+Relational Operators, Expressions, N, nil
+Arithmetic Operators, Expressions, N, nil
+Pointer Arithmetic Operators, Expressions, N, nil
+Unary Operators, Expressions, N, Might have to further categorise
+Postfix Expressions, Expressions, N, Might have to further categorise
