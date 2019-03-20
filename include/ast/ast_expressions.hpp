@@ -540,7 +540,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //TODO: signed/unsigned slt
         expr->generateMIPS(context, instructions, destReg);
-        instructions.push_back({"slti", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});
+        instructions.push_back({"slti", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
         //andi char casting?
     }
 
