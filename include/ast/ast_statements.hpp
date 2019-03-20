@@ -5,7 +5,7 @@
 //---------------------JUMP STATEMENT-------------------------
 //************************************************************
 
-class Continue : public BaseNode {                  //MIPS DONE
+class Continue : public BaseNode {                  
 public:
     Continue() {}
     ~Continue() {}
@@ -21,7 +21,7 @@ public:
 protected:
 };
 
-class Break : public BaseNode {                     //MIPS DONE
+class Break : public BaseNode {                     
 public:
     Break() {}
     ~Break() {}
@@ -37,7 +37,7 @@ public:
 protected:
 };
 
-class Return : public BaseNode {                    //MIPS DONE 
+class Return : public BaseNode {                     
 public:
     Return(BaseExpression *_expr) : expr(_expr) {}
     ~Return() { if (expr != NULL) delete expr; }
@@ -72,7 +72,7 @@ protected:
 //-------------------ITERATION STATEMENT----------------------
 //************************************************************
 
-class WhileLoop : public BaseNode {                 //MIPS DONE
+class WhileLoop : public BaseNode {                 
 public:
     WhileLoop(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~WhileLoop() {
@@ -116,7 +116,7 @@ protected:
     BaseNode *statement;
 };
 
-class DoWhileLoop : public BaseNode {               //MIPS DONE     
+class DoWhileLoop : public BaseNode {                    
 public:
     DoWhileLoop(BaseNode *_statement, BaseExpression *_expr) : statement(_statement), expr(_expr) {}
     ~DoWhileLoop() {
@@ -153,7 +153,7 @@ protected:
     BaseExpression *expr;
 };
 
-class ForLoop : public BaseNode {                   //MIPS DONE
+class ForLoop : public BaseNode {                   
 public:
     ForLoop(BaseExpression *_expr1, BaseExpression *_expr2, BaseExpression *_expr3, BaseNode *_statement) : expr1(_expr1), expr2(_expr2), expr3(_expr3), statement(_statement)  {}
     ~ForLoop() {
@@ -210,7 +210,7 @@ protected:
 //-------------------SELECTION STATEMENT----------------------
 //************************************************************
 
-class IfStatement : public BaseNode {               //MIPS DONE
+class IfStatement : public BaseNode {               
 public:
     IfStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~IfStatement() {
@@ -251,7 +251,7 @@ protected:
     BaseNode *statement;
 };
 
-class IfElseStatement : public BaseNode {           //MIPS DONE
+class IfElseStatement : public BaseNode {           
 public:
     IfElseStatement(BaseExpression *_expr, BaseNode *_statementTrue, BaseNode *_statementFalse) : expr(_expr), statementTrue(_statementTrue), statementFalse(_statementFalse) {}
     ~IfElseStatement() {
@@ -301,7 +301,7 @@ protected:
     BaseNode *statementTrue, *statementFalse;
 };
 
-class SwitchStatement : public BaseNode {           //MIPS DONE
+class SwitchStatement : public BaseNode {           
 public:
     SwitchStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~SwitchStatement() {
@@ -356,7 +356,7 @@ protected:
 //------------------EXPRESSION STATEMENT----------------------
 //************************************************************
 
-class ExpressionStatement : public BaseNode {       //MIPS DONE
+class ExpressionStatement : public BaseNode {       
 public:
     ExpressionStatement(BaseExpression *_expr) : expr(_expr) {}
     ~ExpressionStatement() { if (expr != NULL) delete expr; }
@@ -388,7 +388,7 @@ protected:
 //---------------------STATEMENT LIST-------------------------
 //************************************************************
 
-class StatementList : public BaseList {             //MIPS DONE
+class StatementList : public BaseList {             
 public:
     StatementList(BaseList *_list, BaseNode *_statement) : BaseList(_list), statement(_statement) {}
     ~StatementList() {
@@ -420,7 +420,7 @@ protected:
 //-------------------COMPOUND STATEMENT-----------------------
 //************************************************************
 
-class CompoundStatement : public BaseNode {         //MIPS DONE
+class CompoundStatement : public BaseNode {         
 public: 
     CompoundStatement(BaseList *_dec, BaseList *_state) : declarationList(_dec), statementList(_state) {}
     ~CompoundStatement() {
@@ -455,7 +455,7 @@ protected:
 //--------------------LABLED STATEMENT------------------------
 //************************************************************
 
-class CaseBlock : public BaseNode {                 //MIPS DONE
+class CaseBlock : public BaseNode {                 
 public:
     CaseBlock(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~CaseBlock() {
@@ -491,7 +491,7 @@ protected:
     BaseNode *statement;
 };
 
-class DefaultCaseBlock : public BaseNode {          //MIPS DONE
+class DefaultCaseBlock : public BaseNode {          
 public:
     DefaultCaseBlock(BaseNode *_statement) : statement(_statement) {}
     ~DefaultCaseBlock() { delete statement; }
