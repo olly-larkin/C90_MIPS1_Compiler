@@ -194,6 +194,7 @@ struct CompContext {
     }
 
     void addDeclaration(std::vector<Instruction> &instructions) {
+        addComment(instructions, "Allocating " + std::to_string(tempDec.type.length()*4) + " for " + tempDec.identifier);
         if (stack.size() != 1) {    // in global scope
             int length = tempDec.type.length();
             int offset = memUsed + 4;
