@@ -20,7 +20,8 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         address(destReg, context, instructions);
-        if (context.local(identifier)) {
+        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+        /*if (context.local(identifier)) {
             if (context.varMap()[identifier].type.arraySizes.size() == 0)
                 instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
         } else if (context.param(identifier)) {
@@ -30,7 +31,7 @@ public:
                         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
             }
         } else if (context.globals[identifier].arraySizes.size() == 0)
-            instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+            instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});*/
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
