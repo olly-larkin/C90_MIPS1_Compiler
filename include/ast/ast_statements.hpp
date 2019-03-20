@@ -5,7 +5,7 @@
 //---------------------JUMP STATEMENT-------------------------
 //************************************************************
 
-class Continue : public BaseNode {                  //MIPS DONE
+class Continue : public BaseNode {                  
 public:
     Continue() {}
     ~Continue() {}
@@ -21,7 +21,7 @@ public:
 protected:
 };
 
-class Break : public BaseNode {                     //MIPS DONE
+class Break : public BaseNode {                     
 public:
     Break() {}
     ~Break() {}
@@ -37,7 +37,7 @@ public:
 protected:
 };
 
-class Return : public BaseNode {                    //MIPS DONE 
+class Return : public BaseNode {                     
 public:
     Return(BaseExpression *_expr) : expr(_expr) {}
     ~Return() { if (expr != NULL) delete expr; }
@@ -72,7 +72,7 @@ protected:
 //-------------------ITERATION STATEMENT----------------------
 //************************************************************
 
-class WhileLoop : public BaseNode {                 //MIPS DONE
+class WhileLoop : public BaseNode {                 
 public:
     WhileLoop(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~WhileLoop() {
@@ -98,8 +98,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = context.chooseReg();
-        context.pushToStack({reg}, instructions);
+        int reg = $2;
         context.addScopeContext();
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
@@ -110,7 +109,6 @@ public:
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
         context.subScopeContext();
-        context.pullFromStack({reg}, instructions);
     }
 
 protected:
@@ -118,7 +116,7 @@ protected:
     BaseNode *statement;
 };
 
-class DoWhileLoop : public BaseNode {               //MIPS DONE     
+class DoWhileLoop : public BaseNode {                    
 public:
     DoWhileLoop(BaseNode *_statement, BaseExpression *_expr) : statement(_statement), expr(_expr) {}
     ~DoWhileLoop() {
@@ -135,8 +133,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = context.chooseReg();
-        context.pushToStack({reg}, instructions);
+        int reg = $2;
         context.addScopeContext();
 
         context.statementFlags().continueFlag = context.makeALabel("continue");
@@ -149,7 +146,6 @@ public:
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
 
         context.subScopeContext();
-        context.pullFromStack({reg}, instructions);
     }
 
 protected:
@@ -157,7 +153,7 @@ protected:
     BaseExpression *expr;
 };
 
-class ForLoop : public BaseNode {                   //MIPS DONE
+class ForLoop : public BaseNode {                   
 public:
     ForLoop(BaseExpression *_expr1, BaseExpression *_expr2, BaseExpression *_expr3, BaseNode *_statement) : expr1(_expr1), expr2(_expr2), expr3(_expr3), statement(_statement)  {}
     ~ForLoop() {
@@ -186,8 +182,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = context.chooseReg();
-        context.pushToStack({reg}, instructions);
+        int reg = $2;
         context.addScopeContext();
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
@@ -204,7 +199,6 @@ public:
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
 
         context.subScopeContext();
-        context.pullFromStack({reg}, instructions);
     }
 
 protected:
@@ -216,7 +210,7 @@ protected:
 //-------------------SELECTION STATEMENT----------------------
 //************************************************************
 
-class IfStatement : public BaseNode {               //MIPS DONE
+class IfStatement : public BaseNode {               
 public:
     IfStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~IfStatement() {
@@ -243,14 +237,12 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string falseLabel = context.makeALabel("false");
-        int reg = context.chooseReg();
+        int reg = $2;
         context.addComment(instructions, "If statement: temp reg = " + regMap[reg]);
-        context.pushToStack({reg}, instructions);
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
         statement->generateMIPS(context, instructions);
         instructions.push_back({"lebel", falseLabel, "", "", 0, Instruction::L});
-        context.pullFromStack({reg}, instructions);
         context.addComment(instructions, "Exiting if statement...");
     }
 
@@ -259,7 +251,7 @@ protected:
     BaseNode *statement;
 };
 
-class IfElseStatement : public BaseNode {           //MIPS DONE
+class IfElseStatement : public BaseNode {           
 public:
     IfElseStatement(BaseExpression *_expr, BaseNode *_statementTrue, BaseNode *_statementFalse) : expr(_expr), statementTrue(_statementTrue), statementFalse(_statementFalse) {}
     ~IfElseStatement() {
@@ -294,16 +286,14 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         std::string trueLabel = context.makeALabel("true");
         std::string falseLabel = context.makeALabel("false");
-        int reg = context.chooseReg();
-        context.pushToStack({reg}, instructions);
+        int reg = $2;
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
         statementTrue->generateMIPS(context, instructions);
-        instructions.push_back({"bne", regMap[reg], regMap[$0], falseLabel, 0, Instruction::SSS});
+        instructions.push_back({"j", trueLabel, "", "", 0, Instruction::S});
         instructions.push_back({"label", falseLabel, "", "", 0, Instruction::L});
         statementFalse->generateMIPS(context, instructions);
         instructions.push_back({"label", trueLabel, "", "", 0, Instruction::L});
-        context.pullFromStack({reg}, instructions);
     }
 
 protected:
@@ -311,7 +301,7 @@ protected:
     BaseNode *statementTrue, *statementFalse;
 };
 
-class SwitchStatement : public BaseNode {           //MIPS DONE
+class SwitchStatement : public BaseNode {           
 public:
     SwitchStatement(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~SwitchStatement() {
@@ -337,8 +327,7 @@ public:
         context.switchFlags().inspecting = false;
         context.statementFlags().indiCompound = true;
 
-        int expReg = context.chooseReg(), caseReg = context.chooseReg({expReg});
-        context.pushToStack({expReg, caseReg}, instructions);
+        int expReg = $2, caseReg = $3;
         expr->generateMIPS(context, instructions, expReg);
 
         for (int i = 0; i < (int)context.switchFlags().caseFlags.size(); ++i) {
@@ -355,7 +344,6 @@ public:
 
         instructions.push_back({"label", context.switchFlags().breakFlag, "", "", 0, Instruction::L});
 
-        context.pullFromStack({caseReg, expReg}, instructions);
         context.subScope(instructions);
     }
 
@@ -368,7 +356,7 @@ protected:
 //------------------EXPRESSION STATEMENT----------------------
 //************************************************************
 
-class ExpressionStatement : public BaseNode {       //MIPS DONE
+class ExpressionStatement : public BaseNode {       
 public:
     ExpressionStatement(BaseExpression *_expr) : expr(_expr) {}
     ~ExpressionStatement() { if (expr != NULL) delete expr; }
@@ -388,12 +376,8 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int reg = context.chooseReg();
-        if (expr != NULL) {
-            context.pushToStack({reg}, instructions);
-            expr->generateMIPS(context, instructions, reg);
-            context.pullFromStack({reg}, instructions);
-        }
+        int reg = $2;
+        if (expr != NULL)  expr->generateMIPS(context, instructions, reg);
     }
 
 protected:
@@ -404,7 +388,7 @@ protected:
 //---------------------STATEMENT LIST-------------------------
 //************************************************************
 
-class StatementList : public BaseList {             //MIPS DONE
+class StatementList : public BaseList {             
 public:
     StatementList(BaseList *_list, BaseNode *_statement) : BaseList(_list), statement(_statement) {}
     ~StatementList() {
@@ -436,7 +420,7 @@ protected:
 //-------------------COMPOUND STATEMENT-----------------------
 //************************************************************
 
-class CompoundStatement : public BaseNode {         //MIPS DONE
+class CompoundStatement : public BaseNode {         
 public: 
     CompoundStatement(BaseList *_dec, BaseList *_state) : declarationList(_dec), statementList(_state) {}
     ~CompoundStatement() {
@@ -471,7 +455,7 @@ protected:
 //--------------------LABLED STATEMENT------------------------
 //************************************************************
 
-class CaseBlock : public BaseNode {                 //MIPS DONE
+class CaseBlock : public BaseNode {                 
 public:
     CaseBlock(BaseExpression *_expr, BaseNode *_statement) : expr(_expr), statement(_statement) {}
     ~CaseBlock() {
@@ -507,7 +491,7 @@ protected:
     BaseNode *statement;
 };
 
-class DefaultCaseBlock : public BaseNode {          //MIPS DONE
+class DefaultCaseBlock : public BaseNode {          
 public:
     DefaultCaseBlock(BaseNode *_statement) : statement(_statement) {}
     ~DefaultCaseBlock() { delete statement; }

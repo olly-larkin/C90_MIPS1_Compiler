@@ -36,7 +36,7 @@ public:
             int spOffset = context.memUsed - offset;
             instructions.push_back({"addi", regMap[destReg], regMap[$sp], "", spOffset, Instruction::SSN});     //param
         } else {
-            instructions.push_back({"li", regMap[destReg], identifier, "", 0, Instruction::SS});                //global
+            instructions.push_back({"la", regMap[destReg], identifier, "", 0, Instruction::SS}); //global
         }
     }
 
