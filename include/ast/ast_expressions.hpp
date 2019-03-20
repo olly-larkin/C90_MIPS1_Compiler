@@ -55,10 +55,9 @@ public:
     }
 
     bool isPointer(CompContext &context) { 
-        if (context.local(identifier)) {
-            std::cout << (context.varMap()[identifier].type.pointerNum > 0 || context.varMap()[identifier].type.arraySizes.size() > 0) << std::endl;
+        if (context.local(identifier))
             return (context.varMap()[identifier].type.pointerNum > 0 || context.varMap()[identifier].type.arraySizes.size() > 0);
-        } if (context.param(identifier)) {
+        if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
                 if (context.currentFunc().params[i].first == identifier)
                     return (context.currentFunc().params[i].second.pointerNum > 0 || context.currentFunc().params[i].second.arraySizes.size() > 0);
