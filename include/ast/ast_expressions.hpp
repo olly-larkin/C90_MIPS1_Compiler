@@ -21,15 +21,15 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         address(destReg, context, instructions);
         if (context.local(identifier)) {
-            if (context.varMap()[identifier].type.arraySizes.size() > 0)
+            if (context.varMap()[identifier].type.arraySizes.size() == 0)
                 instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
         } else if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
                 if (context.currentFunc().params[i].first == identifier)
-                    if (context.currentFunc().params[i].second.arraySizes.size() > 0) 
+                    if (context.currentFunc().params[i].second.arraySizes.size() == 0) 
                         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
             }
-        } else if (context.globals[identifier].arraySizes.size() > 0)
+        } else if (context.globals[identifier].arraySizes.size() == 0)
             instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
     }
 
