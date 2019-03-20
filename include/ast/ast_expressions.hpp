@@ -32,7 +32,7 @@ public:
                         instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
                 }
             }
-            std::cout << "Parameter: " << identifier << " " << "Func: " << context.tempType().identifier << " arg num: " << context.currentFunc().params.size() << std::endl;
+            std::cout << "Parameter: " << identifier << " " << "\tFunc: " << context.decFlags().funcName << " \targ num: " << context.currentFunc().params.size() << std::endl;
         } else if (context.globals[identifier].arraySizes.size() == 0) {
             instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
             std::cout << "global: " << identifier << std::endl;
