@@ -22,8 +22,10 @@ public:
         address(destReg, context, instructions);
         //instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
         if (context.local(identifier)) {
-            if (context.varMap()[identifier].type.arraySizes.size() == 0)
+            if (context.varMap()[identifier].type.arraySizes.size() == 0) {
                 instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+                std::cout << "hello" << std::endl;
+            }
         } else if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
                 if (context.currentFunc().params[i].first == identifier) {
