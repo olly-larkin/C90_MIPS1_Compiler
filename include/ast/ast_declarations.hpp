@@ -276,7 +276,9 @@ public:
         } else if (context.decFlags().init && context.stack.size() == 1) {      // is it initializing and global
             // means it missed the initializer
             instructions.push_back({".data", "", "", "", 0, Instruction::E});
-            instructions.push_back({".global", context.tempDec.identifier, "", "", 0, Instruction::S});
+            // instructions.push_back({".global", context.tempDec.identifier, "", "", 0, Instruction::S});
+            // .type   x, @object
+            instructions.push_back({".type", context.tempDec.identifier, "@object", "", 0, Instruction::SS});
             instructions.push_back({"list_start","","","",0, Instruction::LIST});
             instructions.push_back({"label", context.tempDec.identifier, "", "", 0, Instruction::L});
             int zeroNum = 1;
@@ -413,7 +415,9 @@ public:
         context.enumFlags().lastVal = val;
         context.addCustomDec(identifier, {0,{{INT_T, "int"}},{}}, instructions);
         if (context.stack.size() == 1) {
-            instructions.push_back({".global", identifier, "", "", 0, Instruction::S});
+            // instructions.push_back({".global", identifier, "", "", 0, Instruction::S});
+            // .type   x, @object
+            instructions.push_back({".type", identifier, "@object", "", 0, Instruction::SS});
             instructions.push_back({"list_start", "", "", "", 0, Instruction::LIST});
             instructions.push_back({"label", identifier, "", "", 0, Instruction::L});
             instructions.push_back({"list_end", "", "", "", 0, Instruction::LIST});
@@ -683,7 +687,9 @@ public:
             if (context.stack.size() == 1) {    // global scope
 
                 instructions.push_back({".data", "", "", "", 0, Instruction::E});
-                instructions.push_back({".global", context.tempDec.identifier, "", "", 0, Instruction::S});
+                // instructions.push_back({".global", context.tempDec.identifier, "", "", 0, Instruction::S});
+                // .type   x, @object
+                instructions.push_back({".type", context.tempDec.identifier, "@object", "", 0, Instruction::SS});
                 instructions.push_back({"list_start","","","",0, Instruction::LIST});
                 instructions.push_back({"label", context.tempDec.identifier, "", "", 0, Instruction::L});
                 instructions.push_back({"list_end","","","",0, Instruction::LIST});
