@@ -138,6 +138,14 @@ struct CompContext {
     void printRetSequence(std::vector<Instruction> &instructions) {
         readStack($ra, 4, instructions);
         readStack($fp, 8, instructions);
+        readStack($s0, 12, instructions);
+        readStack($s1, 16, instructions);
+        readStack($s2, 20, instructions);
+        readStack($s3, 24, instructions);
+        readStack($s4, 28, instructions);
+        readStack($s5, 32, instructions);
+        readStack($s6, 34, instructions);
+        readStack($s7, 40, instructions);
         instructions.push_back({"addi", regMap[$sp], regMap[$fp], "", 0, Instruction::SSN});   // move $sp to $fp
         instructions.push_back({"jr", regMap[$ra], "", "", 0, Instruction::S}); // jump back to return address
     }
@@ -263,7 +271,7 @@ struct CompContext {
             writeStack(reg, memUsed - offset, instructions);
         }
 
-        pushToStack({$ra, $fp}, instructions);           // $ra and $fp need saving
+        pushToStack({$ra, $fp, $s0, $s1, $s2, $s3, $s4, $s5, $s6, $s7}, instructions);           // $ra and $fp need saving
     }
 
     void subScopeFunc(std::vector<Instruction> &instructions) {
