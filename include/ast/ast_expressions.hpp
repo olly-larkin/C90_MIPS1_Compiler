@@ -22,10 +22,8 @@ public:
         address(destReg, context, instructions);
         //instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
         if (context.local(identifier)) {
-            if (context.varMap()[identifier].type.arraySizes.size() == 0) {
+            if (context.varMap()[identifier].type.arraySizes.size() == 0)
                 instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
-                std::cout << "hello" << std::endl;
-            }
         } else if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
                 if (context.currentFunc().params[i].first == identifier) {
@@ -57,9 +55,10 @@ public:
     }
 
     bool isPointer(CompContext &context) { 
-        if (context.local(identifier)) 
+        if (context.local(identifier)) {
+            std::cout << (context.varMap()[identifier].type.pointerNum > 0 || context.varMap()[identifier].type.arraySizes.size() > 0) << std::endl;
             return (context.varMap()[identifier].type.pointerNum > 0 || context.varMap()[identifier].type.arraySizes.size() > 0);
-        if (context.param(identifier)) {
+        } if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
                 if (context.currentFunc().params[i].first == identifier)
                     return (context.currentFunc().params[i].second.pointerNum > 0 || context.currentFunc().params[i].second.arraySizes.size() > 0);
