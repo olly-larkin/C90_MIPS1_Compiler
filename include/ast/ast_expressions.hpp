@@ -698,12 +698,11 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int op = context.chooseReg({destReg});
         
-        context.pushToStack({op}, instructions);
         expr1->generateMIPS(context, instructions, destReg);
+        context.pushToStack({op}, instructions);
         expr2->generateMIPS(context, instructions, op);
 
         if (expr1->isPointer(context) && !expr2->isPointer(context)) {
-
             instructions.push_back({"sll", regMap[op], regMap[op], "", 2, Instruction::SSN});
         } else if (!expr1->isPointer(context) && expr2->isPointer(context)) {
             instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", 2, Instruction::SSN});
@@ -750,8 +749,8 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int op = context.chooseReg({destReg});
         
-        context.pushToStack({op}, instructions);
         expr1->generateMIPS(context, instructions, destReg);
+        context.pushToStack({op}, instructions);
         expr2->generateMIPS(context, instructions, op);
 
         if (expr1->isPointer(context) && !expr2->isPointer(context)) {
