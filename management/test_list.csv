@@ -13,5 +13,4 @@ Shift Operators, Expressions, Y, arithmetic shift testing?
 Unary Operators, Expressions, N, Might have to further categorise
 Postfix Expressions, Expressions, N, Might have to further categorise
 While Loop, Statements, Y, nil
-While Loop Continue/Break, Statements, Y, nil
-Do While Loop, Statements, N, nil
+While Loop Continue/Break, Statements, Y, nil 
