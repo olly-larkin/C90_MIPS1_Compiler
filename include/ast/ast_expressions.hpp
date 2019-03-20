@@ -463,7 +463,7 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         expr->generateMIPS(context, instructions, destReg);
-        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::SSN});
+        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
