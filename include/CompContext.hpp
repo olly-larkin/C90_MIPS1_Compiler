@@ -198,10 +198,12 @@ struct CompContext {
         if (stack.size() != 1) {    // in global scope
             int length = tempDec.type.length();
             int offset = memUsed + 4;
-            for (int i = 0; i < length; i += 4) {
+            /*for (int i = 0; i < length; i += 4) {
                 memUsed += 4;
                 instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
-            }
+            }*/
+            memUsed += length;
+            instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -length, Instruction::SSN});
             stack.back().varMap[tempDec.identifier] = {tempDec.type, offset};
         } else {
             globals[tempDec.identifier] = tempDec.type;
