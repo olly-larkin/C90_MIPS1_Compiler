@@ -1378,7 +1378,7 @@ public:
         std::string endLabel = context.makeALabel("end");
         expr1->generateMIPS(context, instructions, destReg);
 
-        instructions.push_back({"beq", regMap[destReg], regMap[$0], skipper, 0, Instruction::SSN});     //branch to 2nd if false
+        instructions.push_back({"beq", regMap[destReg], regMap[$0], skipper, 0, Instruction::SSS});     //branch to 2nd if false
         expr2->generateMIPS(context, instructions, destReg);
         instructions.push_back({"j", endLabel, "", "", 0, Instruction::S});                             //check instruction type
         
