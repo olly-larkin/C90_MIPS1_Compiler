@@ -36,11 +36,40 @@ E			[Ee][+-]?{D}+
                         return STRING_LITERAL;
                     }
 
-\'([^\']|"\\\'")\'  {   
-                        if (yytext[1] == '\\')
-                            yylval.number = yytext[2];
-                        else
+\'"\"?.*\'          {   
+                        if (yytext[1] == '\') {
+                            std::string res = yytext;
+                            if (res = "\\a")
+                                yylval.number = '\a';
+                            else if (res == "\\b")
+                                yylval.number = '\b';
+                            else if (res == "\\f")
+                                yylval.number = '\f';
+                            else if (res == "\\n")
+                                yylval.number = '\n';
+                            else if (res == "\\r")
+                                yylval.number = '\r';
+                            else if (res == "\\t")
+                                yylval.number = '\t';
+                            else if (res == "\\v")
+                                yylval.number = '\v';
+                            else if (res == "\\\\")
+                                yylval.number = '\\';
+                            else if (res == "\\\'")
+                                yylval.number = '\'';
+                            else if (res == "\\\"")
+                                yylval.number = '\"';
+                            else if (res == "\\\?")
+                                yylval.number = '\?';
+                            else if (res == "\\nnn")
+                                yylval.number = '\nnn';
+                            else if (res == "\\xhh")
+                                yylval.number = '\xhh';
+                            else if (res == "\\0")
+                                yylval.number = '\0';
+                        } else {
                             yylval.number = yytext[1];
+                        }
                         return NUMBER;
                     }
 
