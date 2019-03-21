@@ -319,7 +319,7 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         context.switchFlags() = {};
-        context.switchFlags().breakFlag = context.makeALabel("break");
+        context.statementFlags().breakFlag = context.makeALabel("break");
         context.addScope(instructions);
         statement->structInspect(context);
 
@@ -337,7 +337,7 @@ public:
 
         statement->generateMIPS(context, instructions);         // should now print instructions
 
-        instructions.push_back({"label", context.switchFlags().breakFlag, "", "", 0, Instruction::L});
+        instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
 
         context.subScope(instructions);
     }

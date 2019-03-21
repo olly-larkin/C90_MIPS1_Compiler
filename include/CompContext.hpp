@@ -87,7 +87,6 @@ struct CompContext {
             std::string continueFlag, breakFlag;
         } statementFlags;
         struct switchFlagStruct {
-            std::string breakFlag;
             std::string defaultFlag;
             std::vector< std::pair<std::string, double> > caseFlags;
         } switchFlags;
