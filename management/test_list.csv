@@ -12,9 +12,5 @@ Relational Operators, Expressions, Y, nil
 Shift Operators, Expressions, Y, arithmetic shift testing?
 Unary Operators, Expressions, Y, SizeOf
 Postfix Expressions, Expressions, Y, nil
-
-
-
 While Loop, Statements, Y, nil
 While Loop Continue/Break, Statements, Y, nil
-Do While Loop, Statements, N, nil
