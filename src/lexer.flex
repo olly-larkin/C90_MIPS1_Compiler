@@ -63,6 +63,8 @@ E			[Ee][+-]?{D}+
                                 yylval.number = '\?';
                             else if (res == "\\0")
                                 yylval.number = '\0';
+                            else
+                                yylval.number = 20;
                         } else {
                             yylval.number = yytext[1];
                         }
