@@ -360,6 +360,7 @@ public:
         dec->generateMIPS(context, instructions);
         if (params != NULL) {
             context.addScopeContext();
+            context.funcMap[context.decFlags().funcName].params = {};
             params->generateMIPS(context, instructions);
             context.subScopeContext();
         }

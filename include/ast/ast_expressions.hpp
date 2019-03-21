@@ -20,7 +20,21 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         address(destReg, context, instructions);
-        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+        //instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+        if (context.local(identifier)) {
+            if (context.varMap()[identifier].type.arraySizes.size() == 0)
+                instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+        } else if (context.param(identifier)) {
+            for (int i = 0; i < context.currentFunc().params.size(); ++i) {
+                if (context.currentFunc().params[i].first == identifier) {
+                    if (context.currentFunc().params[i].second.arraySizes.size() == 0) 
+                        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+                    break;
+                }
+            }
+        } else if (context.globals[identifier].arraySizes.size() == 0) {
+            instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+        }
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
@@ -41,15 +55,15 @@ public:
     }
 
     bool isPointer(CompContext &context) { 
-        if (context.local(identifier)) 
-            return (context.varMap()[identifier].type.pointerNum > 0);
+        if (context.local(identifier))
+            return (context.varMap()[identifier].type.pointerNum > 0 || context.varMap()[identifier].type.arraySizes.size() > 0);
         if (context.param(identifier)) {
             for (int i = 0; i < context.currentFunc().params.size(); ++i) {
                 if (context.currentFunc().params[i].first == identifier)
-                    return (context.currentFunc().params[i].second.pointerNum > 0);
+                    return (context.currentFunc().params[i].second.pointerNum > 0 || context.currentFunc().params[i].second.arraySizes.size() > 0);
             }
         }
-        return (context.globals[identifier].pointerNum > 0);
+        return (context.globals[identifier].pointerNum > 0 || context.globals[identifier].arraySizes.size() > 0);
     }
 
     std::string getIdentifier() { 
@@ -137,8 +151,20 @@ public:
         index->generateMIPS(context, instructions, reg);
         instructions.push_back({"sll", regMap[reg], regMap[reg], "", 2, Instruction::SSN});         // will only work with int (or size 4 things)
         postfix->address(destReg, context, instructions);
-        instructions.push_back({"sub", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
+        instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
         context.pullFromStack({reg}, instructions);
+    }
+
+    bool isPointer(CompContext &context) { 
+        if (context.local(postfix->getIdentifier())) 
+            return (context.varMap()[postfix->getIdentifier()].type.pointerNum > 0);
+        if (context.param(postfix->getIdentifier())) {
+            for (int i = 0; i < context.currentFunc().params.size(); ++i) {
+                if (context.currentFunc().params[i].first == postfix->getIdentifier())
+                    return (context.currentFunc().params[i].second.pointerNum > 0);
+            }
+        }
+        return (context.globals[postfix->getIdentifier()].pointerNum > 0);
     }
 
 protected:
@@ -540,7 +566,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         //TODO: signed/unsigned slt
         expr->generateMIPS(context, instructions, destReg);
-        instructions.push_back({"slti", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});
+        instructions.push_back({"slti", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
         //andi char casting?
     }
 

@@ -34,6 +34,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.tempDec = {};
         dec->generateMIPS(context, instructions);
         decSpec->generateMIPS(context, instructions);
         context.decFlags().functionBody = true;
