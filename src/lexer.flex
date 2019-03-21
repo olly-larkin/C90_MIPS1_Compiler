@@ -36,7 +36,7 @@ E			[Ee][+-]?{D}+
                         return STRING_LITERAL;
                     }
 
-\'"\"?.*\'          {   
+\'"\\"?.*\'         {   
                         if (yytext[1] == '\') {
                             std::string res = yytext;
                             if (res = "\\a")
