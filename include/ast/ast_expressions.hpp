@@ -937,11 +937,11 @@ public:
 
         context.pullFromStack({op2,op1}, instructions);*/
         int op2 = context.chooseReg({destReg});
-        context.pushToStack({destReg}, instructions);
+        context.pushToStack({op2}, instructions);
         expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, op2);
         instructions.push_back({"slt", regMap[destReg], regMap[destReg], regMap[op2], 0, Instruction::SSS});
-        context.pullFromStack({destReg}, instructions);
+        context.pullFromStack({op2}, instructions);
     }
 
     double eval() {
