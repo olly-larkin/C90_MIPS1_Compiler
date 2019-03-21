@@ -39,32 +39,30 @@ E			[Ee][+-]?{D}+
 \'"\\"?.*\'         {   
                         if (yytext[1] == '\\') {
                             std::string res = yytext;
-                            if (res == "\\a")
+                            if (res == "\'\\a\'")
                                 yylval.number = '\a';
-                            else if (res == "\\b")
+                            else if (res == "\'\\b\'")
                                 yylval.number = '\b';
-                            else if (res == "\\f")
+                            else if (res == "\'\\f\'")
                                 yylval.number = '\f';
-                            else if (res == "\\n")
+                            else if (res == "\'\\n\'")
                                 yylval.number = '\n';
-                            else if (res == "\r")
+                            else if (res == "\'\\r\'")
                                 yylval.number = '\r';
-                            else if (res == "\\t")
+                            else if (res == "\'\\t\'")
                                 yylval.number = '\t';
-                            else if (res == "\\v")
+                            else if (res == "\'\\v\'")
                                 yylval.number = '\v';
-                            else if (res == "\\\\")
+                            else if (res == "\'\\\\\'")
                                 yylval.number = '\\';
-                            else if (res == "\\\'")
+                            else if (res == "\'\\\'\'")
                                 yylval.number = '\'';
-                            else if (res == "\\\"")
+                            else if (res == "\'\\\"\'")
                                 yylval.number = '\"';
-                            else if (res == "\\\?")
+                            else if (res == "\'\\\?\'")
                                 yylval.number = '\?';
-                            else if (res == "\\0")
+                            else if (res == "\'\\0\'")
                                 yylval.number = '\0';
-                            else
-                                yylval.number = 20;
                         } else {
                             yylval.number = yytext[1];
                         }
