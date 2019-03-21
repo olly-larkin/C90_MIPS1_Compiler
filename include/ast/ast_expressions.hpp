@@ -1011,7 +1011,7 @@ public:
         expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, op2);
         instructions.push_back({"slt", regMap[destReg], regMap[op2], regMap[destReg], 0, Instruction::SSS});
-        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});    // not the ouput
+        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});    // not the ouput
         context.pullFromStack({op2}, instructions);
     }
 
@@ -1058,7 +1058,7 @@ public:
         expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, op2);
         instructions.push_back({"slt", regMap[destReg], regMap[destReg], regMap[op2], 0, Instruction::SSS});
-        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});
+        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", 1, Instruction::SSN});
         context.pullFromStack({op2}, instructions);
     }
 
