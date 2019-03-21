@@ -61,10 +61,6 @@ E			[Ee][+-]?{D}+
                                 yylval.number = '\"';
                             else if (res == "\\\?")
                                 yylval.number = '\?';
-                            else if (res == "\\nnn")
-                                yylval.number = '\nnn';
-                            else if (res == "\\xhh")
-                                yylval.number = '\xhh';
                             else if (res == "\\0")
                                 yylval.number = '\0';
                         } else {
