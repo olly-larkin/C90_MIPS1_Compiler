@@ -37,7 +37,7 @@ Our test suite can be run by first building the project and then running the tes
 
 Some additional features are included for debugging purposes such as a print function which shows the structure of the parse tree visually. This can be built using the following command, which then takes input from the standard input stream.
 
-	make
+	make bin/print_tree
 	bin/print_tree
 
 
