@@ -47,7 +47,7 @@ E			[Ee][+-]?{D}+
                                 yylval.number = '\f';
                             else if (res == "\\n")
                                 yylval.number = '\n';
-                            else if (res == "\\r")
+                            else if (res == "\r")
                                 yylval.number = '\r';
                             else if (res == "\\t")
                                 yylval.number = '\t';
