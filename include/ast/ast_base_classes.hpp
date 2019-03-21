@@ -40,6 +40,7 @@ public:
     virtual void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {}
     virtual bool isPointer(CompContext &context) { return false; }
     virtual std::string getIdentifier() { return ""; }
+    virtual int length(CompContext &context) { return 4; }
 protected:
 };
 

@@ -70,6 +70,20 @@ public:
         return identifier; 
     }
 
+    int length(CompContext &context) { 
+        if (context.local(identifier)) {
+            return context.varMap()[identifier].type.length();    //local
+        } else if (context.param(identifier)) {
+            for(int i=0; i<context.currentFunc().params.size(); i++){
+                if (context.currentFunc().params[i].first == identifier)
+                    return context.currentFunc().params[i].second.length();
+            }
+            return 4;
+        } else {
+            return context.globals[identifier].length();
+        }
+    }
+
 protected:
     std::string identifier;
 };
@@ -243,7 +257,7 @@ public:
     }
 
     bool isPointer(CompContext &context) {
-        return context.currentFunc().retType.pointerNum > 0;
+        return context.funcMap[postfix->getIdentifier()].retType.pointerNum > 0;
     }
 
 protected:
@@ -437,11 +451,16 @@ public:
         expr->print(os, level+1);
     } 
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        int length = expr->length(context);
+        instructions.push_back({"li", regMap[destReg], "", "", length, Instruction::SN});
+    }
+
 protected:
     BaseExpression *expr;
 };
 
-class SizeOfType : public BaseExpression {      //TODO: sizeof
+class SizeOfType : public BaseExpression {
 public:
     SizeOfType(BaseNode *_type) : type(_type) {}
     ~SizeOfType() { delete type; }
@@ -452,7 +471,9 @@ public:
     } 
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //fuck if I know
+        type->generateMIPS(context, instructions);
+        int length = context.tempDec.type.length();
+        instructions.push_back({"li", regMap[destReg], "", "", length, Instruction::SN});
     }
 
 protected:

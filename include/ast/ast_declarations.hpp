@@ -71,7 +71,7 @@ protected:
 //-------------------ABSTRACT DECLARATION---------------------  //TODO: abstracts?
 //************************************************************
 
-class AbstractArray : public BaseNode {
+class AbstractArray : public BaseNode {             //MIPS DONE
 public:
     AbstractArray(BaseNode *_absDec, BaseExpression *_expr) : absDec(_absDec), expr(_expr) {}
     ~AbstractArray() {
@@ -88,12 +88,17 @@ public:
         }
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (absDec != NULL) absDec->generateMIPS(context, instructions);
+        if (!context.decFlags().init) context.tempDec.type.arraySizes.push_back(expr->eval());
+    }
+
 protected:
     BaseNode *absDec;
     BaseExpression *expr;
 };
 
-class AbstractFunc : public BaseNode {
+class AbstractFunc : public BaseNode {              // not doing func pointers so no need
 public:
     AbstractFunc(BaseNode *_absDec, BaseList *_params) : absDec(_absDec), params(_params) {}
     ~AbstractFunc() {
@@ -115,7 +120,7 @@ protected:
     BaseList *params;
 };
 
-class AbstractDeclarator : public BaseNode {
+class AbstractDeclarator : public BaseNode {        //MIPS DONE
 public:
     AbstractDeclarator(BaseList *_pointer, BaseNode *_absDec) : pointer(_pointer), absDec(_absDec) {}
     ~AbstractDeclarator() {
@@ -132,16 +137,21 @@ public:
         if (absDec != NULL) absDec->print(os, level+1);
     }
 
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        if (!context.decFlags().init && pointer != NULL) context.tempDec.type.pointerNum = pointer->size();
+        if (absDec != NULL) absDec->generateMIPS(context, instructions);
+    }
+
 protected:
     BaseList *pointer;
     BaseNode *absDec;
 };
 
 //************************************************************
-//------------------------TYPE NAME---------------------------  //TODO: typename?
+//------------------------TYPE NAME---------------------------
 //************************************************************
 
-class TypeName : public BaseNode {
+class TypeName : public BaseNode {              //MIPS DONE
 public:
     TypeName(BaseList *_specList, BaseNode *_absDec) : specList(_specList), absDec(_absDec) {}
     ~TypeName() {
@@ -153,6 +163,12 @@ public:
         os << indent(level) << "Type Name:" << std::endl;
         specList->print(os, level+1);
         if (absDec != NULL) absDec->print(os, level+1);
+    }
+
+    void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+        context.tempDec = {};
+        specList->generateMIPS(context, instructions);
+        if (absDec != NULL) absDec->generateMIPS(context, instructions);
     }
 
 protected:
@@ -236,7 +252,7 @@ protected:
 //-------------------------POINTER----------------------------
 //************************************************************
 
-class Pointer : public BaseList {               //MIPS NOT NEEDED? TODO: check   
+class Pointer : public BaseList {               //MIPS NOT NEEDED?    
 public:
     Pointer(BaseList *_list) : BaseList(_list) {}
     ~Pointer() { if (list != NULL) delete list; }
@@ -624,10 +640,12 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         if (context.decFlags().functionDef) {
-            context.funcMap[context.decFlags().funcName].retType.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            //context.funcMap[context.decFlags().funcName].retType.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            context.funcMap[context.decFlags().funcName].retType = context.typeMap()[type];
             context.decFlags().functionDef = false;     // last thing to be defined in function
         } else {
-            context.tempDec.type.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            //context.tempDec.type.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            context.tempDec.type = context.typeMap()[type];
         }
     }
 
