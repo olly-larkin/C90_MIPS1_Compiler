@@ -78,6 +78,7 @@ public:
                 if (context.currentFunc().params[i].first == identifier)
                     return context.currentFunc().params[i].second.length();
             }
+            return 4;
         } else {
             return context.globals[identifier].length();
         }
