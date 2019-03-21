@@ -89,7 +89,7 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        absDec->generateMIPS(context, instructions);
+        if (absDec != NULL) absDec->generateMIPS(context, instructions);
         if (!context.decFlags().init) context.tempDec.type.arraySizes.push_back(expr->eval());
     }
 
@@ -139,7 +139,7 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         if (!context.decFlags().init && pointer != NULL) context.tempDec.type.pointerNum = pointer->size();
-        absDec->generateMIPS(context, instructions);
+        if (absDec != NULL) absDec->generateMIPS(context, instructions);
     }
 
 protected:
