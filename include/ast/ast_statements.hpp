@@ -321,12 +321,7 @@ public:
         context.switchFlags() = {};
         context.switchFlags().breakFlag = context.makeALabel("break");
         context.addScope(instructions);
-        context.statementFlags().indiCompound = false;
-        // context.switchFlags().inspecting = true;
-        // statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
-        // context.switchFlags().inspecting = false;
         statement->structInspect(context);
-        context.statementFlags().indiCompound = true;
 
         int expReg = $2, caseReg = $3;
         expr->generateMIPS(context, instructions, expReg);
@@ -340,7 +335,6 @@ public:
             instructions.push_back({"j", context.switchFlags().defaultFlag, "", "", 0, Instruction::S});
         }
 
-        context.switchFlags().inspecting = false;
         statement->generateMIPS(context, instructions);         // should now print instructions
 
         instructions.push_back({"label", context.switchFlags().breakFlag, "", "", 0, Instruction::L});
@@ -482,18 +476,13 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        if (context.switchFlags().inspecting) {
-            std::string label = context.makeALabel("case");
-            context.switchFlags().caseFlags.push_back({label, expr->eval()});
-        } else {
-            //vec elements will be deleted so just work with element 0
-            instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
-            context.switchFlags().caseFlags.erase(context.switchFlags().caseFlags.begin());
-            bool indi = context.statementFlags().indiCompound;
-            context.statementFlags().indiCompound = true;
-            statement->generateMIPS(context, instructions);
-            context.statementFlags().indiCompound = indi;
-        }
+        //vec elements will be deleted so just work with element 0
+        instructions.push_back({"label", context.switchFlags().caseFlags[0].first, "", "", 0, Instruction::L});
+        context.switchFlags().caseFlags.erase(context.switchFlags().caseFlags.begin());
+        bool indi = context.statementFlags().indiCompound;
+        context.statementFlags().indiCompound = true;
+        statement->generateMIPS(context, instructions);
+        context.statementFlags().indiCompound = indi;
     }
 
     void structInspect(CompContext &context) {
@@ -517,15 +506,11 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        if (context.switchFlags().inspecting) {
-            context.switchFlags().defaultFlag = context.makeALabel("default");
-        } else {
-            instructions.push_back({"label", context.switchFlags().defaultFlag, "", "", 0, Instruction::L});
-            bool indi = context.statementFlags().indiCompound;
-            context.statementFlags().indiCompound = true;
-            statement->generateMIPS(context, instructions);
-            context.statementFlags().indiCompound = indi;
-        }
+        instructions.push_back({"label", context.switchFlags().defaultFlag, "", "", 0, Instruction::L});
+        bool indi = context.statementFlags().indiCompound;
+        context.statementFlags().indiCompound = true;
+        statement->generateMIPS(context, instructions);
+        context.statementFlags().indiCompound = indi;
     }
 
     void structInspect(CompContext &context) {
