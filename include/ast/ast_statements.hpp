@@ -322,9 +322,10 @@ public:
         context.switchFlags().breakFlag = context.makeALabel("break");
         context.addScope(instructions);
         context.statementFlags().indiCompound = false;
-        context.switchFlags().inspecting = true;
-        statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
-        context.switchFlags().inspecting = false;
+        // context.switchFlags().inspecting = true;
+        // statement->generateMIPS(context, instructions);     // shouldn't print anything ... just add to context
+        // context.switchFlags().inspecting = false;
+        statement->structInspect(context);
         context.statementFlags().indiCompound = true;
 
         int expReg = $2, caseReg = $3;
@@ -412,6 +413,11 @@ public:
         statement->generateMIPS(context, instructions);
     }
 
+    virtual void structInspect(CompContext &context) {
+        if (list != NULL) list->structInspect(context);
+        statement->structInspect(context);
+    }
+
 protected:
     BaseNode *statement;
 };
@@ -445,6 +451,10 @@ public:
         if (declarationList != NULL) declarationList->generateMIPS(context, instructions);
         if (statementList != NULL) statementList->generateMIPS(context, instructions);
         if (indi) context.subScope(instructions);
+    }
+
+    void structInspect(CompContext &context) {
+        if (statementList != NULL) statementList->structInspect(context);
     }
 
 protected:
@@ -486,6 +496,11 @@ public:
         }
     }
 
+    void structInspect(CompContext &context) {
+        std::string label = context.makeALabel("case");
+        context.switchFlags().caseFlags.push_back({label, expr->eval()});
+    }
+
 protected:
     BaseExpression *expr;
     BaseNode *statement;
@@ -511,6 +526,10 @@ public:
             statement->generateMIPS(context, instructions);
             context.statementFlags().indiCompound = indi;
         }
+    }
+
+    void structInspect(CompContext &context) {
+        context.switchFlags().defaultFlag = context.makeALabel("default");
     }
 
 protected:

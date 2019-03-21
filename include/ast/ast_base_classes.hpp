@@ -3,6 +3,7 @@
 
 class BaseNode : public AST {
 public:
+    virtual void structInspect(CompContext &context) {}
 protected:
 };
 
@@ -29,6 +30,8 @@ public:
         else
             return NULL;
     }
+
+    virtual void structInspect(CompContext &context) {}
 
 protected:
     BaseList *list;
