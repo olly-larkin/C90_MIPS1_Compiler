@@ -964,7 +964,7 @@ public:
         context.pushToStack({op2}, instructions);
         expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, op2);
-        instructions.push_back({"slt", regMap[destReg], regMap[op2], regMap[desReg], 0, Instruction::SSS});
+        instructions.push_back({"slt", regMap[destReg], regMap[op2], regMap[destReg], 0, Instruction::SSS});
         context.pullFromStack({op2}, instructions);
     }
 
