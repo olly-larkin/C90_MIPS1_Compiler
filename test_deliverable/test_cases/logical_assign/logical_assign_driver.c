@@ -3,5 +3,5 @@ int fonc();
 int funk();
 
 int main(){
-    return funk()+func()-fonc();
+    return funk() + func() - fonc();
 }

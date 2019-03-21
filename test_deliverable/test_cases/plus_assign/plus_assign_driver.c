@@ -2,5 +2,5 @@ int funk();
 int func();
 
 int main() {
-    return func();
+    return func() + funk();
 }

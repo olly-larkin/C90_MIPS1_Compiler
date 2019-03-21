@@ -2,5 +2,8 @@ int lt();
 int gt();
 
 int main(){
-    return lt() - gt();
+	int a = lt();
+	int b = gt();
+	int c = lt() - gt();
+    return a - b + c;
 }
