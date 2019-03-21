@@ -1,5 +1,6 @@
+
 int func();
 
 int main() {
-    return func() - 3;
+	return func() - 5;
 }

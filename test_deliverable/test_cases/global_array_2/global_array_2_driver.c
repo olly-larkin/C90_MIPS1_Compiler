@@ -1,5 +1,5 @@
 
-int x[10];
+extern int x[10];
 void func(int num);
 
 int main() {
