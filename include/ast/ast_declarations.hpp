@@ -624,10 +624,12 @@ public:
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         if (context.decFlags().functionDef) {
-            context.funcMap[context.decFlags().funcName].retType.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            //context.funcMap[context.decFlags().funcName].retType.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            context.funcMap[context.decFlags().funcName].retType = context.typeMap()[type];
             context.decFlags().functionDef = false;     // last thing to be defined in function
         } else {
-            context.tempDec.type.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            //context.tempDec.type.typeSpecifiers.push_back({TYPEDEF_TYPE_T, type});
+            context.tempDec.type = context.typeMap()[type];
         }
     }
 
