@@ -42,13 +42,19 @@ public:
             int spOffset = context.memUsed - context.varMap()[identifier].offset;
             instructions.push_back({"addi", regMap[destReg], regMap[$sp], "", spOffset, Instruction::SSN});     //local
         } else if (context.param(identifier)) {
-            int offset;
+            int index;
             for(int i=0; i<context.currentFunc().params.size(); i++){
-                if (context.currentFunc().params[i].first == identifier)
-                    offset = i*-4;
+                if (context.currentFunc().params[i].first == identifier) {
+                    index = i;
+                    break;
+                }
             }
-            int spOffset = context.memUsed - offset;
-            instructions.push_back({"addi", regMap[destReg], regMap[$sp], "", spOffset, Instruction::SSN});     //param
+            int spOffset = context.memUsed - index * -4;
+            if (context.currentFunc().params[index].second.arraySizes.size() == 0) {
+                instructions.push_back({"addi", regMap[destReg], regMap[$sp], "", spOffset, Instruction::SSN});     //param
+            } else {
+                instructions.push_back({"lw", regMap[destReg], regMap[$sp], "", spOffset, Instruction::LS});
+            }
         } else {
             instructions.push_back({"la", regMap[destReg], identifier, "", 0, Instruction::SS}); //global
         }
