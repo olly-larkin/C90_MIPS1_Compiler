@@ -441,7 +441,7 @@ protected:
     BaseExpression *expr;
 };
 
-class SizeOfType : public BaseExpression {      //TODO: sizeof
+class SizeOfType : public BaseExpression {
 public:
     SizeOfType(BaseNode *_type) : type(_type) {}
     ~SizeOfType() { delete type; }
@@ -452,7 +452,9 @@ public:
     } 
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        //fuck if I know
+        type->generateMIPS(context, instructions);
+        int length = context.tempDec.type.length();
+        instructions.push_back({"li", regMap[destReg], "", "", length, Instruction::SN});
     }
 
 protected:
