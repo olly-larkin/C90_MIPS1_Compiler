@@ -991,21 +991,28 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) { //TODO: CHECK
-        int op1 = context.chooseReg({destReg});
-        int op2 = context.chooseReg({destReg, op1});
-        context.pushToStack({op1,op2}, instructions);
-        expr1->generateMIPS(context, instructions, op1);
+        // int op1 = context.chooseReg({destReg});
+        // int op2 = context.chooseReg({destReg, op1});
+        // context.pushToStack({op1,op2}, instructions);
+        // expr1->generateMIPS(context, instructions, op1);
+        // expr2->generateMIPS(context, instructions, op2);
+        // std::string skipper = context.makeALabel("skip");
+
+        // instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 0, Instruction::SSN});              //assign 0 by default
+        // instructions.push_back({"sub", regMap[op1], regMap[op1], regMap[op2], 0, Instruction::SSS});        //sub op2 from op1
+        // instructions.push_back({"bgtz", regMap[op1], skipper, "", 0, Instruction::SS});                     //if difference is positive, op1 is larger
+        // //branch delay slot nop
+        // instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 1, Instruction::SSN});              //gets skipped if branch was true
+        // instructions.push_back({"irrelevant", skipper, "", "", 0, Instruction::L});
+
+        // context.pullFromStack({op2,op1}, instructions);
+        int op2 = context.chooseReg({destReg});
+        context.pushToStack({op2}, instructions);
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, op2);
-        std::string skipper = context.makeALabel("skip");
-
-        instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 0, Instruction::SSN});              //assign 0 by default
-        instructions.push_back({"sub", regMap[op1], regMap[op1], regMap[op2], 0, Instruction::SSS});        //sub op2 from op1
-        instructions.push_back({"bgtz", regMap[op1], skipper, "", 0, Instruction::SS});                     //if difference is positive, op1 is larger
-        //branch delay slot nop
-        instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 1, Instruction::SSN});              //gets skipped if branch was true
-        instructions.push_back({"irrelevant", skipper, "", "", 0, Instruction::L});
-
-        context.pullFromStack({op2,op1}, instructions);
+        instructions.push_back({"slt", regMap[destReg], regMap[op2], regMap[destReg], 0, Instruction::SSS});
+        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});    // not the ouput
+        context.pullFromStack({op2}, instructions);
     }
 
     double eval() {
@@ -1031,21 +1038,28 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
-        int op1 = context.chooseReg({destReg});
-        int op2 = context.chooseReg({destReg, op1});
-        context.pushToStack({op1,op2}, instructions);
-        expr1->generateMIPS(context, instructions, op1);
+        // int op1 = context.chooseReg({destReg});
+        // int op2 = context.chooseReg({destReg, op1});
+        // context.pushToStack({op1,op2}, instructions);
+        // expr1->generateMIPS(context, instructions, op1);
+        // expr2->generateMIPS(context, instructions, op2);
+        // std::string skipper = context.makeALabel("skip");
+
+        // instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 0, Instruction::SSN});              //assign 0 by default
+        // instructions.push_back({"sub", regMap[op1], regMap[op1], regMap[op2], 0, Instruction::SSS});        //sub op2 from op1
+        // instructions.push_back({"bltz", regMap[op1], skipper, "", 0, Instruction::SS});                     //if difference is negative, op1 is smaller
+        // //branch delay slot nop
+        // instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 1, Instruction::SSN});              //gets skipped if branch was true
+        // instructions.push_back({"irrelevant", skipper, "", "", 0, Instruction::L});
+
+        // context.pullFromStack({op2,op1}, instructions);
+        int op2 = context.chooseReg({destReg});
+        context.pushToStack({op2}, instructions);
+        expr1->generateMIPS(context, instructions, destReg);
         expr2->generateMIPS(context, instructions, op2);
-        std::string skipper = context.makeALabel("skip");
-
-        instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 0, Instruction::SSN});              //assign 0 by default
-        instructions.push_back({"sub", regMap[op1], regMap[op1], regMap[op2], 0, Instruction::SSS});        //sub op2 from op1
-        instructions.push_back({"bltz", regMap[op1], skipper, "", 0, Instruction::SS});                     //if difference is negative, op1 is smaller
-        //branch delay slot nop
-        instructions.push_back({"addi", regMap[destReg], regMap[$0],"", 1, Instruction::SSN});              //gets skipped if branch was true
-        instructions.push_back({"irrelevant", skipper, "", "", 0, Instruction::L});
-
-        context.pullFromStack({op2,op1}, instructions);
+        instructions.push_back({"slt", regMap[destReg], regMap[destReg], regMap[op2], 0, Instruction::SSS});
+        instructions.push_back({"xori", regMap[destReg], regMap[destReg], "", 1, Instruction::SSS});
+        context.pullFromStack({op2}, instructions);
     }
 
     double eval() {
