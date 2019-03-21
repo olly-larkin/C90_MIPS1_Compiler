@@ -35,7 +35,6 @@ for f in ${working_dec}/*; do  # will specify to look at folder - folder name sh
     else
         echo -e "Failed. Exited with code ${result}.\n"
     fi
-
 done
 
 echo -e "Passed ${tests_passed} out of ${tests_run} tests.\n"
