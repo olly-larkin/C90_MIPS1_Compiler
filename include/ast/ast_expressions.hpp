@@ -1467,7 +1467,7 @@ public:
         expr2->generateMIPS(context, instructions, RHS);
 
         if(expr1->isPointer(context) && !expr2->isPointer(context)){
-            instructions.push_back({"sll", regMap[RHS], regMap[RHS], "", 4, Instruction::SSN});
+            instructions.push_back({"sll", regMap[RHS], regMap[RHS], "", 2, Instruction::SSN});
         }
         instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
         instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
@@ -1506,7 +1506,7 @@ public:
         expr2->generateMIPS(context, instructions, RHS);
 
         if(expr1->isPointer(context) && !expr2->isPointer(context)){
-            instructions.push_back({"sll", regMap[RHS], regMap[RHS], "", 4, Instruction::SSN});
+            instructions.push_back({"sll", regMap[RHS], regMap[RHS], "", 2, Instruction::SSN});
         }
         instructions.push_back({"sub", regMap[destReg], regMap[destReg], regMap[RHS], 0, Instruction::SSS});
         instructions.push_back({"sw", regMap[destReg], regMap[addrHolder], "", 0, Instruction::LS});
