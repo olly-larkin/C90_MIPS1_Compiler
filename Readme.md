@@ -9,7 +9,9 @@ Lau Jun Kit Darrick (dl5215)
 
 Developer Notes
 -------------
-Our management logs can be found in the management directory. It contains (in .csv format) an effort log, a milestone log and a list of the test cases we developed to test the functionality of our project. This readMe was also used as a checklist to track our implementation of the features we wanted to support, and serves as documentation on our development. As such, it should be considered as part of the "management" component of our project.
+Our management logs can be found in the management directory. It contains (in .csv format) an effort log, a milestone log and a list of the test cases we developed to test the functionality of our project. This readMe was also used as a checklist to track our implementation of the features we wanted to support, and serves as documentation on our development. As such, it should be considered as part of the "management" component of our project.  
+
+Tests were added beyond what was specified for assessment, and the assessed tests are named in capital letters.  
 
 All constructs are functionally lexed and parsed, but only the ones listed in the feature list are fully integrated with the other features. All functioning constructs will also not work when used in conjunction with a unsupported construct. For example, the sizeof function works if passed arguments of int, int* and typedef'ed constructs, but will fail for double,unsigned,char,etc. Below is list specifying notable features and where they fail.
 
@@ -35,7 +37,7 @@ Our test suite can be run by first building the project and then running the tes
 
 Some additional features are included for debugging purposes such as a print function which shows the structure of the parse tree visually. This can be built using the following command, which then takes input from the standard input stream.
 
-	make
+	make bin/print_tree
 	bin/print_tree
 
 
