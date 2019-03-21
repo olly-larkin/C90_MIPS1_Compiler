@@ -37,7 +37,7 @@ E			[Ee][+-]?{D}+
                     }
 
 \'"\\"?.*\'         {   
-                        if (yytext[1] == '\') {
+                        if (yytext[1] == '\\') {
                             std::string res = yytext;
                             if (res = "\\a")
                                 yylval.number = '\a';
