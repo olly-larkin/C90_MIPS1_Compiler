@@ -5,12 +5,14 @@ Assignments, Expressions, Y, nil
 Bitwise Logic Operators, Expressions, Y, nil
 Conditional Operator, Expressions, Y, nil
 Equality Operators, Expressions, Y, nil
-Logical Operators, Expressions, Y, Short-circuiting with pointers
+Logical Operators, Expressions, Y, nil
 Multiplicative Operators, Expressions, Y, nil
-Pointer Arithmetic Checks, Expressions, Y, for add/subAssign as well
+Pointer Arithmetic Checks, Expressions, Y, nil
 Relational Operators, Expressions, Y, nil
-Shift Operators, Expressions, Y, arithmetic shift testing?
+Shift Operators, Expressions, Y, nil
 Unary Operators, Expressions, Y, SizeOf
 Postfix Expressions, Expressions, Y, nil
 While Loop, Statements, Y, nil
 While Loop Continue/Break, Statements, Y, nil
+Extreme test for function calling, General, Y, nil
+Extreme test for pointers and assignment, General, Y, nil
