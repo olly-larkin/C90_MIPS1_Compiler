@@ -272,18 +272,20 @@ struct CompContext {
     }
 
     Type& currentType(std::string identifier) {
+        Type *type = NULL;
         if (local(identifier)) {    //local
-            return varMap()[identifier].type;
+            type = &varMap()[identifier].type;
         } else if (param(identifier)) {
             for(int i = 0; i < currentFunc().params.size(); i++){
                 if (currentFunc().params[i].first == identifier) { // param
-                    return currentFunc().params[i].second;
+                    type = &currentFunc().params[i].second;
+                    break;
                 }
             }
-            return currentFunc().params[0].second;
         } else {        // global
-            return globals[identifier];
+            type = &globals[identifier];
         }
+        return *type;
     }
 
     int arrayNum = 0;
