@@ -280,7 +280,8 @@ struct CompContext {
                     return currentFunc().params[i].second;
                 }
             }
-        } else {        // globa
+            return currentFunc().params[0].second;
+        } else {        // global
             return globals[identifier];
         }
     }
