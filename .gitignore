@@ -9,3 +9,4 @@ src/*.tab.o
 src/*.yy.cpp
 src/*.yy.o
 src/*.o
+.vscode/*
