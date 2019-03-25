@@ -41,6 +41,11 @@ class BaseExpression : public AST {
 public:
     virtual double eval() { return 0; }
     virtual void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {}
+    virtual void arrayOffset(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
+        context.arrayNum = 0; 
+        context.currentArrMult = 4;
+        instructions.push_back({"li", regMap[destReg], "", "", 0, Instruction::SN});
+    }
     virtual void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {}
     virtual bool isPointer(CompContext &context) { return false; }
     virtual std::string getIdentifier() { return ""; }
