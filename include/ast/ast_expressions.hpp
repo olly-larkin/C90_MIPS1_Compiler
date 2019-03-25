@@ -183,6 +183,7 @@ public:
         //TODO: get offset into reg so that it can just be added to base address
         index->generateMIPS(context, instructions, destReg);
         instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", context.currentArrMult / 2, Instruction::SSN});
+        std::cerr << context.currentArrMult << std::endl;
 
         CompContext::Type currentType = context.currentType(postfix->getIdentifier());
         int index = currentType.arraySizes.size() - context.arrayNum - 1;
