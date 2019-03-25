@@ -142,6 +142,8 @@ E			[Ee][+-]?{D}+
                     return token('}');
                 }
 
+"null"|"NULL"	{ yylval.number = 0; return NUMBER; }
+
 "auto"          { return tokenTYPE(AUTO); }
 "break"         { return token(BREAK); }
 "case"          { return token(CASE); }
