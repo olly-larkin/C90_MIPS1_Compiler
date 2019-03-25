@@ -186,13 +186,14 @@ public:
 
         CompContext::Type currentType = context.currentType(postfix->getIdentifier());
         int index = currentType.arraySizes.size() - context.arrayNum - 1;
-        std::cerr << index << std::endl;
         context.currentArrMult *= currentType.arraySizes[index];
         context.arrayNum++;
 
         int addReg = context.chooseReg({destReg});
+        context.pushToStack({addReg}, instructions);
         postfix->arrayOffset(addReg, context, instructions);
         instructions.push_back({"addu", regMap[destReg], regMap[destReg], regMap[addReg], 0, Instruction::SSS});        // add it in at the end
+        context.pullFromStack({addReg}, instructions);
     }
 
     void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
