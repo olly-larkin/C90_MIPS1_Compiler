@@ -44,6 +44,7 @@ public:
     virtual void arrayOffset(int destReg, CompContext &context, std::vector<Instruction> &instructions) { 
         context.arrayNum = 0; 
         context.currentArrMult = 4;
+        instructions.push_back({"li", regMap[destReg], "", "", 0, Instruction::SN});
     }
     virtual void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {}
     virtual bool isPointer(CompContext &context) { return false; }
