@@ -41,7 +41,7 @@ public:
             int spOffset = context.memUsed - context.varMap()[identifier].offset;
             instructions.push_back({"addi", regMap[destReg], regMap[$sp], "", spOffset, Instruction::SSN});     //local
         } else if (context.param(identifier)) {
-            int index;
+            int index = 0;
             for(int i=0; i<context.currentFunc().params.size(); i++){
                 if (context.currentFunc().params[i].first == identifier) {
                     index = i;
@@ -56,6 +56,29 @@ public:
             }
         } else {
             instructions.push_back({"la", regMap[destReg], identifier, "", 0, Instruction::SS}); //global
+        }
+    }
+
+    void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
+        address(destReg, context, instructions);
+        if (context.local(identifier)) {
+            //TODO: local
+            if (!(context.varMap()[identifier].type.arraySizes.size() != 0) && context.varMap()[identifier].type.pointerNum != 0) {
+                instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+            }
+        } else if (context.param(identifier)) {
+            for(int i=0; i<context.currentFunc().params.size(); i++){
+                if (context.currentFunc().params[i].first == identifier) {
+                    //TODO: param
+                    if (!(context.currentFunc().params[i].second.arraySizes.size() != 0) && context.currentFunc().params[i].second.pointerNum != 0) {
+                        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+                    }
+                }
+            }
+        } else {
+            if (!(context.globals[identifier].arraySizes.size() != 0) && context.globals[identifier].pointerNum != 0) {
+                instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
+            }
         }
     }
 
@@ -169,7 +192,8 @@ public:
         context.pushToStack({reg}, instructions);
         index->generateMIPS(context, instructions, reg);
         instructions.push_back({"sll", regMap[reg], regMap[reg], "", 2, Instruction::SSN});         // will only work with int (or size 4 things)
-        postfix->address(destReg, context, instructions);
+        //postfix->address(destReg, context, instructions);
+        postfix->getPointerVal(destReg, context, instructions);
         instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
         context.pullFromStack({reg}, instructions);
     }
