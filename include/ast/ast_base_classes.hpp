@@ -42,6 +42,7 @@ public:
     virtual double eval() { return 0; }
     virtual void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {}
     virtual void arrayOffset(int destReg, CompContext &context, std::vector<Instruction> &instructions) { 
+        std::cerr << context.arrayNum << " " << context.currentArrMult << std::endl;
         context.arrayNum = 0; 
         context.currentArrMult = 4;
         instructions.push_back({"li", regMap[destReg], "", "", 0, Instruction::SN});
