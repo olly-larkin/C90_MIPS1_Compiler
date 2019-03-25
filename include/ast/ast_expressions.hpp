@@ -180,20 +180,23 @@ public:
     }
 
     void arrayOffset(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
-        //TODO: get offset into reg so that it can just be added to base address
+        int reg = context.chooseReg({destReg});
+        context.pushToStack({reg}, instructions);
+        
         index->generateMIPS(context, instructions, destReg);
-        instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", context.currentArrMult / 2, Instruction::SSN});
+        //instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", context.currentArrMult / 2, Instruction::SSN});
+        instructions.push_back({"li", regMap[reg], "", "", context.currentArrMult, Instruction::SN});
+        instructions.push_back({"mult", regMap[destReg], regMap[reg], "", 0, Instruction::SS});
+        instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
 
         CompContext::Type currentType = context.currentType(postfix->getIdentifier());
         int index = currentType.arraySizes.size() - context.arrayNum - 1;
         context.currentArrMult *= currentType.arraySizes[index];
         context.arrayNum++;
 
-        int addReg = context.chooseReg({destReg});
-        context.pushToStack({addReg}, instructions);
-        postfix->arrayOffset(addReg, context, instructions);
-        instructions.push_back({"addu", regMap[destReg], regMap[destReg], regMap[addReg], 0, Instruction::SSS});        // add it in at the end
-        context.pullFromStack({addReg}, instructions);
+        postfix->arrayOffset(reg, context, instructions);
+        instructions.push_back({"addu", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});        // add it in at the end
+        context.pullFromStack({reg}, instructions);
     }
 
     void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
