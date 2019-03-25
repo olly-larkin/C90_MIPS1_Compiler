@@ -61,37 +61,13 @@ public:
 
     void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
         address(destReg, context, instructions);
-        if (context.local(identifier)) {
-            //TODO: local
-            if (!(context.varMap()[identifier].type.arraySizes.size() != 0) && context.varMap()[identifier].type.pointerNum != 0) {
-                instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
-            }
-        } else if (context.param(identifier)) {
-            for(int i=0; i<context.currentFunc().params.size(); i++){
-                if (context.currentFunc().params[i].first == identifier) {
-                    //TODO: param
-                    if (!(context.currentFunc().params[i].second.arraySizes.size() != 0) && context.currentFunc().params[i].second.pointerNum != 0) {
-                        instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
-                    }
-                }
-            }
-        } else {
-            if (!(context.globals[identifier].arraySizes.size() != 0) && context.globals[identifier].pointerNum != 0) {
-                instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
-            }
+        if (!(context.currentType(identifier).arraySizes.size() != 0) && context.currentType(identifier).pointerNum != 0) {
+            instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
         }
     }
 
     bool isPointer(CompContext &context) { 
-        if (context.local(identifier))
-            return (context.varMap()[identifier].type.pointerNum > 0 || context.varMap()[identifier].type.arraySizes.size() > 0);
-        if (context.param(identifier)) {
-            for (int i = 0; i < context.currentFunc().params.size(); ++i) {
-                if (context.currentFunc().params[i].first == identifier)
-                    return (context.currentFunc().params[i].second.pointerNum > 0 || context.currentFunc().params[i].second.arraySizes.size() > 0);
-            }
-        }
-        return (context.globals[identifier].pointerNum > 0 || context.globals[identifier].arraySizes.size() > 0);
+        return (context.currentType(identifier).pointerNum > 0 || context.currentType(identifier).arraySizes.size() > 0);
     }
 
     std::string getIdentifier() { 
@@ -188,14 +164,38 @@ public:
     }
 
     void address(int destReg, CompContext &context, std::vector<Instruction> &instructions) {       // will only work with single dimention arrays
+        // int reg = context.chooseReg({destReg});
+        // context.pushToStack({reg}, instructions);
+        // index->generateMIPS(context, instructions, reg);
+        // instructions.push_back({"sll", regMap[reg], regMap[reg], "", 2, Instruction::SSN});         // will only work with int (or size 4 things)
+        // postfix->getPointerVal(destReg, context, instructions);
+        // instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
+        // context.pullFromStack({reg}, instructions);
         int reg = context.chooseReg({destReg});
         context.pushToStack({reg}, instructions);
-        index->generateMIPS(context, instructions, reg);
-        instructions.push_back({"sll", regMap[reg], regMap[reg], "", 2, Instruction::SSN});         // will only work with int (or size 4 things)
-        //postfix->address(destReg, context, instructions);
+        arrayOffset(reg, context, instructions);
         postfix->getPointerVal(destReg, context, instructions);
         instructions.push_back({"add", regMap[destReg], regMap[destReg], regMap[reg], 0, Instruction::SSS});
         context.pullFromStack({reg}, instructions);
+    }
+
+    void arrayOffset(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
+        //TODO: get offset into reg so that it can just be added to base address
+        index->generateMIPS(context, instructions, destReg);
+        instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", context.currentArrMult / 2, Instruction::SSN});
+
+        CompContext::Type currentType = context.currentType(postfix->getIdentifier());
+        int index = currentType.arraySizes.size() - context.arrayNum - 1;
+        context.currentArrMult *= currentType.arraySizes[index];
+        context.arrayNum++;
+
+        int addReg = context.chooseReg({destReg});
+        postfix->arrayOffset(addReg, context, instructions);
+        instructions.push_back({"addu", regMap[destReg], regMap[destReg], regMap[addReg], 0, Instruction::SSS});        // add it in at the end
+    }
+
+    void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
+        postfix->getPointerVal(destReg, context, instructions);
     }
 
     bool isPointer(CompContext &context) { 
@@ -208,6 +208,10 @@ public:
             }
         }
         return (context.globals[postfix->getIdentifier()].pointerNum > 0);
+    }
+
+    std::string getIdentifier() { 
+        return postfix->getIdentifier(); 
     }
 
 protected:

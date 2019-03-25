@@ -271,7 +271,22 @@ struct CompContext {
         subScopeContext();
     }
 
-    bool metMain = false;
+    Type& currentType(std::string identifier) {
+        if (local(identifier)) {    //local
+            return varMap()[identifier].type;
+        } else if (param(identifier)) {
+            for(int i = 0; i < currentFunc().params.size(); i++){
+                if (currentFunc().params[i].first == identifier) { // param
+                    return currentFunc().params[i].second;
+                }
+            }
+        } else {        // globa
+            return globals[identifier];
+        }
+    }
+
+    int arrayNum = 0;
+    int currentArrMult = 4;
 };
 
 #endif
