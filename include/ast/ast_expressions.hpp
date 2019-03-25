@@ -186,7 +186,6 @@ public:
 
         CompContext::Type currentType = context.currentType(postfix->getIdentifier());
         int index = currentType.arraySizes.size() - context.arrayNum - 1;
-        std::cerr << index << " " << context.currentArrMult << " " << context.arrayNum << std::endl;
         context.currentArrMult *= currentType.arraySizes[index];
         context.arrayNum++;
 
