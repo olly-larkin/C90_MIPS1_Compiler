@@ -1,6 +1,10 @@
 Management Review
 ============================================
-As I(Darrick) was primarily in charge of documentation and timekeeping on this project, this review is written from a first-person perspective, speaking for the both of us.
+As I(Darrick) was primarily in charge of documentation and timekeeping on this project, this review is written from a first-person perspective, speaking for the both of us. 
+
+The effort log contains a brief summary of each work session, mainly noting what was accomplished in the day. We did not find it particularly meaningful to keep track of work done in hours, and preferred a 1-5 difficulty scale.
+
+The milestone log shows the workplan put in motion since the beginning, with clear goals outlined and a weekly period assigned to each milestone to give it a deadline.
 
 Division of Labour
 -------------
@@ -21,6 +25,6 @@ In an ideal world, we would have liked to try our hand at an optimised compiler 
 
 Time Management
 -------------
-This was the most critical task for both of us, considering the concurrency of other deadlines such as the Numerical Analysis coursework and blackboard tests. We first began by deciding what features we wanted in the minimal version of a compiler we would consider submittable. The dates set out in $milestones.csv$ were then made as a conservative estimate to achieve that goal of the submittable compiler. Even with conservative estimates, Codegen turned out to take exceptionally long as even after the first prototype was achieved, lots of little bugs were found during the testing which required either patch-style fixes or entire restructures of some parts of the program. This was quite prevalent in our previous projects and thus was proactively controlled by compartmentalising the different functions of the compiler into the context file, which allowed for easy addition of new functions or debugging of old ones.
+This was the most critical task for both of us, considering the concurrency of other deadlines such as the Numerical Analysis coursework and blackboard tests. We first began by deciding what features we wanted in the minimal version of a compiler we would consider submittable. The dates set out in milestones.csv were then made as a conservative estimate to achieve that goal of the submittable compiler. Even with conservative estimates, Codegen turned out to take exceptionally long as even after the first prototype was achieved, lots of little bugs were found during the testing which required either patch-style fixes or entire restructures of some parts of the program. This was quite prevalent in our previous projects and thus was proactively controlled by compartmentalising the different functions of the compiler into the context file, which allowed for easy addition of new functions or debugging of old ones.
 
 Overall the project finished quite smoothly and we had a submittable version 5 days ahead of the deadline, giving us a buffer to find trivial bugs and remove them at our leisure up until the submission date.
