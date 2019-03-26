@@ -61,7 +61,7 @@ public:
 
     void getPointerVal(int destReg, CompContext &context, std::vector<Instruction> &instructions) {
         address(destReg, context, instructions);
-        if (!(context.currentType(identifier).arraySizes.size() != 0) && context.currentType(identifier).pointerNum != 0) {
+        if (context.currentType(identifier).arraySizes.size() == 0 && context.currentType(identifier).pointerNum != 0) {
             instructions.push_back({"lw", regMap[destReg], regMap[destReg], "", 0, Instruction::LS});
         }
     }
@@ -184,14 +184,13 @@ public:
         context.pushToStack({reg}, instructions);
         
         index->generateMIPS(context, instructions, destReg);
-        //instructions.push_back({"sll", regMap[destReg], regMap[destReg], "", context.currentArrMult / 2, Instruction::SSN});
         instructions.push_back({"li", regMap[reg], "", "", context.currentArrMult, Instruction::SN});
         instructions.push_back({"mult", regMap[destReg], regMap[reg], "", 0, Instruction::SS});
         instructions.push_back({"mflo", regMap[destReg], "", "", 0, Instruction::S});
 
         CompContext::Type currentType = context.currentType(postfix->getIdentifier());
         int index = currentType.arraySizes.size() - context.arrayNum - 1;
-        context.currentArrMult *= currentType.arraySizes[index];
+        if ((int)currentType.arraySizes.size() != 0) context.currentArrMult *= currentType.arraySizes[index];
         context.arrayNum++;
 
         postfix->arrayOffset(reg, context, instructions);
