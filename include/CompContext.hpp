@@ -85,6 +85,7 @@ struct CompContext {
         struct statementFlagStruct {
             bool indiCompound = true;
             std::string continueFlag, breakFlag;
+			int cbOffset = 0;
         } statementFlags;
         struct switchFlagStruct {
             std::string defaultFlag;
@@ -156,6 +157,7 @@ struct CompContext {
     void pushToStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
         for(int i = 0; i < (int)reg.size(); ++i) {
             memUsed += 4;                   // increment then store
+			instructions.push_back({"Pushing " + regMap[reg[i]] + " to stack", "", "", "", 0, Instruction::COMMENT});
             instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", -4, Instruction::SSN});
             instructions.push_back({"sw", regMap[reg[i]], regMap[$sp], "", 0, Instruction::LS});
         }
@@ -163,6 +165,7 @@ struct CompContext {
 
     void pullFromStack(const std::vector<int> &reg, std::vector<Instruction> &instructions) {
         for(int i = 0; i < (int)reg.size(); ++i) {      
+			instructions.push_back({"Pulling " + regMap[reg[i]] + " from stack", "", "", "", 0, Instruction::COMMENT});
             instructions.push_back({"lw", regMap[reg[i]], regMap[$sp], "", 0, Instruction::LS});
             instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", 4, Instruction::SSN});
             memUsed -= 4;           // read then decrement
@@ -221,6 +224,7 @@ struct CompContext {
     void addScopeContext() {
         if (stack.size() > 0) {
             stack.push_back(stack.back());
+            stack.back().stackOffset = memUsed;     // record location of the stack
         } else {
             stack.push_back({});
         }

@@ -15,6 +15,9 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+		//TODO: de-allocate stack
+		int offset = context.memUsed - context.statementFlags().cbOffset;
+        instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", offset, Instruction::SSN});
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
     }
 
@@ -31,6 +34,9 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+		//TODO: de-allocate stack
+		int offset = context.memUsed - context.statementFlags().cbOffset;
+        instructions.push_back({"addi", regMap[$sp], regMap[$sp], "", offset, Instruction::SSN});
         instructions.push_back({"j", context.statementFlags().breakFlag, "", "", 0, Instruction::S});
     }
     
@@ -98,17 +104,22 @@ public:
     }
 
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
+		instructions.push_back({"Entering while loop", "", "", "", 0, Instruction::COMMENT});
         int reg = $2;
         context.addScopeContext();
+		context.statementFlags().cbOffset = context.stack.back().stackOffset;
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
         instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
+		
         statement->generateMIPS(context, instructions);
+
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
         context.subScopeContext();
+		instructions.push_back({"Exiting while loop", "", "", "", 0, Instruction::COMMENT});
     }
 
 protected:
@@ -135,12 +146,15 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int reg = $2;
         context.addScopeContext();
+		context.statementFlags().cbOffset = context.stack.back().stackOffset;
 
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
 
         instructions.push_back({"label", context.statementFlags().continueFlag, "", "", 0, Instruction::L});
+
         statement->generateMIPS(context, instructions);
+
         expr->generateMIPS(context, instructions, reg);
         instructions.push_back({"bne", regMap[reg], regMap[$0], context.statementFlags().continueFlag, 0, Instruction::SSS});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
@@ -184,6 +198,7 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         int reg = $2;
         context.addScopeContext();
+		context.statementFlags().cbOffset = context.stack.back().stackOffset;
         context.statementFlags().continueFlag = context.makeALabel("continue");
         context.statementFlags().breakFlag = context.makeALabel("break");
 
@@ -193,7 +208,9 @@ public:
             expr2->generateMIPS(context, instructions, reg);
             instructions.push_back({"beq", regMap[reg], regMap[$0], context.statementFlags().breakFlag, 0, Instruction::SSS});
         }
+
         statement->generateMIPS(context, instructions);
+
         if (expr3 != NULL) expr3->generateMIPS(context, instructions, reg);
         instructions.push_back({"j", context.statementFlags().continueFlag, "", "", 0, Instruction::S});
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
@@ -320,7 +337,8 @@ public:
     void generateMIPS(CompContext &context, std::vector<Instruction> &instructions, char destReg = 0) {
         context.switchFlags() = {};
         context.statementFlags().breakFlag = context.makeALabel("break");
-        context.addScope(instructions);
+        context.addScopeContext();
+		context.statementFlags().cbOffset = context.stack.back().stackOffset;
         statement->structInspect(context);
 
         int expReg = $2, caseReg = $3;
@@ -339,7 +357,7 @@ public:
 
         instructions.push_back({"label", context.statementFlags().breakFlag, "", "", 0, Instruction::L});
 
-        context.subScope(instructions);
+        context.subScopeContext();
     }
 
 protected:
