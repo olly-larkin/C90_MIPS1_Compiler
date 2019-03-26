@@ -1,7 +1,7 @@
 Date,Effort,Developers,Relevant Milestone,Notes
 21st Feb, 1, dl5215, -, -
 23rd Feb, 4, oll16, Functional tokens, Created the lexer to handle all essential constructs
-23rd Feb, 4, oll16, Functional tokens, Began implementing support for advanced constructs (enums, typedefs, structs, etc)
+23rd Feb, 4, oll16, Functional tokens, Began implementing support for advanced constructs (enums/typedefs/structs/etc)
 25th Feb, 3, oll16, Expression Parsing, Parse tree support for expressions (easy)
 26th Feb, 3, dl5215, Expression Parsing, -
 27th Feb, 4, oll16, Statement Parsing, Parse tree support for statements (easy)
